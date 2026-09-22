@@ -32,19 +32,22 @@ services:
     env_file: .env
     volumes:
       - ./data/storage:/app/storage
-      - ./data/storage/sinhuellas_logo.jpg:/app/public/sinhuellas_logo.jpg:ro
+      - ./data/storage/sinhuellas_logo.png:/app/public/sinhuellas_logo.png:ro
       - ./data/storage/sinhuellas_logo.svg:/app/public/brand-assets/logo.svg:ro
       - ./data/storage/sinhuellas_logo.svg:/app/public/brand-assets/logo_dark.svg:ro
       - ./data/storage/sinhuellas_logo.svg:/app/public/brand-assets/logo_thumbnail.svg:ro
-      - ./data/storage/sinhuellas_logo.jpg:/app/public/favicon.ico:ro
-      - ./data/storage/sinhuellas_logo.jpg:/app/public/favicon-16x16.png:ro
-      - ./data/storage/sinhuellas_logo.jpg:/app/public/favicon-32x32.png:ro
-      - ./data/storage/sinhuellas_logo.jpg:/app/public/favicon-96x96.png:ro
-      - ./data/storage/sinhuellas_logo.jpg:/app/public/favicon-512x512.png:ro
-      - ./data/storage/sinhuellas_logo.jpg:/app/public/apple-icon.png:ro
-      - ./data/storage/sinhuellas_logo.jpg:/app/public/apple-touch-icon.png:ro
-      - ./data/storage/sinhuellas_logo.jpg:/app/public/packs/favicon-16x16.png:ro
-      - ./data/storage/sinhuellas_logo.jpg:/app/public/packs/favicon-32x32.png:ro
+      - ./data/storage/sinhuellas_logo.png:/app/public/brand-assets/logo.png:ro
+      - ./data/storage/sinhuellas_logo.png:/app/public/brand-assets/logo_dark.png:ro
+      - ./data/storage/sinhuellas_logo.png:/app/public/brand-assets/logo_thumbnail.png:ro
+      - ./data/storage/sinhuellas_logo.png:/app/public/favicon.ico:ro
+      - ./data/storage/sinhuellas_logo.png:/app/public/favicon-16x16.png:ro
+      - ./data/storage/sinhuellas_logo.png:/app/public/favicon-32x32.png:ro
+      - ./data/storage/sinhuellas_logo.png:/app/public/favicon-96x96.png:ro
+      - ./data/storage/sinhuellas_logo.png:/app/public/favicon-512x512.png:ro
+      - ./data/storage/sinhuellas_logo.png:/app/public/apple-icon.png:ro
+      - ./data/storage/sinhuellas_logo.png:/app/public/apple-touch-icon.png:ro
+      - ./data/storage/sinhuellas_logo.png:/app/public/packs/favicon-16x16.png:ro
+      - ./data/storage/sinhuellas_logo.png:/app/public/packs/favicon-32x32.png:ro
     depends_on:
       postgres:
         condition: service_healthy
