@@ -53,6 +53,7 @@ services:
       - ./data/storage/sinhuellas_logo.png:/app/public/apple-touch-icon.png:ro
       - ./data/storage/sinhuellas_logo.png:/app/public/packs/favicon-16x16.png:ro
       - ./data/storage/sinhuellas_logo.png:/app/public/packs/favicon-32x32.png:ro
+      - ./data/storage/i18n_default.rb:/app/config/initializers/i18n_default.rb:ro
     depends_on:
       postgres:
         condition: service_healthy
@@ -69,6 +70,7 @@ services:
     env_file: .env
     volumes:
       - ./data/storage:/app/storage
+      - ./data/storage/i18n_default.rb:/app/config/initializers/i18n_default.rb:ro
     depends_on:
       postgres:
         condition: service_healthy
