@@ -1,0 +1,59 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg15
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: chatwoot_password_123
+      POSTGRES_DB: chatwoot_production
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - ./data/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rails:
+    image: chatwoot/chatwoot:latest
+    restart: always
+    env_file: .env
+    volumes:
+      - ./data/storage:/app/storage
+      - ./data/storage/sinhuellas_logo.svg:/app/public/brand-assets/logo.svg:ro
+      - ./data/storage/sinhuellas_logo.svg:/app/public/brand-assets/logo_dark.svg:ro
+      - ./data/storage/sinhuellas_logo.svg:/app/public/brand-assets/logo_thumbnail.svg:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    command: ["bundle", "exec", "rails", "s", "-p", "3000", "-b", "0.0.0.0"]
+    entrypoint: docker/entrypoints/rails.sh
+
+  sidekiq:
+    image: chatwoot/chatwoot:latest
+    restart: always
+    env_file: .env
+    volumes:
+      - ./data/storage:/app/storage
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: ["bundle", "exec", "sidekiq", "-C", "config/sidekiq.yml"]

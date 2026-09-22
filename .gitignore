@@ -1,0 +1,10 @@
+# Environment variables with secrets
+.env
+
+# Database and Redis data volumes
+data/postgres/
+data/redis/
+
+# OS metadata
+.DS_Store
+*.log
