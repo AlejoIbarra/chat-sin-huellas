@@ -521,57 +521,106 @@ body.dark .popover-content {
 }
 
 /* --------------------------------------------------------------------------
-   3. SIDEBAR NAVIGATION CUSTOM DESIGN ENHANCEMENTS (<nav>)
+   3. DRASTIC LUXURY EXECUTIVE SIDEBAR NAVIGATION REDESIGN (<nav>)
    -------------------------------------------------------------------------- */
 
-nav li a {
-  border-radius: 12px !important;
-  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  font-weight: 500 !important;
+body:not(.dark) nav {
+  background: #ffffff !important;
+  padding: 8px !important;
 }
 
-/* Inactive Nav Items in Light Mode */
+body.dark nav {
+  background: #0f172a !important;
+  padding: 8px !important;
+}
+
+nav li {
+  margin-bottom: 4px !important;
+}
+
+nav li a {
+  border-radius: 14px !important;
+  padding: 10px 14px !important;
+  height: 42px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  position: relative !important;
+}
+
+/* Icons styling inside nav links */
+nav a div.relative,
+nav a span[class*="i-lucide-"] {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: transform 0.25s ease, color 0.25s ease !important;
+}
+
+/* Inactive Nav Link - Light Mode */
 body:not(.dark) nav a {
   color: #475569 !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+}
+
+body:not(.dark) nav a span[class*="i-lucide-"] {
+  color: #163f30 !important;
 }
 
 body:not(.dark) nav a:hover {
-  background-color: rgba(215, 169, 68, 0.12) !important;
+  background: linear-gradient(90deg, rgba(22, 63, 48, 0.07) 0%, rgba(215, 169, 68, 0.14) 100%) !important;
   color: #163f30 !important;
-  transform: translateX(3px) !important;
+  border: 1px solid rgba(215, 169, 68, 0.3) !important;
+  transform: translateX(4px) !important;
 }
 
-body:not(.dark) nav a:hover span,
-body:not(.dark) nav a:hover div {
+body:not(.dark) nav a:hover span[class*="i-lucide-"] {
+  transform: scale(1.18) !important;
   color: #163f30 !important;
 }
 
-/* Inactive Nav Items in Dark Mode */
+/* Inactive Nav Link - Dark Mode */
 body.dark nav a {
   color: #94a3b8 !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+}
+
+body.dark nav a span[class*="i-lucide-"] {
+  color: #d7a944 !important;
 }
 
 body.dark nav a:hover {
-  background-color: rgba(215, 169, 68, 0.18) !important;
+  background: linear-gradient(90deg, rgba(30, 41, 59, 0.85) 0%, rgba(215, 169, 68, 0.18) 100%) !important;
   color: #d7a944 !important;
-  transform: translateX(3px) !important;
+  border: 1px solid rgba(215, 169, 68, 0.35) !important;
+  transform: translateX(4px) !important;
 }
 
-body.dark nav a:hover span,
-body.dark nav a:hover div {
+body.dark nav a:hover span[class*="i-lucide-"] {
+  transform: scale(1.18) !important;
   color: #d7a944 !important;
 }
 
-/* Active Navigation Item (Deep Emerald Gradient with Warm Gold Shadow) */
+/* ACTIVE NAV ITEM - DRASTIC EXECUTIVE EMBOSSED PILL */
 nav a.router-link-exact-active,
 nav a.router-link-active,
 nav a.active,
 nav a[aria-current="page"] {
-  background: var(--sh-brand-gradient) !important;
+  background: linear-gradient(135deg, #163f30 0%, #1e523f 60%, #113125 100%) !important;
   color: #ffffff !important;
-  font-weight: 600 !important;
-  box-shadow: 0 4px 14px rgba(215, 169, 68, 0.35) !important;
-  border: none !important;
+  font-weight: 700 !important;
+  border-left: 4px solid #d7a944 !important;
+  border-top-right-radius: 14px !important;
+  border-bottom-right-radius: 14px !important;
+  border-top-left-radius: 4px !important;
+  border-bottom-left-radius: 4px !important;
+  box-shadow: 0 8px 20px -4px rgba(22, 63, 48, 0.45), 0 2px 6px -1px rgba(215, 169, 68, 0.35) !important;
 }
 
 nav a.router-link-exact-active *,
@@ -582,16 +631,45 @@ nav a[aria-current="page"] * {
   fill: #ffffff !important;
 }
 
-/* Sub-item Dropdown Tree Navigation */
-nav ul ul,
-nav li.child-item {
-  margin-left: 0.5rem !important;
-  border-left: 2px solid rgba(215, 169, 68, 0.35) !important;
+nav a.router-link-exact-active span[class*="i-lucide-"],
+nav a.router-link-active span[class*="i-lucide-"],
+nav a.active span[class*="i-lucide-"] {
+  filter: drop-shadow(0 0 6px rgba(215, 169, 68, 0.6)) !important;
 }
 
-nav ul ul a:hover {
-  background: linear-gradient(90deg, rgba(215, 169, 68, 0.15) 0%, transparent 100%) !important;
-  font-weight: 600 !important;
+/* Sub-item Dropdown Tree Navigation */
+nav ul ul {
+  padding-left: 12px !important;
+  margin-top: 4px !important;
+  margin-bottom: 6px !important;
+  position: relative !important;
+}
+
+nav ul ul::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 14px !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  width: 2px !important;
+  background: linear-gradient(180deg, #d7a944 0%, rgba(215, 169, 68, 0.15) 100%) !important;
+  border-radius: 2px !important;
+}
+
+nav ul ul li a {
+  height: 36px !important;
+  font-size: 0.8125rem !important;
+  padding-left: 14px !important;
+}
+
+body:not(.dark) nav ul ul a:hover {
+  background: rgba(215, 169, 68, 0.14) !important;
+  color: #163f30 !important;
+}
+
+body.dark nav ul ul a:hover {
+  background: rgba(215, 169, 68, 0.2) !important;
+  color: #d7a944 !important;
 }
 
 /* --------------------------------------------------------------------------
