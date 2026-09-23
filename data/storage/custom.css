@@ -2,6 +2,16 @@
    SinHuellas Chat - Pure White & Emerald Gold Theme (#163f30 & #d7a944)
    ========================================================================== */
 
+/* Native Text Highlight Selection */
+::selection {
+  background: #163f30 !important;
+  color: #ffffff !important;
+}
+::-moz-selection {
+  background: #163f30 !important;
+  color: #ffffff !important;
+}
+
 /* --------------------------------------------------------------------------
    1. LIGHT MODE (APPLIED WHEN BODY DOES NOT HAVE .dark CLASS)
    -------------------------------------------------------------------------- */
@@ -166,6 +176,27 @@ body:not(.dark) a[class*="text-n-brand"],
 body:not(.dark) .text-n-brand {
   color: var(--sh-emerald) !important;
   font-weight: 600 !important;
+}
+
+/* Light Mode Selected/Faded Element Protection (Prevents white text on light gray/faded backgrounds) */
+body:not(.dark) [class*="bg-n-brand/"],
+body:not(.dark) [class*="bg-n-teal/"],
+body:not(.dark) [class*="bg-n-amber/"],
+body:not(.dark) [class*="bg-n-slate/"],
+body:not(.dark) [class*="bg-n-alpha-"],
+body:not(.dark) [class*="bg-slate-100"],
+body:not(.dark) [class*="bg-slate-200"] {
+  color: #0f172a !important;
+}
+
+body:not(.dark) [class*="bg-n-brand/"] *,
+body:not(.dark) [class*="bg-n-teal/"] *,
+body:not(.dark) [class*="bg-n-amber/"] *,
+body:not(.dark) [class*="bg-n-slate/"] *,
+body:not(.dark) [class*="bg-n-alpha-"] *,
+body:not(.dark) [class*="bg-slate-100"] *,
+body:not(.dark) [class*="bg-slate-200"] * {
+  color: #0f172a !important;
 }
 
 /* Light Mode Inputs */
@@ -673,14 +704,10 @@ body.dark nav ul ul a:hover {
 }
 
 /* --------------------------------------------------------------------------
-   4. SOLID PRIMARY GREEN BUTTONS (BOTH LIGHT AND DARK MODES)
+   4. SOLID PRIMARY GREEN BUTTONS (STRICT MATCH FOR TRUE SOLID BACKGROUNDS ONLY)
    -------------------------------------------------------------------------- */
 button.bg-woot-500,
 .bg-woot-500,
-[class*="bg-brand"],
-button[class*="bg-n-brand"],
-[class*="bg-n-brand"],
-button[class*="bg-n-teal"],
 button.bg-blue-600,
 button.bg-blue-500,
 .button--primary,
@@ -688,8 +715,8 @@ button.primary,
 button[type="submit"],
 .woot-button--primary,
 .n-button--primary,
-button[class*="bg-n-brand"]:not([class*="bg-n-brand/"]),
-button[class*="bg-n-teal"]:not([class*="bg-n-teal/"]) {
+button.bg-n-brand:not([class*="/"]):not([class*="-50"]):not([class*="-100"]),
+div.bg-n-brand:not([class*="/"]):not([class*="-50"]):not([class*="-100"]) {
   background: var(--sh-brand-gradient) !important;
   border: none !important;
   color: #ffffff !important;
@@ -697,10 +724,6 @@ button[class*="bg-n-teal"]:not([class*="bg-n-teal/"]) {
 
 button.bg-woot-500 *,
 .bg-woot-500 *,
-[class*="bg-brand"] *,
-button[class*="bg-n-brand"] *,
-[class*="bg-n-brand"] *,
-button[class*="bg-n-teal"] *,
 button.bg-blue-600 *,
 button.bg-blue-500 *,
 .button--primary *,
@@ -708,8 +731,8 @@ button.primary *,
 button[type="submit"] *,
 .woot-button--primary *,
 .n-button--primary *,
-button[class*="bg-n-brand"]:not([class*="bg-n-brand/"]) *,
-button[class*="bg-n-teal"]:not([class*="bg-n-teal/"]) * {
+button.bg-n-brand:not([class*="/"]):not([class*="-50"]):not([class*="-100"]) *,
+div.bg-n-brand:not([class*="/"]):not([class*="-50"]):not([class*="-100"]) * {
   color: #ffffff !important;
   fill: #ffffff !important;
   stroke: #ffffff !important;
@@ -717,8 +740,7 @@ button[class*="bg-n-teal"]:not([class*="bg-n-teal/"]) * {
 
 button.bg-woot-500:hover,
 .bg-woot-500:hover,
-[class*="bg-brand"]:hover,
-button[class*="bg-n-brand"]:hover,
+button.bg-n-brand:hover,
 button[type="submit"]:hover {
   background: linear-gradient(135deg, #1e523f 0%, #163f30 100%) !important;
   box-shadow: 0 6px 18px rgba(215, 169, 68, 0.35) !important;
@@ -727,8 +749,7 @@ button[type="submit"]:hover {
 
 button.bg-woot-500:hover *,
 .bg-woot-500:hover *,
-[class*="bg-brand"]:hover *,
-button[class*="bg-n-brand"]:hover *,
+button.bg-n-brand:hover *,
 button[type="submit"]:hover * {
   color: #ffffff !important;
   fill: #ffffff !important;
