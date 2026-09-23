@@ -122,16 +122,6 @@ body:not(.dark) .sidebar {
   border-color: #e2e8f0 !important;
 }
 
-body:not(.dark) aside svg, body:not(.dark) nav svg, body:not(.dark) .sidebar svg {
-  color: var(--sh-emerald) !important;
-}
-
-body:not(.dark) aside a:hover,
-body:not(.dark) nav a:hover,
-body:not(.dark) .sidebar a:hover {
-  background-color: var(--sh-gold-light) !important;
-}
-
 /* Light Mode Cards & Onboarding */
 body:not(.dark) div[class*="bg-n-surface"],
 body:not(.dark) .auth-card,
@@ -144,7 +134,7 @@ body:not(.dark) div[class*="rounded-xl"] {
 
 /* Light Mode High Contrast Text */
 body:not(.dark) p,
-body:not(.dark) span:not(button *),
+body:not(.dark) span:not(button *):not(nav *),
 body:not(.dark) label,
 body:not(.dark) h1,
 body:not(.dark) h2,
@@ -343,8 +333,7 @@ body.dark .main-content,
 body.dark [class*="bg-n-background"],
 body.dark [class*="bg-n-solid"],
 body.dark [class*="bg-n-slate"],
-body.dark [class*="bg-n-surface"],
-body.dark .bg-n-surface-1 {
+body.dark [class*="bg-n-surface"] {
   background-color: #0f172a !important;
   color: #f8fafc !important;
 }
@@ -364,7 +353,7 @@ body.dark div[class*="rounded-xl"] {
 
 /* Dark Mode Typography */
 body.dark p,
-body.dark span:not(button *),
+body.dark span:not(button *):not(nav *),
 body.dark label,
 body.dark h1,
 body.dark h2,
@@ -532,7 +521,81 @@ body.dark .popover-content {
 }
 
 /* --------------------------------------------------------------------------
-   3. SOLID PRIMARY GREEN BUTTONS (BOTH LIGHT AND DARK MODES)
+   3. SIDEBAR NAVIGATION CUSTOM DESIGN ENHANCEMENTS (<nav>)
+   -------------------------------------------------------------------------- */
+
+nav li a {
+  border-radius: 12px !important;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  font-weight: 500 !important;
+}
+
+/* Inactive Nav Items in Light Mode */
+body:not(.dark) nav a {
+  color: #475569 !important;
+}
+
+body:not(.dark) nav a:hover {
+  background-color: rgba(215, 169, 68, 0.12) !important;
+  color: #163f30 !important;
+  transform: translateX(3px) !important;
+}
+
+body:not(.dark) nav a:hover span,
+body:not(.dark) nav a:hover div {
+  color: #163f30 !important;
+}
+
+/* Inactive Nav Items in Dark Mode */
+body.dark nav a {
+  color: #94a3b8 !important;
+}
+
+body.dark nav a:hover {
+  background-color: rgba(215, 169, 68, 0.18) !important;
+  color: #d7a944 !important;
+  transform: translateX(3px) !important;
+}
+
+body.dark nav a:hover span,
+body.dark nav a:hover div {
+  color: #d7a944 !important;
+}
+
+/* Active Navigation Item (Deep Emerald Gradient with Warm Gold Shadow) */
+nav a.router-link-exact-active,
+nav a.router-link-active,
+nav a.active,
+nav a[aria-current="page"] {
+  background: var(--sh-brand-gradient) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 14px rgba(215, 169, 68, 0.35) !important;
+  border: none !important;
+}
+
+nav a.router-link-exact-active *,
+nav a.router-link-active *,
+nav a.active *,
+nav a[aria-current="page"] * {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+}
+
+/* Sub-item Dropdown Tree Navigation */
+nav ul ul,
+nav li.child-item {
+  margin-left: 0.5rem !important;
+  border-left: 2px solid rgba(215, 169, 68, 0.35) !important;
+}
+
+nav ul ul a:hover {
+  background: linear-gradient(90deg, rgba(215, 169, 68, 0.15) 0%, transparent 100%) !important;
+  font-weight: 600 !important;
+}
+
+/* --------------------------------------------------------------------------
+   4. SOLID PRIMARY GREEN BUTTONS (BOTH LIGHT AND DARK MODES)
    -------------------------------------------------------------------------- */
 button.bg-woot-500,
 .bg-woot-500,
