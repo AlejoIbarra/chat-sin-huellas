@@ -54,6 +54,8 @@ services:
       - ./data/storage/sinhuellas_logo.png:/app/public/packs/favicon-16x16.png:ro
       - ./data/storage/sinhuellas_logo.png:/app/public/packs/favicon-32x32.png:ro
       - ./data/storage/i18n_default.rb:/app/config/initializers/i18n_default.rb:ro
+      - ./data/storage/custom.css:/app/public/custom.css:ro
+      - ./data/storage/vueapp.html.erb:/app/app/views/layouts/vueapp.html.erb:ro
     depends_on:
       postgres:
         condition: service_healthy
