@@ -3,12 +3,12 @@
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   1. LIGHT MODE (DEFAULT - PURE WHITE BACKGROUND & EMERALD / GOLD ACCENTS)
+   1. LIGHT MODE (APPLIED WHEN BODY DOES NOT HAVE .dark CLASS)
    -------------------------------------------------------------------------- */
-:root,
-html:not(.dark),
+
+:root:not(.dark),
 body:not(.dark) {
-  /* Brand Tokens */
+  /* Brand Color Tokens */
   --sh-emerald: #163f30 !important;
   --sh-emerald-hover: #1e523f !important;
   --sh-emerald-light: rgba(22, 63, 48, 0.08) !important;
@@ -16,7 +16,7 @@ body:not(.dark) {
   --sh-gold-hover: #c49635 !important;
   --sh-gold-light: rgba(215, 169, 68, 0.15) !important;
 
-  /* Pure White Tokens */
+  /* Pure White Light Theme Tokens */
   --sh-bg-primary: #ffffff !important;
   --sh-bg-secondary: #f8fafc !important;
   --sh-surface-card: #ffffff !important;
@@ -27,7 +27,7 @@ body:not(.dark) {
   --sh-brand-gradient: linear-gradient(135deg, #163f30 0%, #1e523f 100%) !important;
   --sh-gold-gradient: linear-gradient(135deg, #d7a944 0%, #c49635 100%) !important;
 
-  /* Tailwind & Chatwoot Radix CSS Variables (Light Mode RGB Tokens) */
+  /* Radix / Tailwind Light Mode CSS Variables */
   --slate-1: 255 255 255 !important;
   --slate-2: 248 250 252 !important;
   --slate-3: 241 245 249 !important;
@@ -68,53 +68,37 @@ body:not(.dark) {
   --blue-12: 15 23 42 !important;
 }
 
-/* Light Mode Containers, Surfaces, Onboarding Cards & Secondary Sidebars */
-html:not(.dark),
+/* Light Mode Body & Containers */
 body:not(.dark),
-html:not(.dark) #app,
-html:not(.dark) .app-wrapper,
-html:not(.dark) .v3-app,
-html:not(.dark) main,
-html:not(.dark) .main-content,
-html:not(.dark) [class*="bg-n-background"],
-html:not(.dark) [class*="bg-n-solid"],
-html:not(.dark) [class*="bg-n-slate"],
-html:not(.dark) [class*="bg-n-surface"],
-html:not(.dark) .bg-n-surface-1,
-html:not(.dark) .bg-n-surface-2,
-html:not(.dark) .bg-n-surface-3,
-html:not(.dark) .secondary-sidebar,
-html:not(.dark) aside.secondary-sidebar,
-html:not(.dark) [class*="secondary-sidebar"],
-html:not(.dark) [class*="conversations-sidebar"],
-html:not(.dark) [class*="conversations-list"],
-html:not(.dark) [class*="bg-slate-25"],
-html:not(.dark) [class*="bg-slate-50"],
-html:not(.dark) [class*="bg-slate-100"],
-html:not(.dark) [class*="bg-slate-700"],
-html:not(.dark) [class*="bg-slate-800"],
-html:not(.dark) [class*="bg-slate-850"],
-html:not(.dark) [class*="bg-slate-900"],
-html:not(.dark) [class*="bg-slate-925"],
-html:not(.dark) [class*="bg-slate-950"],
-html:not(.dark) [class*="bg-woot-900"] {
+body:not(.dark) #app,
+body:not(.dark) .app-wrapper,
+body:not(.dark) .v3-app,
+body:not(.dark) main,
+body:not(.dark) .main-content,
+body:not(.dark) [class*="bg-n-background"],
+body:not(.dark) [class*="bg-n-solid"],
+body:not(.dark) [class*="bg-n-slate"],
+body:not(.dark) [class*="bg-n-surface"],
+body:not(.dark) .bg-n-surface-1,
+body:not(.dark) .bg-n-surface-2,
+body:not(.dark) .bg-n-surface-3,
+body:not(.dark) .secondary-sidebar,
+body:not(.dark) aside.secondary-sidebar,
+body:not(.dark) [class*="secondary-sidebar"],
+body:not(.dark) [class*="conversations-sidebar"],
+body:not(.dark) [class*="conversations-list"],
+body:not(.dark) [class*="bg-slate-25"],
+body:not(.dark) [class*="bg-slate-50"],
+body:not(.dark) [class*="bg-slate-100"],
+body:not(.dark) [class*="bg-slate-700"],
+body:not(.dark) [class*="bg-slate-800"],
+body:not(.dark) [class*="bg-slate-850"],
+body:not(.dark) [class*="bg-slate-900"],
+body:not(.dark) [class*="bg-slate-925"],
+body:not(.dark) [class*="bg-slate-950"],
+body:not(.dark) [class*="bg-woot-900"] {
   background-color: #ffffff !important;
   color: #0f172a !important;
-}
-
-/* Secondary Sidebar Border & Background Fix */
-html:not(.dark) .secondary-sidebar,
-html:not(.dark) [class*="secondary-sidebar"],
-html:not(.dark) [class*="conversations-sidebar"] {
-  border-right: 1px solid #e2e8f0 !important;
-  background-color: #ffffff !important;
-}
-
-/* Onboarding Feature Cards High Contrast Override */
-html:not(.dark) div[class*="bg-n-surface"] {
-  background-color: #ffffff !important;
-  border: 1px solid #e2e8f0 !important;
-  box-shadow: 0 4px 20px -2px rgba(22, 63, 48, 0.04) !important;
 }
 
 /* Base Typography & Font Smoothing */
@@ -123,204 +107,193 @@ html, body, #app, .app-wrapper {
   -webkit-font-smoothing: antialiased !important;
 }
 
-/* Light Mode Authentication & Cards */
-html:not(.dark) .auth-wrapper,
-html:not(.dark) .login-box,
-html:not(.dark) div[class*="min-h-screen"] {
+/* Light Mode Secondary Sidebar & Headers */
+body:not(.dark) .secondary-sidebar,
+body:not(.dark) [class*="secondary-sidebar"],
+body:not(.dark) [class*="conversations-sidebar"],
+body:not(.dark) header,
+body:not(.dark) .header,
+body:not(.dark) topbar,
+body:not(.dark) .topbar,
+body:not(.dark) aside,
+body:not(.dark) nav,
+body:not(.dark) .sidebar {
   background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
 }
 
-html:not(.dark) .auth-card,
-html:not(.dark) .card,
-html:not(.dark) div[class*="shadow-card"],
-html:not(.dark) div[class*="rounded-xl"] {
+body:not(.dark) aside svg, body:not(.dark) nav svg, body:not(.dark) .sidebar svg {
+  color: var(--sh-emerald) !important;
+}
+
+body:not(.dark) aside a:hover,
+body:not(.dark) nav a:hover,
+body:not(.dark) .sidebar a:hover {
+  background-color: var(--sh-gold-light) !important;
+}
+
+/* Light Mode Cards & Onboarding */
+body:not(.dark) div[class*="bg-n-surface"],
+body:not(.dark) .auth-card,
+body:not(.dark) .card,
+body:not(.dark) div[class*="shadow-card"],
+body:not(.dark) div[class*="rounded-xl"] {
   background-color: #ffffff !important;
   border: 1px solid #e2e8f0 !important;
 }
 
-html:not(.dark) div[class*="auth-card"],
-html:not(.dark) div[class*="login-box"] {
-  border: 1px solid var(--sh-gold) !important;
-  box-shadow: 0 10px 30px rgba(22, 63, 48, 0.08) !important;
-  border-radius: 16px !important;
-}
-
 /* Light Mode High Contrast Text */
-html:not(.dark) p,
-html:not(.dark) span:not(button *),
-html:not(.dark) label,
-html:not(.dark) h1,
-html:not(.dark) h2,
-html:not(.dark) h3,
-html:not(.dark) h4,
-html:not(.dark) h5,
-html:not(.dark) h6,
-html:not(.dark) td,
-html:not(.dark) th {
+body:not(.dark) p,
+body:not(.dark) span:not(button *),
+body:not(.dark) label,
+body:not(.dark) h1,
+body:not(.dark) h2,
+body:not(.dark) h3,
+body:not(.dark) h4,
+body:not(.dark) h5,
+body:not(.dark) h6,
+body:not(.dark) td,
+body:not(.dark) th {
   color: #0f172a !important;
 }
 
-html:not(.dark) .text-n-slate-12,
-html:not(.dark) [class*="text-n-slate-12"],
-html:not(.dark) .text-slate-900,
-html:not(.dark) .text-slate-800,
-html:not(.dark) .text-slate-700 {
+body:not(.dark) .text-n-slate-12,
+body:not(.dark) [class*="text-n-slate-12"],
+body:not(.dark) .text-slate-900,
+body:not(.dark) .text-slate-800,
+body:not(.dark) .text-slate-700 {
   color: #0f172a !important;
 }
 
-html:not(.dark) .text-n-slate-11,
-html:not(.dark) [class*="text-n-slate-11"],
-html:not(.dark) .text-slate-600,
-html:not(.dark) .text-slate-500 {
+body:not(.dark) .text-n-slate-11,
+body:not(.dark) [class*="text-n-slate-11"],
+body:not(.dark) .text-slate-600,
+body:not(.dark) .text-slate-500 {
   color: #475569 !important;
 }
 
-/* Onboarding Card Action Links */
-html:not(.dark) a[class*="text-n-brand"],
-html:not(.dark) .text-n-brand {
+body:not(.dark) a[class*="text-n-brand"],
+body:not(.dark) .text-n-brand {
   color: var(--sh-emerald) !important;
   font-weight: 600 !important;
 }
 
 /* Light Mode Inputs */
-html:not(.dark) input[type="text"],
-html:not(.dark) input[type="email"],
-html:not(.dark) input[type="password"],
-html:not(.dark) textarea,
-html:not(.dark) select {
+body:not(.dark) input[type="text"],
+body:not(.dark) input[type="email"],
+body:not(.dark) input[type="password"],
+body:not(.dark) textarea,
+body:not(.dark) select {
   background-color: #ffffff !important;
   border: 1px solid #cbd5e1 !important;
   color: #0f172a !important;
   border-radius: 10px !important;
 }
 
-/* Light Mode Faded / Outline Buttons */
-html:not(.dark) button[class*="bg-n-brand/"],
-html:not(.dark) button[class*="bg-n-teal/"],
-html:not(.dark) button[class*="bg-n-amber/"],
-html:not(.dark) button[class*="bg-n-slate/"],
-html:not(.dark) button[class*="bg-woot-50"],
-html:not(.dark) button[class*="bg-woot-100"],
-html:not(.dark) button.clear,
-html:not(.dark) button.secondary,
-html:not(.dark) button.hollow,
-html:not(.dark) button.link,
-html:not(.dark) button.flat,
-html:not(.dark) .button--secondary,
-html:not(.dark) .button--clear,
-html:not(.dark) .button--hollow,
-html:not(.dark) .woot-button--secondary,
-html:not(.dark) .n-button--secondary {
+/* Light Mode Secondary / Faded Buttons */
+body:not(.dark) button[class*="bg-n-brand/"],
+body:not(.dark) button[class*="bg-n-teal/"],
+body:not(.dark) button[class*="bg-n-amber/"],
+body:not(.dark) button[class*="bg-n-slate/"],
+body:not(.dark) button[class*="bg-woot-50"],
+body:not(.dark) button[class*="bg-woot-100"],
+body:not(.dark) button.clear,
+body:not(.dark) button.secondary,
+body:not(.dark) button.hollow,
+body:not(.dark) button.link,
+body:not(.dark) button.flat,
+body:not(.dark) .button--secondary,
+body:not(.dark) .button--clear,
+body:not(.dark) .button--hollow,
+body:not(.dark) .woot-button--secondary,
+body:not(.dark) .n-button--secondary {
   background-color: #ffffff !important;
   border: 1px solid var(--sh-emerald) !important;
   color: var(--sh-emerald) !important;
 }
 
-html:not(.dark) button[class*="bg-n-brand/"] *,
-html:not(.dark) button[class*="bg-n-teal/"] *,
-html:not(.dark) button[class*="bg-n-amber/"] *,
-html:not(.dark) button[class*="bg-n-slate/"] *,
-html:not(.dark) button[class*="bg-woot-50"] *,
-html:not(.dark) button[class*="bg-woot-100"] *,
-html:not(.dark) button.clear *,
-html:not(.dark) button.secondary *,
-html:not(.dark) button.hollow *,
-html:not(.dark) button.link *,
-html:not(.dark) button.flat *,
-html:not(.dark) .button--secondary *,
-html:not(.dark) .button--clear *,
-html:not(.dark) .button--hollow *,
-html:not(.dark) .woot-button--secondary *,
-html:not(.dark) .n-button--secondary * {
+body:not(.dark) button[class*="bg-n-brand/"] *,
+body:not(.dark) button[class*="bg-n-teal/"] *,
+body:not(.dark) button[class*="bg-n-amber/"] *,
+body:not(.dark) button[class*="bg-n-slate/"] *,
+body:not(.dark) button[class*="bg-woot-50"] *,
+body:not(.dark) button[class*="bg-woot-100"] *,
+body:not(.dark) button.clear *,
+body:not(.dark) button.secondary *,
+body:not(.dark) button.hollow *,
+body:not(.dark) button.link *,
+body:not(.dark) button.flat *,
+body:not(.dark) .button--secondary *,
+body:not(.dark) .button--clear *,
+body:not(.dark) .button--hollow *,
+body:not(.dark) .woot-button--secondary *,
+body:not(.dark) .n-button--secondary * {
   color: var(--sh-emerald) !important;
   fill: var(--sh-emerald) !important;
   stroke: var(--sh-emerald) !important;
 }
 
-html:not(.dark) button[class*="bg-n-brand/"]:hover,
-html:not(.dark) button[class*="bg-n-teal/"]:hover,
-html:not(.dark) button[class*="bg-n-amber/"]:hover,
-html:not(.dark) button[class*="bg-n-slate/"]:hover,
-html:not(.dark) button.clear:hover,
-html:not(.dark) button.secondary:hover,
-html:not(.dark) button.hollow:hover,
-html:not(.dark) .button--secondary:hover {
+body:not(.dark) button[class*="bg-n-brand/"]:hover,
+body:not(.dark) button[class*="bg-n-teal/"]:hover,
+body:not(.dark) button[class*="bg-n-amber/"]:hover,
+body:not(.dark) button[class*="bg-n-slate/"]:hover,
+body:not(.dark) button.clear:hover,
+body:not(.dark) button.secondary:hover,
+body:not(.dark) button.hollow:hover,
+body:not(.dark) .button--secondary:hover {
   background: var(--sh-brand-gradient) !important;
   color: #ffffff !important;
   border-color: var(--sh-emerald) !important;
 }
 
-html:not(.dark) button[class*="bg-n-brand/"]:hover *,
-html:not(.dark) button[class*="bg-n-teal/"]:hover *,
-html:not(.dark) button[class*="bg-n-amber/"]:hover *,
-html:not(.dark) button[class*="bg-n-slate/"]:hover *,
-html:not(.dark) button.clear:hover *,
-html:not(.dark) button.secondary:hover *,
-html:not(.dark) button.hollow:hover *,
-html:not(.dark) .button--secondary:hover * {
+body:not(.dark) button[class*="bg-n-brand/"]:hover *,
+body:not(.dark) button[class*="bg-n-teal/"]:hover *,
+body:not(.dark) button[class*="bg-n-amber/"]:hover *,
+body:not(.dark) button[class*="bg-n-slate/"]:hover *,
+body:not(.dark) button.clear:hover *,
+body:not(.dark) button.secondary:hover *,
+body:not(.dark) button.hollow:hover *,
+body:not(.dark) .button--secondary:hover * {
   color: #ffffff !important;
   fill: #ffffff !important;
   stroke: #ffffff !important;
 }
 
-/* Light Mode Sidebar & Header */
-html:not(.dark) aside,
-html:not(.dark) nav,
-html:not(.dark) .sidebar,
-html:not(.dark) .secondary-sidebar,
-html:not(.dark) header,
-html:not(.dark) .header,
-html:not(.dark) topbar,
-html:not(.dark) .topbar {
-  background-color: #ffffff !important;
-  border-color: #e2e8f0 !important;
-}
-
-html:not(.dark) aside svg, html:not(.dark) nav svg, html:not(.dark) .sidebar svg {
-  color: var(--sh-emerald) !important;
-}
-
-html:not(.dark) aside a:hover,
-html:not(.dark) nav a:hover,
-html:not(.dark) .sidebar a:hover {
-  background-color: var(--sh-gold-light) !important;
-}
-
-/* Light Mode Modals */
-html:not(.dark) .modal-container,
-html:not(.dark) .modal-content,
-html:not(.dark) .woot-modal,
-html:not(.dark) [role="dialog"] .modal-container,
-html:not(.dark) [role="dialog"] > div:nth-child(2),
-html:not(.dark) div[class*="modal-card"] {
+/* Light Mode Modals & Dropdowns */
+body:not(.dark) .modal-container,
+body:not(.dark) .modal-content,
+body:not(.dark) .woot-modal,
+body:not(.dark) [role="dialog"] .modal-container,
+body:not(.dark) [role="dialog"] > div:nth-child(2),
+body:not(.dark) div[class*="modal-card"] {
   background-color: #ffffff !important;
   border: 1px solid var(--sh-gold) !important;
   color: #0f172a !important;
 }
 
-html:not(.dark) .modal-header, html:not(.dark) .woot-modal--header {
+body:not(.dark) .modal-header, body:not(.dark) .woot-modal--header {
   border-bottom: 1px solid #e2e8f0 !important;
   color: var(--sh-emerald) !important;
 }
 
-html:not(.dark) .modal-footer, html:not(.dark) .woot-modal--footer {
+body:not(.dark) .modal-footer, body:not(.dark) .woot-modal--footer {
   border-top: 1px solid #e2e8f0 !important;
   background-color: #f8fafc !important;
 }
 
-html:not(.dark) .dropdown-pane,
-html:not(.dark) [class*="dropdown-menu"],
-html:not(.dark) .popover-content {
+body:not(.dark) .dropdown-pane,
+body:not(.dark) [class*="dropdown-menu"],
+body:not(.dark) .popover-content {
   background-color: #ffffff !important;
   border: 1px solid #e2e8f0 !important;
   color: #0f172a !important;
 }
 
 /* --------------------------------------------------------------------------
-   2. DARK MODE (EXPLICIT .dark CLASS ON HTML/BODY)
+   2. DARK MODE (APPLIED WHEN BODY HAS .dark CLASS)
    -------------------------------------------------------------------------- */
+
 .dark,
-html.dark,
 body.dark {
   /* Brand Tokens in Dark Mode */
   --sh-bg-primary: #0f172a !important;
@@ -330,7 +303,7 @@ body.dark {
   --sh-text-primary: #f8fafc !important;
   --sh-text-muted: #94a3b8 !important;
 
-  /* Tailwind & Chatwoot Radix CSS Variables in Dark Mode */
+  /* Radix / Tailwind Dark Mode Variables */
   --slate-1: 15 23 42 !important;
   --slate-2: 30 41 59 !important;
   --slate-3: 51 65 85 !important;
@@ -360,42 +333,76 @@ body.dark {
   --blue-12: 248 250 252 !important;
 }
 
-/* Dark Mode Containers & Surfaces */
-.dark,
-.dark body,
-.dark #app,
-.dark .app-wrapper,
-.dark .v3-app,
-.dark main,
-.dark .main-content,
-.dark [class*="bg-n-background"],
-.dark [class*="bg-n-solid"],
-.dark [class*="bg-n-slate"],
-.dark [class*="bg-n-surface"] {
+/* Dark Mode Containers & Main Surfaces */
+body.dark,
+body.dark #app,
+body.dark .app-wrapper,
+body.dark .v3-app,
+body.dark main,
+body.dark .main-content,
+body.dark [class*="bg-n-background"],
+body.dark [class*="bg-n-solid"],
+body.dark [class*="bg-n-slate"],
+body.dark [class*="bg-n-surface"],
+body.dark .bg-n-surface-1 {
   background-color: #0f172a !important;
   color: #f8fafc !important;
 }
 
+/* Dark Mode Cards, Onboarding & Secondary Surfaces */
+body.dark div[class*="bg-n-surface"],
+body.dark .bg-n-surface-2,
+body.dark .bg-n-surface-3,
+body.dark .card,
+body.dark .auth-card,
+body.dark div[class*="shadow-card"],
+body.dark div[class*="rounded-xl"] {
+  background-color: #1e293b !important;
+  border: 1px solid #334155 !important;
+  color: #f8fafc !important;
+}
+
 /* Dark Mode Typography */
-.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6,
-.dark p, .dark span:not(button *), .dark label, .dark td, .dark th {
+body.dark p,
+body.dark span:not(button *),
+body.dark label,
+body.dark h1,
+body.dark h2,
+body.dark h3,
+body.dark h4,
+body.dark h5,
+body.dark h6,
+body.dark td,
+body.dark th {
   color: #f8fafc !important;
 }
 
-.dark .text-n-slate-12, .dark .text-slate-100, .dark .text-slate-200 {
+body.dark .text-n-slate-12,
+body.dark [class*="text-n-slate-12"],
+body.dark .text-slate-100,
+body.dark .text-slate-200 {
   color: #f8fafc !important;
 }
 
-.dark .text-n-slate-11, .dark .text-slate-400, .dark .text-slate-300 {
+body.dark .text-n-slate-11,
+body.dark [class*="text-n-slate-11"],
+body.dark .text-slate-400,
+body.dark .text-slate-300 {
   color: #94a3b8 !important;
 }
 
+body.dark a[class*="text-n-brand"],
+body.dark .text-n-brand {
+  color: var(--sh-gold) !important;
+  font-weight: 600 !important;
+}
+
 /* Dark Mode Inputs */
-.dark input[type="text"],
-.dark input[type="email"],
-.dark input[type="password"],
-.dark textarea,
-.dark select {
+body.dark input[type="text"],
+body.dark input[type="email"],
+body.dark input[type="password"],
+body.dark textarea,
+body.dark select {
   background-color: #1e293b !important;
   border: 1px solid #334155 !important;
   color: #f8fafc !important;
@@ -403,120 +410,122 @@ body.dark {
 }
 
 /* Dark Mode Secondary / Faded / Outline Buttons */
-.dark button[class*="bg-n-brand/"],
-.dark button[class*="bg-n-teal/"],
-.dark button[class*="bg-n-amber/"],
-.dark button[class*="bg-n-slate/"],
-.dark button[class*="bg-woot-50"],
-.dark button.clear,
-.dark button.secondary,
-.dark button.hollow,
-.dark button.link,
-.dark button.flat,
-.dark .button--secondary,
-.dark .button--clear,
-.dark .button--hollow,
-.dark .woot-button--secondary,
-.dark .n-button--secondary {
+body.dark button[class*="bg-n-brand/"],
+body.dark button[class*="bg-n-teal/"],
+body.dark button[class*="bg-n-amber/"],
+body.dark button[class*="bg-n-slate/"],
+body.dark button[class*="bg-woot-50"],
+body.dark button.clear,
+body.dark button.secondary,
+body.dark button.hollow,
+body.dark button.link,
+body.dark button.flat,
+body.dark .button--secondary,
+body.dark .button--clear,
+body.dark .button--hollow,
+body.dark .woot-button--secondary,
+body.dark .n-button--secondary {
   background-color: #1e293b !important;
   border: 1px solid var(--sh-gold) !important;
   color: var(--sh-gold) !important;
 }
 
-.dark button[class*="bg-n-brand/"] *,
-.dark button[class*="bg-n-teal/"] *,
-.dark button[class*="bg-n-amber/"] *,
-.dark button[class*="bg-n-slate/"] *,
-.dark button[class*="bg-woot-50"] *,
-.dark button.clear *,
-.dark button.secondary *,
-.dark button.hollow *,
-.dark button.link *,
-.dark button.flat *,
-.dark .button--secondary *,
-.dark .button--clear *,
-.dark .button--hollow *,
-.dark .woot-button--secondary *,
-.dark .n-button--secondary * {
+body.dark button[class*="bg-n-brand/"] *,
+body.dark button[class*="bg-n-teal/"] *,
+body.dark button[class*="bg-n-amber/"] *,
+body.dark button[class*="bg-n-slate/"] *,
+body.dark button[class*="bg-woot-50"] *,
+body.dark button.clear *,
+body.dark button.secondary *,
+body.dark button.hollow *,
+body.dark button.link *,
+body.dark button.flat *,
+body.dark .button--secondary *,
+body.dark .button--clear *,
+body.dark .button--hollow *,
+body.dark .woot-button--secondary *,
+body.dark .n-button--secondary * {
   color: var(--sh-gold) !important;
   fill: var(--sh-gold) !important;
   stroke: var(--sh-gold) !important;
 }
 
-.dark button[class*="bg-n-brand/"]:hover,
-.dark button[class*="bg-n-teal/"]:hover,
-.dark button[class*="bg-n-amber/"]:hover,
-.dark button[class*="bg-n-slate/"]:hover,
-.dark button.clear:hover,
-.dark button.secondary:hover,
-.dark button.hollow:hover,
-.dark .button--secondary:hover {
+body.dark button[class*="bg-n-brand/"]:hover,
+body.dark button[class*="bg-n-teal/"]:hover,
+body.dark button[class*="bg-n-amber/"]:hover,
+body.dark button[class*="bg-n-slate/"]:hover,
+body.dark button.clear:hover,
+body.dark button.secondary:hover,
+body.dark button.hollow:hover,
+body.dark .button--secondary:hover {
   background: var(--sh-brand-gradient) !important;
   color: #ffffff !important;
   border-color: var(--sh-gold) !important;
 }
 
-.dark button[class*="bg-n-brand/"]:hover *,
-.dark button[class*="bg-n-teal/"]:hover *,
-.dark button[class*="bg-n-amber/"]:hover *,
-.dark button[class*="bg-n-slate/"]:hover *,
-.dark button.clear:hover *,
-.dark button.secondary:hover *,
-.dark button.hollow:hover *,
-.dark .button--secondary:hover * {
+body.dark button[class*="bg-n-brand/"]:hover *,
+body.dark button[class*="bg-n-teal/"]:hover *,
+body.dark button[class*="bg-n-amber/"]:hover *,
+body.dark button[class*="bg-n-slate/"]:hover *,
+body.dark button.clear:hover *,
+body.dark button.secondary:hover *,
+body.dark button.hollow:hover *,
+body.dark .button--secondary:hover * {
   color: #ffffff !important;
   fill: #ffffff !important;
   stroke: #ffffff !important;
 }
 
 /* Dark Mode Sidebar & Header */
-.dark aside,
-.dark nav,
-.dark .sidebar,
-.dark .secondary-sidebar,
-.dark header,
-.dark .header,
-.dark topbar,
-.dark .topbar {
+body.dark aside,
+body.dark nav,
+body.dark .sidebar,
+body.dark .secondary-sidebar,
+body.dark [class*="secondary-sidebar"],
+body.dark [class*="conversations-sidebar"],
+body.dark header,
+body.dark .header,
+body.dark topbar,
+body.dark .topbar {
   background-color: #0f172a !important;
   border-color: #334155 !important;
 }
 
-.dark aside svg, .dark nav svg, .dark .sidebar svg {
+body.dark aside svg, body.dark nav svg, body.dark .sidebar svg {
   color: var(--sh-gold) !important;
 }
 
-.dark aside a:hover,
-.dark nav a:hover,
-.dark .sidebar a:hover {
+body.dark aside a:hover,
+body.dark nav a:hover,
+body.dark .sidebar a:hover {
   background-color: rgba(215, 169, 68, 0.15) !important;
 }
 
-/* Dark Mode Modals */
-.dark .modal-container,
-.dark .modal-content,
-.dark .woot-modal,
-.dark [role="dialog"] .modal-container,
-.dark [role="dialog"] > div:nth-child(2),
-.dark div[class*="modal-card"] {
+/* Dark Mode Modals & Dropdowns */
+body.dark .modal-container,
+body.dark .modal-content,
+body.dark .woot-modal,
+body.dark [role="dialog"] .modal-container,
+body.dark [role="dialog"] > div:nth-child(2),
+body.dark div[class*="modal-card"] {
   background-color: #1e293b !important;
   border: 1px solid var(--sh-gold) !important;
   color: #f8fafc !important;
 }
 
-.dark .modal-header, .dark .woot-modal--header {
+body.dark .modal-header, body.dark .woot-modal--header {
   border-bottom: 1px solid #334155 !important;
   color: var(--sh-gold) !important;
 }
 
-.dark .modal-footer, .dark .woot-modal--footer {
+body.dark .modal-footer, body.dark .woot-modal--footer {
   border-top: 1px solid #334155 !important;
   background-color: #0f172a !important;
 }
 
-.dark .dropdown-pane,
-.dark [class*="dropdown-menu"],
-.dark .popover-content {
+body.dark .dropdown-pane,
+body.dark [class*="dropdown-menu"],
+body.dark .popover-content {
   background-color: #1e293b !important;
   border: 1px solid #334155 !important;
   color: #f8fafc !important;
