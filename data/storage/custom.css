@@ -868,3 +868,350 @@ img[alt*="SinHuellas"]:hover, img[src*="logo"]:hover {
 }
 
 a[href*="chatwoot.com"], .powered-by-chatwoot { display: none !important; }
+
+/* ==========================================================================
+   6. ULTRA LUXURY EXECUTIVE INTERFACE OVERHAUL (CONVERSATIONS, CHAT BUBBLES, WIDGETS)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   6.1 HEADER & TOPBAR GLASSMORPHISM
+   -------------------------------------------------------------------------- */
+header,
+.header,
+.topbar,
+[class*="header-main"],
+div:has(> #sidebar-account-switcher) {
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  transition: all 0.3s ease !important;
+}
+
+body:not(.dark) header,
+body:not(.dark) .topbar {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8) !important;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03) !important;
+}
+
+body.dark header,
+body.dark .topbar {
+  background: rgba(15, 23, 42, 0.92) !important;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.8) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Top Accent Gold Bar */
+body::before {
+  content: "" !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 3px !important;
+  background: linear-gradient(90deg, #163f30 0%, #d7a944 50%, #163f30 100%) !important;
+  z-index: 999999 !important;
+}
+
+/* --------------------------------------------------------------------------
+   6.2 CONVERSATIONS LIST & FLOATING CARDS
+   -------------------------------------------------------------------------- */
+/* Individual Conversation Item Capsules */
+[class*="conversations-list"] > div,
+[class*="conversation-item"],
+.conversation,
+div[role="button"]:has([class*="avatar"]) {
+  border-radius: 14px !important;
+  margin-bottom: 6px !important;
+  margin-left: 6px !important;
+  margin-right: 6px !important;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+body:not(.dark) [class*="conversations-list"] > div,
+body:not(.dark) [class*="conversation-item"],
+body:not(.dark) .conversation {
+  background: #ffffff !important;
+  border: 1px solid #f1f5f9 !important;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.02) !important;
+}
+
+body:not(.dark) [class*="conversations-list"] > div:hover,
+body:not(.dark) [class*="conversation-item"]:hover,
+body:not(.dark) .conversation:hover {
+  background: #f8fafc !important;
+  border-color: rgba(215, 169, 68, 0.4) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 16px rgba(22, 63, 48, 0.06) !important;
+}
+
+body.dark [class*="conversations-list"] > div,
+body.dark [class*="conversation-item"],
+body.dark .conversation {
+  background: #141c2b !important;
+  border: 1px solid #1e293b !important;
+}
+
+body.dark [class*="conversations-list"] > div:hover,
+body.dark [class*="conversation-item"]:hover,
+body.dark .conversation:hover {
+  background: #1e293b !important;
+  border-color: rgba(215, 169, 68, 0.4) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Active Selected Conversation Item */
+.conversation.active,
+[class*="conversation-item"].active,
+[class*="conversation-item"][class*="active"],
+div[class*="bg-n-alpha-2"]:has([class*="avatar"]) {
+  background: linear-gradient(135deg, rgba(22, 63, 48, 0.08) 0%, rgba(215, 169, 68, 0.12) 100%) !important;
+  border-left: 4px solid #d7a944 !important;
+  border-radius: 4px 14px 14px 4px !important;
+}
+
+body.dark .conversation.active,
+body.dark [class*="conversation-item"].active,
+body.dark [class*="conversation-item"][class*="active"] {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(215, 169, 68, 0.18) 100%) !important;
+  border-left: 4px solid #d7a944 !important;
+  border-radius: 4px 14px 14px 4px !important;
+}
+
+/* Unread Badge Counters (Neon Gold/Emerald Gradient Pill) */
+.unread-count,
+span[class*="unread"],
+span[class*="bg-n-brand"]:not(button *),
+div[class*="badge"]:not(button *) {
+  background: linear-gradient(135deg, #d7a944 0%, #c49635 100%) !important;
+  color: #0f172a !important;
+  font-weight: 800 !important;
+  font-size: 0.75rem !important;
+  border-radius: 9999px !important;
+  padding: 2px 8px !important;
+  box-shadow: 0 2px 8px rgba(215, 169, 68, 0.4) !important;
+}
+
+/* Avatars Styling (Gold Rings & Smooth Shadows) */
+[class*="avatar"],
+.avatar-container,
+div:has(> img[class*="avatar"]) {
+  border-radius: 9999px !important;
+  box-shadow: 0 0 0 2px rgba(215, 169, 68, 0.35), 0 4px 10px rgba(15, 23, 42, 0.1) !important;
+  transition: transform 0.25s ease !important;
+}
+
+[class*="avatar"]:hover {
+  transform: scale(1.08) !important;
+}
+
+/* --------------------------------------------------------------------------
+   6.3 CHAT MESSAGE BUBBLES & INPUT REPLY BOX
+   -------------------------------------------------------------------------- */
+/* Main Chat Panel Container */
+.conversation-panel,
+main div:has(> [class*="bubble"]) {
+  background: transparent !important;
+}
+
+/* Incoming Message Bubbles (Left) */
+body:not(.dark) [class*="bubble"][class*="incoming"],
+body:not(.dark) .message-bubble.incoming,
+body:not(.dark) div[class*="bg-n-slate-2"],
+body:not(.dark) div[class*="bg-slate-100"] {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+  border-radius: 18px 18px 18px 4px !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04) !important;
+  padding: 12px 16px !important;
+}
+
+body.dark [class*="bubble"][class*="incoming"],
+body.dark .message-bubble.incoming,
+body.dark div[class*="bg-n-slate-2"],
+body.dark div[class*="bg-slate-700"] {
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  color: #f8fafc !important;
+  border-radius: 18px 18px 18px 4px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+  padding: 12px 16px !important;
+}
+
+/* Outgoing Message Bubbles (Right - Deep Emerald Luxury) */
+[class*="bubble"][class*="outgoing"],
+.message-bubble.outgoing,
+div[class*="bg-n-brand-solid"],
+div[class*="bg-woot-500"]:not(button) {
+  background: linear-gradient(135deg, #163f30 0%, #1e523f 100%) !important;
+  border: 1px solid rgba(215, 169, 68, 0.3) !important;
+  color: #ffffff !important;
+  border-radius: 18px 18px 4px 18px !important;
+  box-shadow: 0 6px 18px rgba(22, 63, 48, 0.25) !important;
+  padding: 12px 16px !important;
+}
+
+[class*="bubble"][class*="outgoing"] *,
+.message-bubble.outgoing * {
+  color: #ffffff !important;
+}
+
+/* Reply Input Box Container */
+.reply-box,
+div[class*="reply-box"],
+div:has(> .ProseMirror) {
+  border-radius: 18px !important;
+  transition: all 0.25s ease !important;
+}
+
+body:not(.dark) .reply-box,
+body:not(.dark) div[class*="reply-box"],
+body:not(.dark) div:has(> .ProseMirror) {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05) !important;
+}
+
+body:not(.dark) .reply-box:focus-within,
+body:not(.dark) div[class*="reply-box"]:focus-within {
+  border-color: #163f30 !important;
+  box-shadow: 0 0 0 3px rgba(215, 169, 68, 0.25), 0 8px 24px rgba(22, 63, 48, 0.1) !important;
+}
+
+body.dark .reply-box,
+body.dark div[class*="reply-box"],
+body.dark div:has(> .ProseMirror) {
+  background: #141c2b !important;
+  border: 1px solid #334155 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.dark .reply-box:focus-within,
+body.dark div[class*="reply-box"]:focus-within {
+  border-color: #d7a944 !important;
+  box-shadow: 0 0 0 3px rgba(215, 169, 68, 0.3), 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* --------------------------------------------------------------------------
+   6.4 DASHBOARD CARDS & STATS WIDGETS
+   -------------------------------------------------------------------------- */
+[class*="metric-card"],
+.stat-card,
+div[class*="shadow-card"],
+main div[class*="rounded-xl"] {
+  border-radius: 18px !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+body:not(.dark) [class*="metric-card"],
+body:not(.dark) .stat-card,
+body:not(.dark) main div[class*="rounded-xl"] {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.03) !important;
+}
+
+body:not(.dark) [class*="metric-card"]:hover,
+body:not(.dark) .stat-card:hover,
+body:not(.dark) main div[class*="rounded-xl"]:hover {
+  border-color: rgba(215, 169, 68, 0.45) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 24px rgba(22, 63, 48, 0.08) !important;
+}
+
+body.dark [class*="metric-card"],
+body.dark .stat-card,
+body.dark main div[class*="rounded-xl"] {
+  background: #141c2b !important;
+  border: 1px solid #1e293b !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25) !important;
+}
+
+body.dark [class*="metric-card"]:hover,
+body.dark .stat-card:hover,
+body.dark main div[class*="rounded-xl"]:hover {
+  border-color: rgba(215, 169, 68, 0.45) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* --------------------------------------------------------------------------
+   6.5 TABLES & DATA GRID REFINEMENT
+   -------------------------------------------------------------------------- */
+table {
+  border-collapse: separate !important;
+  border-spacing: 0 4px !important;
+}
+
+tr {
+  transition: all 0.2s ease !important;
+  border-radius: 10px !important;
+}
+
+body:not(.dark) th {
+  color: #475569 !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.05em !important;
+  border-bottom: 2px solid #e2e8f0 !important;
+}
+
+body.dark th {
+  color: #94a3b8 !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.05em !important;
+  border-bottom: 2px solid #334155 !important;
+}
+
+body:not(.dark) tbody tr:hover {
+  background: rgba(22, 63, 48, 0.04) !important;
+}
+
+body.dark tbody tr:hover {
+  background: rgba(30, 41, 59, 0.8) !important;
+}
+
+/* --------------------------------------------------------------------------
+   6.6 MODALS & OVERLAYS GLASSMORPHISM
+   -------------------------------------------------------------------------- */
+.modal-backdrop,
+div[class*="backdrop"],
+div[class*="overlay"] {
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  background-color: rgba(15, 23, 42, 0.65) !important;
+}
+
+.modal-container,
+.modal-content,
+.woot-modal,
+[role="dialog"] .modal-container,
+[role="dialog"] > div:nth-child(2) {
+  border-radius: 22px !important;
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(215, 169, 68, 0.3) !important;
+  overflow: hidden !important;
+}
+
+/* --------------------------------------------------------------------------
+   6.7 SMOOTH TRANSITIONS & FOCUS GLOWS
+   -------------------------------------------------------------------------- */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none !important;
+  border-color: #d7a944 !important;
+  box-shadow: 0 0 0 3px rgba(215, 169, 68, 0.3) !important;
+}
+
+button {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+button:active {
+  transform: scale(0.97) !important;
+}
+
