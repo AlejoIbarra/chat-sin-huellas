@@ -29,7 +29,11 @@ services:
   rails:
     image: chatwoot/chatwoot:latest
     restart: always
-    env_file: .env
+    env_file:
+      - path: .env
+        required: false
+      - path: .env.example
+        required: false
     volumes:
       - ./data/storage:/app/storage
       - ./data/storage/sinhuellas_logo.png:/app/public/sinhuellas_logo.png:ro
@@ -69,7 +73,11 @@ services:
   sidekiq:
     image: chatwoot/chatwoot:latest
     restart: always
-    env_file: .env
+    env_file:
+      - path: .env
+        required: false
+      - path: .env.example
+        required: false
     volumes:
       - ./data/storage:/app/storage
       - ./data/storage/i18n_default.rb:/app/config/initializers/i18n_default.rb:ro
