@@ -311,39 +311,39 @@ body:not(.dark) .popover-content {
 }
 
 /* --------------------------------------------------------------------------
-   2. DARK MODE (APPLIED WHEN BODY HAS .dark CLASS)
+   2. DARK MODE - OLED PITCH BLACK PURE (ESTILO APPLE iOS)
    -------------------------------------------------------------------------- */
 
 .dark,
 body.dark {
   /* Brand Tokens in Dark Mode */
-  --sh-bg-primary: #0f172a !important;
-  --sh-bg-secondary: #1e293b !important;
-  --sh-surface-card: #1e293b !important;
-  --sh-border-color: #334155 !important;
-  --sh-text-primary: #f8fafc !important;
-  --sh-text-muted: #94a3b8 !important;
+  --sh-bg-primary: #000000 !important;
+  --sh-bg-secondary: #09090b !important;
+  --sh-surface-card: #121215 !important;
+  --sh-border-color: #222226 !important;
+  --sh-text-primary: #ffffff !important;
+  --sh-text-muted: #a1a1aa !important;
 
   /* Radix / Tailwind Dark Mode Variables */
-  --slate-1: 15 23 42 !important;
-  --slate-2: 30 41 59 !important;
-  --slate-3: 51 65 85 !important;
-  --slate-4: 71 85 105 !important;
-  --slate-10: 203 213 225 !important;
-  --slate-11: 226 232 240 !important;
-  --slate-12: 248 250 252 !important;
+  --slate-1: 0 0 0 !important;
+  --slate-2: 9 9 11 !important;
+  --slate-3: 18 18 21 !important;
+  --slate-4: 34 34 38 !important;
+  --slate-10: 161 161 170 !important;
+  --slate-11: 212 212 216 !important;
+  --slate-12: 255 255 255 !important;
 
-  --background-color: 15 23 42 !important;
-  --surface-1: 30 41 59 !important;
-  --surface-2: 47 63 86 !important;
-  --surface-active: 51 65 85 !important;
-  --solid-1: 30 41 59 !important;
-  --solid-2: 47 63 86 !important;
-  --solid-3: 51 65 85 !important;
-  --card-color: 30 41 59 !important;
-  --label-background: 30 41 59 !important;
-  --border-strong: 51 65 85 !important;
-  --border-weak: 30 41 59 !important;
+  --background-color: 0 0 0 !important;
+  --surface-1: 18 18 21 !important;
+  --surface-2: 24 24 28 !important;
+  --surface-active: 34 34 38 !important;
+  --solid-1: 18 18 21 !important;
+  --solid-2: 24 24 28 !important;
+  --solid-3: 34 34 38 !important;
+  --card-color: 18 18 21 !important;
+  --label-background: 18 18 21 !important;
+  --border-strong: 34 34 38 !important;
+  --border-weak: 24 24 28 !important;
 
   --woot-500: 22 63 48 !important;
   --woot-600: 30 82 63 !important;
@@ -351,10 +351,10 @@ body.dark {
   --blue-9: 22 63 48 !important;
   --blue-10: 30 82 63 !important;
   --blue-11: 215 169 68 !important;
-  --blue-12: 248 250 252 !important;
+  --blue-12: 255 255 255 !important;
 }
 
-/* Dark Mode Containers & Main Surfaces */
+/* Dark Mode Containers & Main Surfaces (Pure OLED Black #000000) */
 body.dark,
 body.dark #app,
 body.dark .app-wrapper,
@@ -364,12 +364,14 @@ body.dark .main-content,
 body.dark [class*="bg-n-background"],
 body.dark [class*="bg-n-solid"],
 body.dark [class*="bg-n-slate"],
-body.dark [class*="bg-n-surface"] {
-  background-color: #0f172a !important;
-  color: #f8fafc !important;
+body.dark [class*="bg-n-surface"],
+body.dark [class*="bg-slate-900"],
+body.dark [class*="bg-slate-950"] {
+  background-color: #000000 !important;
+  color: #ffffff !important;
 }
 
-/* Dark Mode Cards, Onboarding & Secondary Surfaces */
+/* Dark Mode Cards & Floating Surfaces (Grafito Oscuro Mate #121215) */
 body.dark div[class*="bg-n-surface"],
 body.dark .bg-n-surface-2,
 body.dark .bg-n-surface-3,
@@ -377,38 +379,41 @@ body.dark .card,
 body.dark .auth-card,
 body.dark div[class*="shadow-card"],
 body.dark div[class*="rounded-xl"] {
-  background-color: #1e293b !important;
-  border: 1px solid #334155 !important;
-  color: #f8fafc !important;
+  background-color: #121215 !important;
+  border: 1px solid #222226 !important;
+  color: #ffffff !important;
 }
 
-/* Dark Mode Typography */
-body.dark p,
-body.dark span:not(button *):not(nav *),
-body.dark label,
+/* Dark Mode Typography Hierarchy */
 body.dark h1,
 body.dark h2,
 body.dark h3,
 body.dark h4,
 body.dark h5,
-body.dark h6,
+body.dark h6 {
+  color: #ffffff !important;
+}
+
+body.dark p,
+body.dark label,
 body.dark td,
 body.dark th {
-  color: #f8fafc !important;
+  color: #e4e4e7 !important;
 }
 
 body.dark .text-n-slate-12,
 body.dark [class*="text-n-slate-12"],
 body.dark .text-slate-100,
 body.dark .text-slate-200 {
-  color: #f8fafc !important;
+  color: #ffffff !important;
 }
 
 body.dark .text-n-slate-11,
 body.dark [class*="text-n-slate-11"],
 body.dark .text-slate-400,
-body.dark .text-slate-300 {
-  color: #94a3b8 !important;
+body.dark .text-slate-300,
+body.dark span.text-n-slate-11 {
+  color: #a1a1aa !important;
 }
 
 body.dark a[class*="text-n-brand"],
@@ -423,13 +428,20 @@ body.dark input[type="email"],
 body.dark input[type="password"],
 body.dark textarea,
 body.dark select {
-  background-color: #1e293b !important;
-  border: 1px solid #334155 !important;
-  color: #f8fafc !important;
+  background-color: #18181b !important;
+  border: 1px solid #27272a !important;
+  color: #ffffff !important;
   border-radius: 10px !important;
 }
 
-/* Dark Mode Secondary / Faded / Outline Buttons */
+body.dark input:focus,
+body.dark textarea:focus,
+body.dark select:focus {
+  border-color: var(--sh-gold) !important;
+  box-shadow: 0 0 0 2px rgba(215, 169, 68, 0.25) !important;
+}
+
+/* Dark Mode Secondary / Outline Buttons */
 body.dark button[class*="bg-n-brand/"],
 body.dark button[class*="bg-n-teal/"],
 body.dark button[class*="bg-n-amber/"],
@@ -445,9 +457,9 @@ body.dark .button--clear,
 body.dark .button--hollow,
 body.dark .woot-button--secondary,
 body.dark .n-button--secondary {
-  background-color: #1e293b !important;
-  border: 1px solid var(--sh-gold) !important;
-  color: var(--sh-gold) !important;
+  background-color: #18181b !important;
+  border: 1px solid #27272a !important;
+  color: #f4f4f5 !important;
 }
 
 body.dark button[class*="bg-n-brand/"] *,
@@ -465,9 +477,9 @@ body.dark .button--clear *,
 body.dark .button--hollow *,
 body.dark .woot-button--secondary *,
 body.dark .n-button--secondary * {
-  color: var(--sh-gold) !important;
-  fill: var(--sh-gold) !important;
-  stroke: var(--sh-gold) !important;
+  color: #f4f4f5 !important;
+  fill: #f4f4f5 !important;
+  stroke: #f4f4f5 !important;
 }
 
 body.dark button[class*="bg-n-brand/"]:hover,
@@ -478,22 +490,9 @@ body.dark button.clear:hover,
 body.dark button.secondary:hover,
 body.dark button.hollow:hover,
 body.dark .button--secondary:hover {
-  background: var(--sh-brand-gradient) !important;
+  background: #27272a !important;
   color: #ffffff !important;
-  border-color: var(--sh-gold) !important;
-}
-
-body.dark button[class*="bg-n-brand/"]:hover *,
-body.dark button[class*="bg-n-teal/"]:hover *,
-body.dark button[class*="bg-n-amber/"]:hover *,
-body.dark button[class*="bg-n-slate/"]:hover *,
-body.dark button.clear:hover *,
-body.dark button.secondary:hover *,
-body.dark button.hollow:hover *,
-body.dark .button--secondary:hover * {
-  color: #ffffff !important;
-  fill: #ffffff !important;
-  stroke: #ffffff !important;
+  border-color: rgba(215, 169, 68, 0.5) !important;
 }
 
 /* Dark Mode Sidebar & Header */
@@ -507,8 +506,8 @@ body.dark header,
 body.dark .header,
 body.dark topbar,
 body.dark .topbar {
-  background-color: #0f172a !important;
-  border-color: #334155 !important;
+  background-color: #000000 !important;
+  border-color: #1f1f23 !important;
 }
 
 body.dark aside svg, body.dark nav svg, body.dark .sidebar svg {
@@ -518,7 +517,7 @@ body.dark aside svg, body.dark nav svg, body.dark .sidebar svg {
 body.dark aside a:hover,
 body.dark nav a:hover,
 body.dark .sidebar a:hover {
-  background-color: rgba(215, 169, 68, 0.15) !important;
+  background-color: rgba(255, 255, 255, 0.06) !important;
 }
 
 /* Dark Mode Modals & Dropdowns */
@@ -528,27 +527,29 @@ body.dark .woot-modal,
 body.dark [role="dialog"] .modal-container,
 body.dark [role="dialog"] > div:nth-child(2),
 body.dark div[class*="modal-card"] {
-  background-color: #1e293b !important;
-  border: 1px solid var(--sh-gold) !important;
-  color: #f8fafc !important;
+  background-color: #121215 !important;
+  border: 1px solid #27272a !important;
+  color: #ffffff !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8) !important;
 }
 
 body.dark .modal-header, body.dark .woot-modal--header {
-  border-bottom: 1px solid #334155 !important;
+  border-bottom: 1px solid #222226 !important;
   color: var(--sh-gold) !important;
 }
 
 body.dark .modal-footer, body.dark .woot-modal--footer {
-  border-top: 1px solid #334155 !important;
-  background-color: #0f172a !important;
+  border-top: 1px solid #222226 !important;
+  background-color: #09090b !important;
 }
 
 body.dark .dropdown-pane,
 body.dark [class*="dropdown-menu"],
 body.dark .popover-content {
-  background-color: #1e293b !important;
-  border: 1px solid #334155 !important;
-  color: #f8fafc !important;
+  background-color: #121215 !important;
+  border: 1px solid #27272a !important;
+  color: #ffffff !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7) !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -947,17 +948,17 @@ body:not(.dark) .conversation:hover {
 body.dark [class*="conversations-list"] > div,
 body.dark [class*="conversation-item"],
 body.dark .conversation {
-  background: #141c2b !important;
-  border: 1px solid #1e293b !important;
+  background: #121215 !important;
+  border: 1px solid #222226 !important;
 }
 
 body.dark [class*="conversations-list"] > div:hover,
 body.dark [class*="conversation-item"]:hover,
 body.dark .conversation:hover {
-  background: #1e293b !important;
+  background: #18181b !important;
   border-color: rgba(215, 169, 68, 0.4) !important;
   transform: translateY(-1px) !important;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3) !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5) !important;
 }
 
 /* Active Selected Conversation Item */
@@ -973,7 +974,7 @@ div[class*="bg-n-alpha-2"]:has([class*="avatar"]) {
 body.dark .conversation.active,
 body.dark [class*="conversation-item"].active,
 body.dark [class*="conversation-item"][class*="active"] {
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(215, 169, 68, 0.18) 100%) !important;
+  background: linear-gradient(135deg, rgba(22, 63, 48, 0.22) 0%, rgba(215, 169, 68, 0.15) 100%) !important;
   border-left: 4px solid #d7a944 !important;
   border-radius: 4px 14px 14px 4px !important;
 }
@@ -1031,11 +1032,11 @@ body.dark [class*="bubble"][class*="incoming"],
 body.dark .message-bubble.incoming,
 body.dark div[class*="bg-n-slate-2"],
 body.dark div[class*="bg-slate-700"] {
-  background: #1e293b !important;
-  border: 1px solid #334155 !important;
-  color: #f8fafc !important;
+  background: #18181b !important;
+  border: 1px solid #27272a !important;
+  color: #ffffff !important;
   border-radius: 18px 18px 18px 4px !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5) !important;
   padding: 12px 16px !important;
 }
 
@@ -1082,15 +1083,15 @@ body:not(.dark) div[class*="reply-box"]:focus-within {
 body.dark .reply-box,
 body.dark div[class*="reply-box"],
 body.dark div:has(> .ProseMirror) {
-  background: #141c2b !important;
-  border: 1px solid #334155 !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+  background: #121215 !important;
+  border: 1px solid #27272a !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
 }
 
 body.dark .reply-box:focus-within,
 body.dark div[class*="reply-box"]:focus-within {
   border-color: #d7a944 !important;
-  box-shadow: 0 0 0 3px rgba(215, 169, 68, 0.3), 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+  box-shadow: 0 0 0 3px rgba(215, 169, 68, 0.25), 0 8px 24px rgba(0, 0, 0, 0.6) !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -1123,9 +1124,9 @@ body:not(.dark) main div[class*="rounded-xl"]:hover {
 body.dark [class*="metric-card"],
 body.dark .stat-card,
 body.dark main div[class*="rounded-xl"] {
-  background: #141c2b !important;
-  border: 1px solid #1e293b !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25) !important;
+  background: #121215 !important;
+  border: 1px solid #222226 !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5) !important;
 }
 
 body.dark [class*="metric-card"]:hover,
@@ -1133,7 +1134,7 @@ body.dark .stat-card:hover,
 body.dark main div[class*="rounded-xl"]:hover {
   border-color: rgba(215, 169, 68, 0.45) !important;
   transform: translateY(-2px) !important;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4) !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6) !important;
 }
 
 /* --------------------------------------------------------------------------
