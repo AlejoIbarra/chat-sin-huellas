@@ -1,3 +1,5 @@
+version: '3'
+
 services:
   postgres:
     image: pgvector/pgvector:pg15
@@ -7,7 +9,7 @@ services:
       POSTGRES_PASSWORD: chatwoot_password_123
       POSTGRES_DB: chatwoot_production
     volumes:
-      - ./data/postgres:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -19,7 +21,7 @@ services:
     restart: always
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
-      - ./data/redis:/data
+      - redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -35,31 +37,8 @@ services:
       - path: .env.example
         required: false
     volumes:
-      - ./data/storage:/app/storage
-      - ./data/storage/sinhuellas_logo.png:/app/public/sinhuellas_logo.png:ro
-      - ./data/storage/sinhuellas_logo.svg:/app/public/brand-assets/logo.svg:ro
-      - ./data/storage/sinhuellas_logo.svg:/app/public/brand-assets/logo_dark.svg:ro
-      - ./data/storage/sinhuellas_logo.svg:/app/public/brand-assets/logo_thumbnail.svg:ro
-      - ./data/storage/sinhuellas_logo.svg:/app/public/packs/brand-assets/logo.svg:ro
-      - ./data/storage/sinhuellas_logo.svg:/app/public/packs/brand-assets/logo_dark.svg:ro
-      - ./data/storage/sinhuellas_logo.svg:/app/public/packs/brand-assets/logo_thumbnail.svg:ro
-      - ./data/storage/sinhuellas_logo.svg:/app/app/javascript/dashboard/assets/images/bubble-logo.svg:ro
-      - ./data/storage/sinhuellas_logo.svg:/app/app/javascript/widget/assets/images/logo.svg:ro
-      - ./data/storage/sinhuellas_logo.png:/app/public/brand-assets/logo.png:ro
-      - ./data/storage/sinhuellas_logo.png:/app/public/brand-assets/logo_dark.png:ro
-      - ./data/storage/sinhuellas_logo.png:/app/public/brand-assets/logo_thumbnail.png:ro
-      - ./data/storage/sinhuellas_logo.png:/app/public/favicon.ico:ro
-      - ./data/storage/sinhuellas_logo.png:/app/public/favicon-16x16.png:ro
-      - ./data/storage/sinhuellas_logo.png:/app/public/favicon-32x32.png:ro
-      - ./data/storage/sinhuellas_logo.png:/app/public/favicon-96x96.png:ro
-      - ./data/storage/sinhuellas_logo.png:/app/public/favicon-512x512.png:ro
-      - ./data/storage/sinhuellas_logo.png:/app/public/apple-icon.png:ro
-      - ./data/storage/sinhuellas_logo.png:/app/public/apple-touch-icon.png:ro
-      - ./data/storage/sinhuellas_logo.png:/app/public/packs/favicon-16x16.png:ro
-      - ./data/storage/sinhuellas_logo.png:/app/public/packs/favicon-32x32.png:ro
-      - ./data/storage/i18n_default.rb:/app/config/initializers/i18n_default.rb:ro
-      - ./data/storage/custom.css:/app/public/custom.css:ro
-      - ./data/storage/vueapp.html.erb:/app/app/views/layouts/vueapp.html.erb:ro
+      - rails_storage:/app/storage
+      - custom_assets:/app/custom_storage:ro
     depends_on:
       postgres:
         condition: service_healthy
@@ -67,7 +46,7 @@ services:
         condition: service_healthy
     ports:
       - "3000:3000"
-    command: ["bundle", "exec", "rails", "s", "-p", "3000", "-b", "0.0.0.0"]
+    command: ["sh", "-c", "cp /app/custom_storage/custom.css /app/public/custom.css 2>/dev/null; cp /app/custom_storage/vueapp.html.erb /app/app/views/layouts/vueapp.html.erb 2>/dev/null; mkdir -p /app/app/views/super_admin/application 2>/dev/null; cp /app/custom_storage/_navigation.html.erb /app/app/views/super_admin/application/_navigation.html.erb 2>/dev/null; bundle exec rails s -p 3000 -b 0.0.0.0"]
     entrypoint: docker/entrypoints/rails.sh
 
   sidekiq:
@@ -79,11 +58,17 @@ services:
       - path: .env.example
         required: false
     volumes:
-      - ./data/storage:/app/storage
-      - ./data/storage/i18n_default.rb:/app/config/initializers/i18n_default.rb:ro
+      - rails_storage:/app/storage
+      - custom_assets:/app/custom_storage:ro
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
     command: ["bundle", "exec", "sidekiq", "-C", "config/sidekiq.yml"]
+
+volumes:
+  postgres_data:
+  redis_data:
+  rails_storage:
+  custom_assets:
