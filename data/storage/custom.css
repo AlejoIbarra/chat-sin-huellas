@@ -311,7 +311,7 @@ body:not(.dark) .popover-content {
 }
 
 /* --------------------------------------------------------------------------
-   2. DARK MODE - OLED PITCH BLACK PURE (ESTILO APPLE iOS)
+   2. DARK MODE - OLED PITCH BLACK PURE (ESTILO APPLE iOS - SINO AZUL #0e1628)
    -------------------------------------------------------------------------- */
 
 .dark,
@@ -324,11 +324,16 @@ body.dark {
   --sh-text-primary: #ffffff !important;
   --sh-text-muted: #a1a1aa !important;
 
-  /* Radix / Tailwind Dark Mode Variables */
+  /* Eradicate Radix Slate Blue Hues (#0e1628) to Pure Pitch Black / Charcoal */
   --slate-1: 0 0 0 !important;
   --slate-2: 9 9 11 !important;
   --slate-3: 18 18 21 !important;
-  --slate-4: 34 34 38 !important;
+  --slate-4: 24 24 28 !important;
+  --slate-5: 34 34 38 !important;
+  --slate-6: 45 45 50 !important;
+  --slate-7: 70 70 75 !important;
+  --slate-8: 100 100 105 !important;
+  --slate-9: 140 140 145 !important;
   --slate-10: 161 161 170 !important;
   --slate-11: 212 212 216 !important;
   --slate-12: 255 255 255 !important;
@@ -336,6 +341,7 @@ body.dark {
   --background-color: 0 0 0 !important;
   --surface-1: 18 18 21 !important;
   --surface-2: 24 24 28 !important;
+  --surface-3: 30 30 35 !important;
   --surface-active: 34 34 38 !important;
   --solid-1: 18 18 21 !important;
   --solid-2: 24 24 28 !important;
@@ -354,7 +360,7 @@ body.dark {
   --blue-12: 255 255 255 !important;
 }
 
-/* Dark Mode Containers & Main Surfaces (Pure OLED Black #000000) */
+/* Eradicate #0e1628 Dark Blue Tint in Dark Mode Across Containers */
 body.dark,
 body.dark #app,
 body.dark .app-wrapper,
@@ -366,7 +372,13 @@ body.dark [class*="bg-n-solid"],
 body.dark [class*="bg-n-slate"],
 body.dark [class*="bg-n-surface"],
 body.dark [class*="bg-slate-900"],
-body.dark [class*="bg-slate-950"] {
+body.dark [class*="bg-slate-925"],
+body.dark [class*="bg-slate-950"],
+body.dark [class*="bg-slate-800"],
+body.dark [class*="bg-slate-850"],
+body.dark [class*="bg-woot-900"],
+body.dark div[class*="conversations-sidebar"],
+body.dark div[class*="secondary-sidebar"] {
   background-color: #000000 !important;
   color: #ffffff !important;
 }
