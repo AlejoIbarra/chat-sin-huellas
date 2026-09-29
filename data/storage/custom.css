@@ -1234,54 +1234,92 @@ button:active {
 
 html.dark,
 body.dark,
-body.dark #app,
-body.dark .app-wrapper,
-body.dark .v3-app,
-body.dark main,
-body.dark .main-content,
-body.dark header,
-body.dark .header,
-body.dark topbar,
-body.dark .topbar,
-body.dark aside,
-body.dark nav,
-body.dark .sidebar,
-body.dark .secondary-sidebar,
-body.dark [class*="secondary-sidebar"],
-body.dark [class*="conversations-sidebar"],
-body.dark [class*="conversations-list"],
-body.dark [class*="bg-n-background"],
-body.dark [class*="bg-n-solid"],
-body.dark [class*="bg-n-slate"],
-body.dark [class*="bg-slate-"],
-body.dark [class*="bg-woot-"],
-body.dark [class*="bg-slate-900"],
-body.dark [class*="bg-slate-925"],
-body.dark [class*="bg-slate-950"],
-body.dark [class*="bg-slate-800"],
-body.dark [class*="bg-slate-850"] {
+.dark,
+.dark #app,
+.dark .app-wrapper,
+.dark .v3-app,
+.dark main,
+.dark .main-content,
+.dark header,
+.dark .header,
+.dark topbar,
+.dark .topbar,
+.dark aside,
+.dark nav,
+.dark .sidebar,
+.dark .secondary-sidebar,
+.dark [class*="secondary-sidebar"],
+.dark [class*="conversations-sidebar"],
+.dark [class*="conversations-list"],
+.dark [class*="bg-n-background"],
+.dark [class*="bg-n-solid"],
+.dark [class*="bg-n-slate"],
+.dark [class*="bg-slate-"],
+.dark [class*="bg-woot-"],
+.dark [class*="dark:bg-slate-"],
+.dark [class*="dark:bg-woot-"],
+.dark [class*="dark:bg-n-"],
+.dark [class*="dark:bg-gray-"],
+.dark [class*="dark:bg-zinc-"],
+.dark [class*="dark:bg-neutral-"],
+.dark .bg-slate-900,
+.dark .bg-slate-800,
+.dark .bg-slate-700,
+.dark .bg-slate-950,
+.dark .bg-slate-925,
+.dark .bg-slate-850,
+.dark .dark\:bg-slate-900,
+.dark .dark\:bg-slate-800,
+.dark .dark\:bg-slate-700,
+.dark .dark\:bg-slate-950,
+.dark .dark\:bg-slate-925,
+.dark .dark\:bg-slate-850,
+.dark .dark\:bg-woot-900,
+.dark .dark\:bg-woot-800,
+.dark .dark\:bg-slate-900\/50,
+.dark .dark\:bg-slate-800\/50,
+.dark .dark\:bg-slate-950\/50 {
   background-color: #000000 !important;
   color: #ffffff !important;
 }
 
-body.dark table,
-body.dark tbody tr {
+.dark div[class*="shadow"],
+.dark div[class*="rounded-lg"],
+.dark div[class*="rounded-xl"],
+.dark div[class*="card"],
+.dark section[class*="shadow"] {
+  background-color: #121215 !important;
+  border: 1px solid #222226 !important;
+  color: #ffffff !important;
+}
+
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: #18181b !important;
+  border: 1px solid #27272a !important;
+  color: #ffffff !important;
+}
+
+.dark table,
+.dark tbody tr {
   background-color: #000000 !important;
   color: #ffffff !important;
 }
 
-body.dark tbody tr:hover {
+.dark tbody tr:hover {
   background-color: #18181b !important;
 }
 
-body.dark th {
+.dark th {
   border-bottom: 1px solid #222226 !important;
   color: #a1a1aa !important;
 }
 
-body.dark td {
+.dark td {
   border-bottom: 1px solid #18181b !important;
   color: #e4e4e7 !important;
 }
+
 
 
