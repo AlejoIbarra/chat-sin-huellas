@@ -1185,7 +1185,7 @@ body:not(.dark) tbody tr:hover {
 }
 
 body.dark tbody tr:hover {
-  background: rgba(30, 41, 59, 0.8) !important;
+  background: #18181b !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -1196,7 +1196,7 @@ div[class*="backdrop"],
 div[class*="overlay"] {
   backdrop-filter: blur(8px) !important;
   -webkit-backdrop-filter: blur(8px) !important;
-  background-color: rgba(15, 23, 42, 0.65) !important;
+  background-color: rgba(0, 0, 0, 0.85) !important;
 }
 
 .modal-container,
@@ -1205,7 +1205,7 @@ div[class*="overlay"] {
 [role="dialog"] .modal-container,
 [role="dialog"] > div:nth-child(2) {
   border-radius: 22px !important;
-  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(215, 169, 68, 0.3) !important;
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(215, 169, 68, 0.3) !important;
   overflow: hidden !important;
 }
 
@@ -1227,4 +1227,61 @@ button {
 button:active {
   transform: scale(0.97) !important;
 }
+
+/* ==========================================================================
+   7. STRICT OLED PITCH BLACK CONTRACT (DOMINANTE NEGRO ABSOLUTO #000000)
+   ========================================================================== */
+
+html.dark,
+body.dark,
+body.dark #app,
+body.dark .app-wrapper,
+body.dark .v3-app,
+body.dark main,
+body.dark .main-content,
+body.dark header,
+body.dark .header,
+body.dark topbar,
+body.dark .topbar,
+body.dark aside,
+body.dark nav,
+body.dark .sidebar,
+body.dark .secondary-sidebar,
+body.dark [class*="secondary-sidebar"],
+body.dark [class*="conversations-sidebar"],
+body.dark [class*="conversations-list"],
+body.dark [class*="bg-n-background"],
+body.dark [class*="bg-n-solid"],
+body.dark [class*="bg-n-slate"],
+body.dark [class*="bg-slate-"],
+body.dark [class*="bg-woot-"],
+body.dark [class*="bg-slate-900"],
+body.dark [class*="bg-slate-925"],
+body.dark [class*="bg-slate-950"],
+body.dark [class*="bg-slate-800"],
+body.dark [class*="bg-slate-850"] {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+body.dark table,
+body.dark tbody tr {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+body.dark tbody tr:hover {
+  background-color: #18181b !important;
+}
+
+body.dark th {
+  border-bottom: 1px solid #222226 !important;
+  color: #a1a1aa !important;
+}
+
+body.dark td {
+  border-bottom: 1px solid #18181b !important;
+  color: #e4e4e7 !important;
+}
+
 
