@@ -326,11 +326,11 @@ body.dark {
 
   /* Eradicate Radix Slate Blue Hues (#0e1628) to Pure Pitch Black / Charcoal */
   --slate-1: 0 0 0 !important;
-  --slate-2: 9 9 11 !important;
-  --slate-3: 18 18 21 !important;
-  --slate-4: 24 24 28 !important;
-  --slate-5: 34 34 38 !important;
-  --slate-6: 45 45 50 !important;
+  --slate-2: 0 0 0 !important;
+  --slate-3: 0 0 0 !important;
+  --slate-4: 0 0 0 !important;
+  --slate-5: 18 18 21 !important;
+  --slate-6: 24 24 28 !important;
   --slate-7: 70 70 75 !important;
   --slate-8: 100 100 105 !important;
   --slate-9: 140 140 145 !important;
@@ -339,17 +339,17 @@ body.dark {
   --slate-12: 255 255 255 !important;
 
   --background-color: 0 0 0 !important;
-  --surface-1: 18 18 21 !important;
-  --surface-2: 24 24 28 !important;
-  --surface-3: 30 30 35 !important;
-  --surface-active: 34 34 38 !important;
-  --solid-1: 18 18 21 !important;
-  --solid-2: 24 24 28 !important;
-  --solid-3: 34 34 38 !important;
-  --card-color: 18 18 21 !important;
-  --label-background: 18 18 21 !important;
-  --border-strong: 34 34 38 !important;
-  --border-weak: 24 24 28 !important;
+  --surface-1: 0 0 0 !important;
+  --surface-2: 0 0 0 !important;
+  --surface-3: 0 0 0 !important;
+  --surface-active: 18 18 21 !important;
+  --solid-1: 0 0 0 !important;
+  --solid-2: 0 0 0 !important;
+  --solid-3: 0 0 0 !important;
+  --card-color: 0 0 0 !important;
+  --label-background: 0 0 0 !important;
+  --border-strong: 24 24 28 !important;
+  --border-weak: 18 18 21 !important;
 
   --woot-500: 22 63 48 !important;
   --woot-600: 30 82 63 !important;
@@ -1283,14 +1283,41 @@ body.dark,
   color: #ffffff !important;
 }
 
-.dark div[class*="shadow"],
-.dark div[class*="rounded-lg"],
-.dark div[class*="rounded-xl"],
-.dark div[class*="card"],
-.dark section[class*="shadow"] {
+.dark .card,
+.dark .auth-card,
+.dark div[class*="card-"],
+.dark div[class*="shadow-card"] {
   background-color: #121215 !important;
   border: 1px solid #222226 !important;
   color: #ffffff !important;
+}
+
+/* NAVBAR, SIDEBAR & TOP HEADER STRICT OLED PITCH BLACK (#000000) */
+.dark aside,
+.dark nav,
+.dark header,
+.dark .header,
+.dark topbar,
+.dark .topbar,
+.dark .sidebar,
+.dark .sidebar-main,
+.dark .secondary-sidebar,
+.dark [class*="secondary-sidebar"],
+.dark [class*="conversations-sidebar"],
+.dark [class*="conversations-list"],
+.dark [class*="bg-n-solid"],
+.dark [class*="bg-n-surface"],
+.dark [class*="bg-n-slate"],
+.dark [class*="bg-n-alpha"],
+.dark [class*="bg-slate-"],
+.dark [class*="bg-woot-"],
+.dark div[class*="flex-shrink-0"],
+.dark div[class*="w-56"],
+.dark div[class*="w-60"],
+.dark div[class*="w-64"] {
+  background-color: #000000 !important;
+  background: #000000 !important;
+  border-color: #18181b !important;
 }
 
 .dark input,
@@ -1320,6 +1347,7 @@ body.dark,
   border-bottom: 1px solid #18181b !important;
   color: #e4e4e7 !important;
 }
+
 
 
 
