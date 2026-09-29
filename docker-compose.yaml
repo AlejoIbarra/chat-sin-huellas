@@ -46,7 +46,7 @@ services:
         condition: service_healthy
     ports:
       - "3000:3000"
-    command: ["sh", "-c", "cp /app/custom_storage/custom.css /app/public/custom.css 2>/dev/null; cp /app/custom_storage/vueapp.html.erb /app/app/views/layouts/vueapp.html.erb 2>/dev/null; mkdir -p /app/app/views/super_admin/application 2>/dev/null; cp /app/custom_storage/_navigation.html.erb /app/app/views/super_admin/application/_navigation.html.erb 2>/dev/null; bundle exec rails s -p 3000 -b 0.0.0.0"]
+    command: ["sh", "-c", "cp /app/custom_storage/custom.css /app/public/custom.css 2>/dev/null; cp /app/custom_storage/vueapp.html.erb /app/app/views/layouts/vueapp.html.erb 2>/dev/null; mkdir -p /app/app/views/super_admin/application /app/app/views/super_admin/devise/sessions /app/app/views/super_admin/instance_statuses /app/app/controllers/super_admin 2>/dev/null; cp /app/custom_storage/_navigation.html.erb /app/app/views/super_admin/application/_navigation.html.erb 2>/dev/null; cp /app/custom_storage/instance_status_show.html.erb /app/app/views/super_admin/instance_statuses/show.html.erb 2>/dev/null; cp /app/custom_storage/sessions_new.html.erb /app/app/views/super_admin/devise/sessions/new.html.erb 2>/dev/null; bundle exec rails s -p 3000 -b 0.0.0.0"]
     entrypoint: docker/entrypoints/rails.sh
 
   sidekiq:
