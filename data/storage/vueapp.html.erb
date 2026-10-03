@@ -61,7 +61,7 @@
         inboxEventsEnabled: '<%= ENV['ENABLE_INBOX_EVENTS'].present? %>',
         selectedLocale: '<%= I18n.locale %>'
       }
-      window.globalConfig = <%= raw @global_config.to_json %>
+      window.globalConfig = <%= raw @global_config.merge("LOGO" => "#{@global_config["LOGO"]}?v=1790981013", "LOGO_DARK" => "#{@global_config["LOGO_DARK"]}?v=1790981013", "LOGO_THUMBNAIL" => "#{@global_config["LOGO_THUMBNAIL"]}?v=1790981013").to_json %>
       window.browserConfig = {
         browser_name: '<%= browser.name %>',
       }
@@ -76,7 +76,7 @@
     <% end %>
     <%= vite_client_tag %>
     <%= vite_javascript_tag @application_pack %>
-    <link rel="stylesheet" id="sinhuellas-custom-css" href="/custom.css">
+    <link rel="stylesheet" id="sinhuellas-custom-css" href="/custom.css?v=1790981013790980779<%= Time.now.to_i %>">
     <script>
       (function() {
         function ensureCustomCssLast() {

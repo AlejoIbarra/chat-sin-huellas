@@ -1,0 +1,39 @@
+
+/* FORCE ALL SURFACES TO PITCH BLACK */
+html.dark, body.dark, .dark, .dark * {
+  --background-color: 0 0 0 !important;
+  --surface-1: 0 0 0 !important;
+  --surface-2: 0 0 0 !important;
+  --surface-active: 10 10 10 !important;
+  --slate-1: 0 0 0 !important;
+  --slate-2: 0 0 0 !important;
+  --slate-3: 15 15 15 !important;
+  --blue-1: 0 0 0 !important;
+  --blue-2: 0 0 0 !important;
+  --blue-3: 0 0 0 !important;
+  --blue-4: 0 0 0 !important;
+  --iris-1: 0 0 0 !important;
+  --iris-2: 0 0 0 !important;
+  --n-background: 0 0 0 !important;
+  --solid-1: 0 0 0 !important;
+  --solid-2: 0 0 0 !important;
+  --solid-3: 0 0 0 !important;
+  --card-color: 0 0 0 !important;
+}
+
+body.dark,
+body.dark #app,
+body.dark aside,
+body.dark nav,
+body.dark header,
+body.dark main,
+body.dark section,
+body.dark div[class*="bg-n-background"],
+body.dark div[class*="bg-n-solid"],
+body.dark div[class*="bg-n-surface"],
+body.dark div[class*="bg-slate"],
+body.dark div[class*="sidebar"],
+body.dark div[class*="header"] {
+  background-color: #000000 !important;
+  background: #000000 !important;
+}
