@@ -314,7 +314,6 @@ body:not(.dark) .popover-content {
    2. DARK MODE - OLED PITCH BLACK PURE (ESTILO APPLE iOS - SINO AZUL #0e1628)
    -------------------------------------------------------------------------- */
 
-.dark,
 body.dark {
   /* Brand Tokens in Dark Mode */
   --sh-bg-primary: #000000 !important;
@@ -361,7 +360,7 @@ body.dark {
 }
 
 /* Eradicate #0e1628 Dark Blue Tint in Dark Mode Across Containers */
-body.dark,
+body
 body.dark #app,
 body.dark .app-wrapper,
 body.dark .v3-app,
@@ -847,7 +846,7 @@ body:not(.dark) #sidebar-account-switcher span {
   letter-spacing: -0.01em !important;
 }
 
-body.dark #sidebar-account-switcher span {
+body.dark .sidebar-account-switcher span {
   font-size: 1.05rem !important;
   font-weight: 700 !important;
   color: #d7a944 !important;
@@ -1070,42 +1069,6 @@ div[class*="bg-woot-500"]:not(button) {
   color: #ffffff !important;
 }
 
-/* Reply Input Box Container */
-.reply-box,
-div[class*="reply-box"],
-div:has(> .ProseMirror) {
-  border-radius: 18px !important;
-  transition: all 0.25s ease !important;
-}
-
-body:not(.dark) .reply-box,
-body:not(.dark) div[class*="reply-box"],
-body:not(.dark) div:has(> .ProseMirror) {
-  background: #ffffff !important;
-  border: 1px solid #cbd5e1 !important;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05) !important;
-}
-
-body:not(.dark) .reply-box:focus-within,
-body:not(.dark) div[class*="reply-box"]:focus-within {
-  border-color: #163f30 !important;
-  box-shadow: 0 0 0 3px rgba(215, 169, 68, 0.25), 0 8px 24px rgba(22, 63, 48, 0.1) !important;
-}
-
-body.dark .reply-box,
-body.dark div[class*="reply-box"],
-body.dark div:has(> .ProseMirror) {
-  background: #121215 !important;
-  border: 1px solid #27272a !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
-}
-
-body.dark .reply-box:focus-within,
-body.dark div[class*="reply-box"]:focus-within {
-  border-color: #d7a944 !important;
-  box-shadow: 0 0 0 3px rgba(215, 169, 68, 0.25), 0 8px 24px rgba(0, 0, 0, 0.6) !important;
-}
-
 /* --------------------------------------------------------------------------
    6.4 DASHBOARD CARDS & STATS WIDGETS
    -------------------------------------------------------------------------- */
@@ -1229,190 +1192,426 @@ button:active {
 }
 
 /* ==========================================================================
-   7. STRICT OLED PITCH BLACK CONTRACT (DOMINANTE NEGRO ABSOLUTO #000000)
+   /* Fix for Toast/Snackbar Notifications */
+body:not(.dark) div[class*="bg-n-slate-12"],
+body:not(.dark) div[class*="bg-slate-900"] {
+  background-color: var(--sh-emerald) !important;
+  color: #ffffff !important;
+}
+body:not(.dark) div[class*="bg-n-slate-12"] *,
+body:not(.dark) div[class*="bg-slate-900"] * {
+  color: #ffffff !important;
+}
+
+/* Fix for Reply Box Drag Handle Gradient */
+body:not(.dark) .resizable-editor-wrapper > div:first-child {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* Fix for "Todas las conversaciones" border */
+body:not(.dark) aside .active,
+body:not(.dark) aside [class*="active"],
+body:not(.dark) nav .active {
+  box-shadow: none !important;
+}
+
+/* Fix for Active Conversation Item Borders */
+body:not(.dark) .conversation.active,
+body:not(.dark) [class*="conversation-item"].active,
+body:not(.dark) [class*="conversation-item"][class*="active"] {
+  border-top: none !important;
+  border-right: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+/* Remove heavy shadow on reply-box again just in case */
+body:not(.dark) .reply-box-wrap,
+body:not(.dark) .bottom-box,
+body:not(.dark) .send-message-box {
+  box-shadow: none !important;
+}
+
+
+
+/* Quitar el borde oscuro del card de la firma sin borrar el card */
+.reply-box__top .border-dashed,
+.reply-box__top [class*="border-dashed"] {
+  border: none !important;
+  border-width: 0 !important;
+  border-color: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+
+
+/* ==========================================================================
+   AESTHETIC REPLY BOX (Unified clean design, NO nested borders)
+   ========================================================================== */
+/* Outermost Container */
+.reply-box {
+  border-radius: 16px !important;
+  transition: all 0.25s ease !important;
+  padding: 8px !important;
+}
+
+body:not(.dark) .reply-box {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05) !important;
+}
+
+body:not(.dark) .reply-box:focus-within {
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08) !important;
+}
+
+body.dark .reply-box {
+  background: #121215 !important;
+  border: 1px solid #27272a !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+}
+
+body.dark .reply-box:focus-within {
+  border-color: #3f3f46 !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Remove ALL nested borders inside the reply box */
+.reply-box .input,
+.reply-box .popover-prosemirror-menu,
+.reply-box .ProseMirror,
+.reply-box .ProseMirror-menubar-wrapper,
+.reply-box__top > div,
+.reply-box__top .input.popover-prosemirror-menu {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+/* Ensure the text area itself has proper padding but no weird outlines */
+.reply-box .ProseMirror {
+  padding: 12px 8px !important;
+  min-height: 80px !important;
+}
+
+/* ==========================================================================
+   AESTHETIC INNER TEXT BOX (Subtle border & background contrast)
    ========================================================================== */
 
-html.dark,
-body.dark,
-.dark,
-.dark #app,
-.dark .app-wrapper,
-.dark .v3-app,
-.dark main,
-.dark .main-content,
-.dark header,
-.dark .header,
-.dark topbar,
-.dark .topbar,
-.dark aside,
-.dark nav,
-.dark .sidebar,
-.dark .secondary-sidebar,
-.dark [class*="secondary-sidebar"],
-.dark [class*="conversations-sidebar"],
-.dark [class*="conversations-list"],
-.dark [class*="bg-n-background"],
-.dark [class*="bg-n-solid"],
-.dark [class*="bg-n-slate"],
-.dark [class*="bg-slate-"],
-.dark [class*="bg-woot-"],
-.dark [class*="dark:bg-slate-"],
-.dark [class*="dark:bg-woot-"],
-.dark [class*="dark:bg-n-"],
-.dark [class*="dark:bg-gray-"],
-.dark [class*="dark:bg-zinc-"],
-.dark [class*="dark:bg-neutral-"],
-.dark .bg-slate-900,
-.dark .bg-slate-800,
-.dark .bg-slate-700,
-.dark .bg-slate-950,
-.dark .bg-slate-925,
-.dark .bg-slate-850,
-.dark .dark\:bg-slate-900,
-.dark .dark\:bg-slate-800,
-.dark .dark\:bg-slate-700,
-.dark .dark\:bg-slate-950,
-.dark .dark\:bg-slate-925,
-.dark .dark\:bg-slate-850,
-.dark .dark\:bg-woot-900,
-.dark .dark\:bg-woot-800,
-.dark .dark\:bg-slate-900\/50,
-.dark .dark\:bg-slate-800\/50,
-.dark .dark\:bg-slate-950\/50 {
-  background-color: #000000 !important;
-  color: #ffffff !important;
+/* Light Mode Inner Text Box */
+body:not(.dark) .reply-box__top .input.popover-prosemirror-menu {
+  border: 1px solid #f1f5f9 !important; /* Ultra soft slate-100 */
+  background-color: #f8fafc !important; /* slate-50 to create contrast */
+  border-radius: 12px !important;
+  transition: all 0.2s ease !important;
 }
 
-.dark .card,
-.dark .auth-card,
-.dark div[class*="card-"],
-.dark div[class*="shadow-card"] {
+body:not(.dark) .reply-box__top .input.popover-prosemirror-menu:focus-within {
+  border-color: #e2e8f0 !important; /* slate-200 on focus */
+  background-color: #ffffff !important;
+}
+
+/* Dark Mode Inner Text Box */
+body.dark .reply-box__top .input.popover-prosemirror-menu {
+  border: 1px solid #18181b !important; /* zinc-900 */
+  background-color: #09090b !important; /* Very dark zinc */
+  border-radius: 12px !important;
+  transition: all 0.2s ease !important;
+}
+
+body.dark .reply-box__top .input.popover-prosemirror-menu:focus-within {
+  border-color: #27272a !important; /* zinc-800 on focus */
   background-color: #121215 !important;
-  border: 1px solid #222226 !important;
-  color: #ffffff !important;
 }
 
-/* NAVBAR, SIDEBAR & TOP HEADER STRICT OLED PITCH BLACK (#000000) */
-.dark aside,
-.dark nav,
-.dark header,
-.dark .header,
-.dark topbar,
-.dark .topbar,
-.dark .sidebar,
-.dark .sidebar-main,
-.dark .secondary-sidebar,
-.dark [class*="secondary-sidebar"],
-.dark [class*="conversations-sidebar"],
-.dark [class*="conversations-list"],
-.dark [class*="bg-n-solid"],
-.dark [class*="bg-n-surface"],
-.dark [class*="bg-n-slate"],
-.dark [class*="bg-n-alpha"],
-.dark [class*="bg-slate-"],
-.dark [class*="bg-woot-"],
-.dark div[class*="flex-shrink-0"],
-.dark div[class*="w-56"],
-.dark div[class*="w-60"],
-.dark div[class*="w-64"] {
-  background-color: #000000 !important;
-  background: #000000 !important;
-  border-color: #18181b !important;
+
+/* Fix for Context Menu in Light/Dark Mode */
+body:not(.dark) .context-menu,
+body:not(.dark) [class*="context-menu"] {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.1) !important;
 }
 
-.dark input,
-.dark select,
-.dark textarea {
-  background-color: #18181b !important;
+body:not(.dark) .context-menu *,
+body:not(.dark) [class*="context-menu"] * {
+  color: #0f172a !important;
+}
+
+body:not(.dark) .context-menu .context-menu--item:hover,
+body:not(.dark) [class*="context-menu"] [class*="item"]:hover {
+  background-color: #f1f5f9 !important;
+}
+
+body.dark .context-menu,
+body.dark [class*="context-menu"] {
+  background-color: #121215 !important;
   border: 1px solid #27272a !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7) !important;
+}
+
+body.dark .context-menu *,
+body.dark [class*="context-menu"] * {
   color: #ffffff !important;
 }
 
-.dark table,
-.dark tbody tr {
-  background-color: #000000 !important;
-  color: #ffffff !important;
-}
-
-.dark tbody tr:hover {
+body.dark .context-menu .context-menu--item:hover,
+body.dark [class*="context-menu"] [class*="item"]:hover {
   background-color: #18181b !important;
 }
 
-.dark th {
-  border-bottom: 1px solid #222226 !important;
-  color: #a1a1aa !important;
+/* Global fix for any floating menu */
+body:not(.dark) ul[class*="menu"],
+body:not(.dark) div[class*="menu"] {
+  background-color: #ffffff;
 }
 
-.dark td {
-  border-bottom: 1px solid #18181b !important;
-  color: #e4e4e7 !important;
+body:not(.dark) .context-menu-list,
+body:not(.dark) [class*="context-menu-list"],
+body:not(.dark) .context-menu-item {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+body:not(.dark) .context-menu-item:hover {
+  background-color: #f1f5f9 !important;
+}
+
+/* Fix for Alert/Danger Buttons in Modals */
+body:not(.dark) button.alert,
+body:not(.dark) .button--alert,
+body:not(.dark) button.alert *,
+body:not(.dark) .button--alert *,
+body:not(.dark) button.color-scheme-alert,
+body:not(.dark) button.color-scheme-alert *,
+body:not(.dark) button.destructive,
+body:not(.dark) button.destructive *,
+body:not(.dark) button.bg-red-500,
+body:not(.dark) button.bg-red-500 *,
+body:not(.dark) button[class*="red-"],
+body:not(.dark) button[class*="red-"] * {
+  background: #dc2626 !important; /* bright red */
+  color: #ffffff !important;
+  border: none !important;
+}
+
+body:not(.dark) button.alert:hover,
+body:not(.dark) .button--alert:hover,
+body:not(.dark) button.color-scheme-alert:hover {
+  background: #b91c1c !important;
+}
+
+/* Ensure ALL primary buttons have white text directly and on spans */
+body:not(.dark) button.bg-woot-500,
+body:not(.dark) .button--primary,
+body:not(.dark) button.primary,
+body:not(.dark) button[type="submit"] {
+  color: #ffffff !important;
+}
+
+body.dark button.alert,
+body.dark .button--alert,
+body.dark button.alert *,
+body.dark .button--alert *,
+body.dark button.color-scheme-alert,
+body.dark button.color-scheme-alert * {
+  background: #991b1b !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+/* Fix text colors inside the confirmation modal */
+body:not(.dark) [role="dialog"] h1,
+body:not(.dark) [role="dialog"] h2,
+body:not(.dark) [role="dialog"] h3,
+body:not(.dark) [role="dialog"] p,
+body:not(.dark) [role="dialog"] span {
+  color: #0f172a !important;
+}
+
+/* Protect the cancel button */
+body:not(.dark) .modal-footer button.clear,
+body:not(.dark) .modal-footer button.secondary,
+body:not(.dark) [role="dialog"] button.clear {
+  background-color: transparent !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+body:not(.dark) .modal-footer button.clear *,
+body:not(.dark) [role="dialog"] button.clear * {
+  color: #0f172a !important;
 }
 
 
-
-
-
-/* FORCE CSS VARIABLES TO BLACK FOR DARK MODE */
-html.dark, body.dark, .dark {
-  --background-color: 0 0 0 !important;
-  --surface-1: 18 18 21 !important;
-  --surface-2: 18 18 21 !important;
-  --surface-active: 33 33 33 !important;
-  --slate-1: 0 0 0 !important;
-  --slate-2: 0 0 0 !important;
-  --blue-1: 0 0 0 !important;
-  --blue-2: 0 0 0 !important;
-  --blue-3: 0 0 0 !important;
-  --blue-4: 0 0 0 !important;
-  --iris-1: 0 0 0 !important;
-  --iris-2: 0 0 0 !important;
-  --n-background: 0 0 0 !important;
-  --solid-1: 18 18 21 !important;
-  --solid-2: 18 18 21 !important;
-  --solid-3: 18 18 21 !important;
-  --card-color: 18 18 21 !important;
+/* Completely nuke dark backgrounds in all dropdowns and menus in light mode */
+body:not(.dark) .context-menu,
+body:not(.dark) .context-menu-list,
+body:not(.dark) .context-menu-item,
+body:not(.dark) .dropdown-menu,
+body:not(.dark) .dropdown-pane,
+body:not(.dark) .popover-content,
+body:not(.dark) [class*="context-menu"],
+body:not(.dark) [class*="dropdown"],
+body:not(.dark) [class*="popover"],
+body:not(.dark) [role="menu"] {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #e2e8f0 !important;
 }
 
-body.dark * {
-  /* This prevents inline styles or very specific variables from re-applying that slate blue */
-  scrollbar-color: #333 #000;
+body:not(.dark) [class*="context-menu-item"]:hover,
+body:not(.dark) [role="menuitem"]:hover {
+  background-color: #f1f5f9 !important;
+  background: #f1f5f9 !important;
 }
 
-/* FORCE ALL SURFACES TO PITCH BLACK */
-html.dark, body.dark, .dark, .dark * {
-  --background-color: 0 0 0 !important;
-  --surface-1: 0 0 0 !important;
-  --surface-2: 0 0 0 !important;
-  --surface-active: 10 10 10 !important;
-  --slate-1: 0 0 0 !important;
-  --slate-2: 0 0 0 !important;
-  --slate-3: 15 15 15 !important;
-  --blue-1: 0 0 0 !important;
-  --blue-2: 0 0 0 !important;
-  --blue-3: 0 0 0 !important;
-  --blue-4: 0 0 0 !important;
-  --iris-1: 0 0 0 !important;
-  --iris-2: 0 0 0 !important;
-  --n-background: 0 0 0 !important;
-  --solid-1: 0 0 0 !important;
-  --solid-2: 0 0 0 !important;
-  --solid-3: 0 0 0 !important;
-  --card-color: 0 0 0 !important;
+/* Fix text and SVG color inside menus */
+body:not(.dark) [class*="context-menu"] *,
+body:not(.dark) [class*="dropdown"] *,
+body:not(.dark) [class*="popover"] *,
+body:not(.dark) [role="menu"] * {
+  color: #0f172a !important;
+  fill: #0f172a;
 }
 
-body.dark,
-body.dark #app,
-body.dark aside,
+/* Remove weird margins or rounded corners on items that expose background */
+body:not(.dark) .context-menu-item,
+body:not(.dark) [role="menuitem"] {
+  margin: 0 !important;
+  border-radius: 0 !important;
+  border: none !important;
+}
+
+body:not(.dark) .context-menu,
+body:not(.dark) [role="menu"] {
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  padding: 4px 0 !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+/* Fix submenus like Assign Label */
+body:not(.dark) .submenu,
+body:not(.dark) [class*="submenu"] {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+}
+
+
+/* Force ALL inputs inside menus to be light */
+body:not(.dark) [class*="context-menu"] input,
+body:not(.dark) [role="menu"] input,
+body:not(.dark) [class*="dropdown"] input {
+  background-color: #f8fafc !important;
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+
+/* Fix the invisible active sidebar item caused by overzealous submenu background rules */
+body:not(.dark) [class*="submenu"] {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+body:not(.dark) .context-menu .submenu,
+body:not(.dark) .dropdown-menu .submenu,
+body:not(.dark) [role="menu"] .submenu {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+}
+
+/* Ensure the active sidebar item keeps its dark green background */
+body:not(.dark) nav a.router-link-exact-active,
+body:not(.dark) nav a.router-link-active,
+body:not(.dark) nav a.active,
+body:not(.dark) nav a[aria-current="page"],
+body:not(.dark) aside a.active,
+body:not(.dark) aside a.router-link-active,
+body:not(.dark) .sidebar a.active,
+body:not(.dark) .secondary-sidebar a.active,
+body:not(.dark) [class*="sidebar"] a.active,
+body:not(.dark) [class*="sidebar"] a.router-link-active {
+  background: linear-gradient(135deg, #163f30 0%, #1e523f 60%, #113125 100%) !important;
+  color: #ffffff !important;
+}
+
+body:not(.dark) nav a.router-link-exact-active *,
+body:not(.dark) nav a.router-link-active *,
+body:not(.dark) nav a.active *,
+body:not(.dark) nav a[aria-current="page"] *,
+body:not(.dark) aside a.active *,
+body:not(.dark) aside a.router-link-active *,
+body:not(.dark) .sidebar a.active *,
+body:not(.dark) .secondary-sidebar a.active *,
+body:not(.dark) [class*="sidebar"] a.active *,
+body:not(.dark) [class*="sidebar"] a.router-link-active * {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+}
+
+
+/* Fix: Do not change background of active items on hover so text remains readable */
+body:not(.dark) nav a.router-link-exact-active:hover,
+body:not(.dark) nav a.router-link-active:hover,
+body:not(.dark) nav a.active:hover,
+body:not(.dark) nav a[aria-current="page"]:hover,
+body:not(.dark) aside a.active:hover,
+body:not(.dark) aside a.router-link-active:hover,
+body:not(.dark) .sidebar a.active:hover,
+body:not(.dark) .secondary-sidebar a.active:hover,
+body:not(.dark) [class*="sidebar"] a.active:hover,
+body:not(.dark) [class*="sidebar"] a.router-link-active:hover {
+  background: linear-gradient(135deg, #163f30 0%, #1e523f 60%, #113125 100%) !important;
+  color: #ffffff !important;
+  border-left: 4px solid #d7a944 !important;
+}
+
+body:not(.dark) nav a.router-link-exact-active:hover *,
+body:not(.dark) nav a.router-link-active:hover *,
+body:not(.dark) nav a.active:hover *,
+body:not(.dark) nav a[aria-current="page"]:hover *,
+body:not(.dark) aside a.active:hover *,
+body:not(.dark) aside a.router-link-active:hover *,
+body:not(.dark) .sidebar a.active:hover *,
+body:not(.dark) .secondary-sidebar a.active:hover *,
+body:not(.dark) [class*="sidebar"] a.active:hover *,
+body:not(.dark) [class*="sidebar"] a.router-link-active:hover * {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+}
+
+
+/* Completely eradicate the slate-900 dark blue color from the primary nav */
 body.dark nav,
-body.dark header,
-body.dark main,
-body.dark section,
-body.dark div[class*="bg-n-background"],
-body.dark div[class*="bg-n-solid"],
-body.dark div[class*="bg-n-surface"],
-body.dark div[class*="bg-slate"],
-body.dark div[class*="sidebar"],
-body.dark div[class*="header"] {
-  background-color: #000000 !important;
+body.dark .sidebar {
   background: #000000 !important;
+  background-color: #000000 !important;
 }
+
+body.dark aside {
+  background: #000000 !important;
+  background-color: #000000 !important;
+}
+
+/* Ensure secondary sidebar is #09090b or #121215 but NEVER blue */
+body.dark [class*="secondary-sidebar"],
+body.dark div[class*="secondary-sidebar"] {
+  background: #09090b !important;
+  background-color: #09090b !important;
+}
+
+/* If there are any other left-over blue backgrounds in dark mode */
+body.dark [class*="bg-slate-900"],
+body.dark [class*="bg-woot-900"] {
+  background-color: #000000 !important;
+}
+

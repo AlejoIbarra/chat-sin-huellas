@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Lanzador Masivo - Sin Huellas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    :root { --sh-emerald: #163f30; --sh-gold: #d7a944; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f8fafc; color: #0f172a; margin: 0; }
+    .btn-primary { background-color: var(--sh-emerald); color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; font-weight: 500; transition: all 0.2s; border: none; }
+    .btn-primary:hover { background-color: #113125; }
+    .input-field { width: 100%; border: 1px solid #cbd5e1; border-radius: 0.375rem; padding: 0.5rem; outline: none; background: white; }
+    .input-field:focus { border-color: var(--sh-gold); box-shadow: 0 0 0 2px rgba(215, 169, 68, 0.2); }
+    .card { background: white; border-radius: 0.5rem; border: 1px solid #e2e8f0; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .progress-bar { height: 0.5rem; background-color: #e2e8f0; border-radius: 9999px; overflow: hidden; margin-top: 1rem; }
+    .progress-fill { height: 100%; background-color: var(--sh-emerald); width: 0%; transition: width 0.3s ease; }
+    .status-log { max-height: 150px; overflow-y: auto; font-size: 0.875rem; color: #475569; background: #f1f5f9; padding: 0.5rem; border-radius: 0.375rem; border: 1px solid #e2e8f0; }
+  </style>
+</head>
+<body class="p-6">
+  <div class="max-w-4xl mx-auto">
+    <div class="flex items-center gap-4 mb-6">
+      <div class="w-12 h-12 bg-[#163f30] rounded-lg flex items-center justify-center text-white font-bold text-xl">SH</div>
+      <div>
+        <h1 class="text-2xl font-bold">Lanzador Masivo de Campañas</h1>
+        <p class="text-slate-500 text-sm">Sincroniza contactos y dispara WhatsApp en 1 clic (Modo Automático)</p>
+      </div>
+    </div>
+
+    <!-- Step 2: Campaign Setup -->
+    <div class="card" id="step-setup">
+      <h2 class="text-lg font-semibold mb-4 border-b pb-2">1. Configurar Campaña</h2>
+      <div id="init-error" class="hidden text-red-500 mb-4 bg-red-50 p-3 rounded">
+        No se pudo conectar con el sistema. Asegúrate de abrir esta herramienta dentro del panel principal.
+      </div>
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Bandeja de WhatsApp</label>
+          <select id="select-inbox" class="input-field"><option>Cargando...</option></select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Plantilla de Meta (Template)</label>
+          <select id="select-template" class="input-field"><option>Selecciona bandeja primero</option></select>
+        </div>
+      </div>
+            <div class="mb-4">
+        <label class="block text-sm font-medium mb-1">Nombre de esta campaña (Uso interno y para la Etiqueta)</label>
+        <input type="text" id="campaign-name" class="input-field" placeholder="Ej: Promo Octubre 2026">
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-1">Programar envío (Opcional - Déjalo vacío para enviar ahora)</label>
+        <input type="datetime-local" id="campaign-schedule" class="input-field">
+      </div>
+      <div id="template-vars" class="bg-blue-50 p-4 rounded border border-blue-100 hidden">
+        <h3 class="text-sm font-semibold text-blue-800 mb-2">Variables de la Plantilla</h3>
+        <p class="text-xs text-blue-600 mb-2">Si la plantilla tiene variables, escribe el valor o usa {{contact.name}}</p>
+        <div id="template-vars-container" class="space-y-2"></div>
+      </div>
+    </div>
+
+    <!-- Step 3: File Upload -->
+    <div class="card" id="step-upload">
+      <div class="flex justify-between items-center mb-4 border-b pb-2">
+        <h2 class="text-lg font-semibold">2. Cargar Base de Datos</h2>
+        <a href="#" id="download-template" class="text-sm text-emerald-600 hover:text-emerald-800 font-medium">Descargar archivo de ejemplo (.csv)</a>
+      </div>
+
+      <input type="file" id="file-upload" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:border file:border-slate-300 file:rounded file:text-sm file:font-semibold file:bg-white file:text-slate-700 hover:file:bg-slate-50 mb-4 cursor-pointer"/>
+      
+      <div id="column-mapping" class="hidden bg-slate-50 p-4 rounded border border-slate-200">
+        <h3 class="text-sm font-semibold mb-3">Mapeo de Columnas</h3>
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Teléfono *</label>
+            <select id="map-phone" class="input-field"></select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Nombre</label>
+            <select id="map-name" class="input-field"></select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Apellido</label>
+            <select id="map-lastname" class="input-field"></select>
+          </div>
+        </div>
+      </div>
+
+      <button id="btn-process" class="btn-primary mt-6 w-full hidden">Procesar y Enviar Campaña</button>
+    </div>
+
+    <!-- Step 4: Progress -->
+    <div class="card hidden" id="step-progress">
+      <h2 class="text-lg font-semibold mb-2 border-b pb-2">Estado del Proceso</h2>
+      <div class="flex justify-between text-sm font-medium text-slate-600 mb-1 mt-4">
+        <span id="progress-text">Procesando contactos...</span>
+        <span id="progress-percent">0%</span>
+      </div>
+      <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+      <div id="status-log" class="status-log mt-4 font-mono"></div>
+      <div id="success-banner" class="hidden mt-4 bg-green-50 text-green-800 p-4 rounded border border-green-200">
+        <h3 class="font-bold text-lg">✅ Campaña Disparada</h3>
+        <p class="text-sm mt-1">Los contactos fueron sincronizados y la campaña se envió correctamente.</p>
+        <button onclick="location.reload()" class="btn-primary mt-3 text-sm">Comenzar Nueva</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let accountId = '1';
+    let authHeaders = {};
+    let inboxes = [];
+    let templates = [];
+    let currentData = [];
+    
+    const API_URL = window.location.origin + '/api/v1';
+
+    function getCookie(name) {
+      const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+      if (match) return decodeURIComponent(match[2]);
+      return null;
+    }
+
+    function logStatus(msg) {
+      const logDiv = document.getElementById('status-log');
+      logDiv.innerHTML += `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>`;
+      logDiv.scrollTop = logDiv.scrollHeight;
+    }
+
+    async function fetchAPI(endpoint, options = {}) {
+      const headers = { 
+        'Content-Type': 'application/json',
+        ...authHeaders
+      };
+      
+      const response = await fetch(`${API_URL}/accounts/${accountId}${endpoint}`, { ...options, headers });
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status}`);
+      }
+      return response.json();
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('acc')) accountId = params.get('acc');
+
+        const sessionInfoStr = getCookie('cw_d_session_info');
+        if (!sessionInfoStr) throw new Error("No auth cookie found");
+        
+        const sessionInfo = JSON.parse(sessionInfoStr);
+        if (sessionInfo['access-token']) authHeaders['access-token'] = sessionInfo['access-token'];
+        if (sessionInfo['client']) authHeaders['client'] = sessionInfo['client'];
+        if (sessionInfo['uid']) authHeaders['uid'] = sessionInfo['uid'];
+
+        const data = await fetchAPI('/inboxes');
+        inboxes = data.payload ? data.payload.filter(i => i.channel_type === 'Channel::Whatsapp') : [];
+        
+        const selectBox = document.getElementById('select-inbox');
+        selectBox.innerHTML = '<option value="">-- Selecciona una bandeja --</option>';
+        inboxes.forEach(i => {
+          selectBox.innerHTML += `<option value="${i.id}">${i.name}</option>`;
+        });
+      } catch (err) {
+        document.getElementById('init-error').classList.remove('hidden');
+        console.error(err);
+      }
+    });
+
+    document.getElementById('select-inbox').addEventListener('change', async (e) => {
+      const inboxId = e.target.value;
+      if(!inboxId) return;
+      const tSelect = document.getElementById('select-template');
+      tSelect.innerHTML = '<option>Cargando plantillas...</option>';
+      try {
+        const data = await fetchAPI(`/inboxes/${inboxId}/message_templates`);
+        templates = data.payload || data;
+        tSelect.innerHTML = '<option value="">-- Selecciona plantilla --</option>';
+        templates.forEach(t => {
+          tSelect.innerHTML += `<option value="${t.name}">${t.name} (${t.language})</option>`;
+        });
+      } catch (err) {
+        tSelect.innerHTML = '<option>Error cargando plantillas</option>';
+      }
+    });
+
+    document.getElementById('select-template').addEventListener('change', (e) => {
+      const tName = e.target.value;
+      const tmpl = templates.find(t => t.name === tName);
+      const varsContainer = document.getElementById('template-vars-container');
+      if(tmpl && tmpl.components) {
+        let varCount = 0;
+        let hasImageHeader = false;
+        
+        window.currentTemplateVars = []; let templateVars = window.currentTemplateVars;
+        tmpl.components.forEach(c => {
+          if(c.type === 'HEADER' && c.format === 'IMAGE') {
+             hasImageHeader = true;
+          }
+          if(c.text) {
+             const matches = c.text.match(/\{\{([^}]+)\}\}/g);
+             if(matches) {
+               matches.forEach(m => {
+                 let varName = m.replace(/\{|\}/g, '').trim();
+                 templateVars.push(varName);
+               });
+             }
+          }
+        });
+        
+        if(templateVars.length > 0 || hasImageHeader) {
+          document.getElementById('template-vars').classList.remove('hidden');
+          varsContainer.innerHTML = '';
+          
+          if(hasImageHeader) {
+             varsContainer.innerHTML += `
+              <div class="flex items-center gap-2 mb-2">
+                <span class="w-24 text-sm font-bold text-blue-800">Imagen</span>
+                <input type="file" id="var-image-file" class="block w-full text-sm text-slate-500 file:mr-4 file:py-1 file:px-2 file:border file:border-slate-300 file:rounded file:text-xs file:font-semibold file:bg-white file:text-slate-700 hover:file:bg-slate-50 cursor-pointer" accept="image/*">
+                <input type="hidden" id="var-image" value="">
+                <span id="upload-status" class="text-xs text-slate-500 w-24"></span>
+              </div>`;
+              
+              setTimeout(() => {
+                const fileInput = document.getElementById('var-image-file');
+                if(!fileInput) return;
+                fileInput.addEventListener('change', async (e) => {
+                  const file = e.target.files[0];
+                  if(!file) return;
+                  const statusEl = document.getElementById('upload-status');
+                  statusEl.innerText = 'Subiendo...';
+                  statusEl.className = 'text-xs text-blue-500 w-24';
+                  
+                  const formData = new FormData();
+                  formData.append('image', file);
+                  try {
+                    const res = await fetch('https://chat.sinhuellas.co/api/upload_campaign_image', {
+                      method: 'POST',
+                      body: formData
+                    });
+                    const data = await res.json();
+                    document.getElementById('var-image').value = data.url;
+                    statusEl.innerText = '¡Lista!';
+                    statusEl.className = 'text-xs text-emerald-600 font-bold w-24';
+                  } catch(err) {
+                    statusEl.innerText = 'Error';
+                    statusEl.className = 'text-xs text-red-600 font-bold w-24';
+                  }
+                });
+              }, 100);
+          }
+          
+          templateVars.forEach((varName, i) => {
+             let defaultVal = '';
+             if(varName.toLowerCase() === 'nombre') defaultVal = '{{contact.name}}';
+             else defaultVal = `{{contact.custom_attribute.${varName}}}`;
+             
+             varsContainer.innerHTML += `
+              <div class="flex items-center gap-2">
+                <span class="w-24 text-sm font-bold capitalize">{{${varName}}}</span>
+                <input type="text" id="var-${i+1}" class="input-field text-sm" value="${defaultVal}">
+              </div>`;
+          });
+        } else {
+          document.getElementById('template-vars').classList.add('hidden');
+        }
+      } else {
+        document.getElementById('template-vars').classList.add('hidden');
+      }
+    });
+
+    document.getElementById('file-upload').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if(!file) return;
+      
+      const processCSV = (csvStr) => {
+        Papa.parse(csvStr, {
+          header: true,
+          skipEmptyLines: true,
+          complete: function(results) {
+            currentData = results.data;
+            if(currentData.length === 0) return alert("El archivo está vacío.");
+            
+            const columns = Object.keys(currentData[0]);
+            let opts = '<option value="">-- Ignorar --</option>';
+            columns.forEach(c => opts += `<option value="${c}">${c}</option>`);
+            
+            document.getElementById('map-phone').innerHTML = opts;
+            document.getElementById('map-name').innerHTML = opts;
+            document.getElementById('map-lastname').innerHTML = opts;
+            document.getElementById('column-mapping').classList.remove('hidden');
+            document.getElementById('btn-process').classList.remove('hidden');
+          }
+        });
+      };
+
+      if(file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          const bstr = evt.target.result;
+          const wb = XLSX.read(bstr, {type:'binary'});
+          const wsname = wb.SheetNames[0];
+          const ws = wb.Sheets[wsname];
+          const csv = XLSX.utils.sheet_to_csv(ws);
+          processCSV(csv);
+        };
+        reader.readAsBinaryString(file);
+      } else {
+        const reader = new FileReader();
+        reader.onload = (evt) => processCSV(evt.target.result);
+        reader.readAsText(file);
+      }
+    });
+
+    document.getElementById('btn-process').addEventListener('click', async () => {
+      const inboxId = document.getElementById('select-inbox').value;
+      const tName = document.getElementById('select-template').value;
+      let campaignName = document.getElementById('campaign-name').value.trim();
+      const colPhone = document.getElementById('map-phone').value;
+      const colName = document.getElementById('map-name').value;
+      const colLastName = document.getElementById('map-lastname').value;
+
+      if(!inboxId || !tName || !campaignName || !colPhone) {
+        return alert("Por favor completa los campos requeridos.");
+      }
+
+      const labelName = campaignName.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase() + "_" + Date.now().toString().slice(-5);
+
+      document.getElementById('step-setup').classList.add('opacity-50', 'pointer-events-none');
+      document.getElementById('step-upload').classList.add('hidden');
+      document.getElementById('step-progress').classList.remove('hidden');
+
+      logStatus(`Creando etiqueta: ${labelName}...`);
+      let labelId = null;
+      try {
+        const labelRes = await fetchAPI('/labels', { 
+          method: 'POST', 
+          body: JSON.stringify({ title: labelName, description: 'Campaña Masiva Express', color: '#163f30' }) 
+        });
+        labelId = labelRes.payload ? labelRes.payload.id : labelRes.id;
+      } catch (err) {
+        try {
+          const listRes = await fetchAPI('/labels');
+          const found = listRes.payload.find(l => l.title === labelName);
+          if (found) labelId = found.id;
+        } catch (e) {}
+      }
+
+      if (!labelId) {
+        return logStatus(`Error: No se pudo crear la etiqueta.`);
+      }
+
+      logStatus(`Iniciando sincronización...`);
+      let successCount = 0;
+      
+      for(let i=0; i<currentData.length; i++) {
+        const row = currentData[i];
+        let phone = row[colPhone] ? String(row[colPhone]).replace(/\D/g,'') : '';
+        if(phone && !phone.startsWith('+')) phone = '+' + phone;
+        
+        let name = colName && row[colName] ? row[colName] : '';
+        let lastName = colLastName && row[colLastName] ? row[colLastName] : '';
+        let fullName = [name, lastName].filter(Boolean).join(' ');
+        if(!fullName) fullName = 'Contacto';
+        
+        let custom_attributes = {};
+        Object.keys(row).forEach(k => {
+          if (k !== colPhone && k !== colName && k !== colLastName) {
+             let safeKey = k.toLowerCase().replace(/[^a-z0-9]/g, '_');
+             if(safeKey) {
+                custom_attributes[safeKey] = row[k];
+                custom_attributes[k] = row[k]; // fallback
+             }
+          }
+        });
+        
+        if(!phone || phone.length < 8) {
+          logStatus(`Fila ${i+1}: Número inválido, saltando.`);
+          continue;
+        }
+
+        try {
+          const search = await fetchAPI(`/contacts/search?q=${encodeURIComponent(phone)}`);
+          let contactId = null;
+          
+          if(search.payload && search.payload.length > 0) {
+            contactId = search.payload[0].id;
+            await fetchAPI(`/contacts/${contactId}`, { method: 'PUT', body: JSON.stringify({ name: fullName, phone_number: phone, custom_attributes }) });
+          } else {
+            const create = await fetchAPI(`/contacts`, { method: 'POST', body: JSON.stringify({ inbox_id: inboxId, name: fullName, phone_number: phone, custom_attributes }) });
+            contactId = create.payload.contact.id;
+          }
+          
+          try {
+             await fetchAPI(`/contacts/${contactId}/contact_inboxes`, { method: 'POST', body: JSON.stringify({ source_id: phone.replace('+', ''), inbox_id: inboxId }) });
+          } catch(e) {}
+
+          await fetchAPI(`/contacts/${contactId}/labels`, { method: 'POST', body: JSON.stringify({ labels: [labelName] }) });
+          successCount++;
+        } catch (err) {
+          logStatus(`Fila ${i+1} (${phone}): Error -> ${err.message}`);
+        }
+
+        const pct = Math.round(((i+1) / currentData.length) * 100);
+        document.getElementById('progress-fill').style.width = pct + '%';
+        document.getElementById('progress-percent').innerText = pct + '%';
+        document.getElementById('progress-text').innerText = `Procesados ${i+1} de ${currentData.length}`;
+      }
+
+      logStatus(`Sincronización terminada. Disparando campaña...`);
+      
+      const tmpl = templates.find(t => t.name === tName);
+      let paramsArray = { body: {} };
+      const varsContainer = document.getElementById('template-vars-container');
+      if(varsContainer) {
+        const imgInput = document.getElementById('var-image');
+        if (imgInput && imgInput.value) {
+           paramsArray.header = { media_url: imgInput.value, media_type: "image" };
+        }
+        if(window.currentTemplateVars) {
+           window.currentTemplateVars.forEach((varName, i) => {
+              const txtInput = document.getElementById('var-' + (i+1));
+              if (txtInput && txtInput.value) {
+                 paramsArray.body[varName] = txtInput.value;
+              }
+           });
+        } else {
+           for(let i=1; i<=20; i++) {
+              const txtInput = document.getElementById('var-' + i);
+              if (txtInput && txtInput.value) {
+                 paramsArray.body[i.toString()] = txtInput.value;
+              }
+           }
+        }
+      }
+
+      try {
+        let scheduledAt = null;
+        const scheduleInput = document.getElementById('campaign-schedule').value;
+        if(scheduleInput) {
+          scheduledAt = new Date(scheduleInput).toISOString();
+        }
+
+        const campaignPayload = {
+          title: campaignName,
+          message: tName,
+          inbox_id: inboxId,
+          audience: [{ type: "Label", id: labelId }],
+          scheduled_at: scheduledAt,
+          template_params: {
+            name: tName,
+            category: tmpl ? tmpl.category : "MARKETING",
+            language: tmpl ? tmpl.language : "es",
+            namespace: tmpl ? tmpl.namespace : "",
+            processed_params: paramsArray
+          }
+        };
+
+        const res = await fetchAPI(`/campaigns`, { method: 'POST', body: JSON.stringify(campaignPayload) });
+        logStatus(`¡Campaña disparada exitosamente!`);
+        document.getElementById('success-banner').classList.remove('hidden');
+      } catch (err) {
+        logStatus(`Error enviando campaña: ${err.message}`);
+      }
+    });
+
+    document.getElementById('download-template').addEventListener('click', (e) => {
+      e.preventDefault();
+      const csvContent = "Telefono,Nombre,Apellido,Ciudad,Notas\n+573001234567,Juan,Perez,Bogota,Cliente VIP\n+573119876543,Maria,Gomez,Medellin,Nuevo prospecto\n573205554433,Carlos,Lopez,Cali,Llamar despues";
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", "plantilla_masiva_sin_huellas.csv");
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+  </script>
+</body>
+</html>
