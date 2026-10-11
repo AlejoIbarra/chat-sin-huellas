@@ -131,7 +131,8 @@
               closeBtn.onclick = () => document.body.removeChild(overlay);
               
               const iframe = document.createElement('iframe');
-              iframe.src = '/campanas.html?v=1791308988&csrf=' + encodeURIComponent(csrfToken) + '&acc=' + accountId + '&n8n=' + encodeURIComponent('<%= ENV.fetch("SH_N8N_URL_PUBLICA", "") %>');
+              // Chatwoot sirve /public con caché de un año: «v» cambia sola con el contenido, así cada cambio del lanzador llega al navegador
+              iframe.src = '/campanas.html?v=<%= (Digest::MD5.file(Rails.public_path.join('campanas.html')).hexdigest[0, 12] rescue '0') %>&csrf=' + encodeURIComponent(csrfToken) + '&acc=' + accountId + '&n8n=' + encodeURIComponent('<%= ENV.fetch("SH_N8N_URL_PUBLICA", "") %>');
               iframe.style.cssText = 'width: 100%; height: 100%; border: none; background: transparent;';
               
               modal.appendChild(closeBtn);
