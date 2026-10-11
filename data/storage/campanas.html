@@ -274,13 +274,18 @@
       if (regla && !regla.acepta.split(',').some((a) => a === `.${extension}` || a === f.type)) { $('estado-medios').textContent = `Esta plantilla pide ${regla.titulo.toLowerCase()}: ${regla.reglas}`; return; }
       if (regla && f.size > regla.max * 1024 * 1024) { $('estado-medios').textContent = `«${f.name}» pesa ${(f.size / 1048576).toFixed(1)} MB y WhatsApp acepta hasta ${regla.max} MB aquí.`; return; }
       const conservar = $('conservar').checked;
-      $('estado-medios').textContent = `Revisando y subiendo «${f.name}»${conservar ? ' a la carpeta' : ''}…`;
+      const mb = (f.size / 1048576).toFixed(1);
+      $('estado-medios').textContent = `Revisando y subiendo «${f.name}»${conservar ? ' a la carpeta' : ''}…${f.size > 10 * 1048576 ? ` Pesa ${mb} MB: puede tardar unos minutos según tu conexión.` : ''}`;
       try {
         const base64 = await new Promise((ok, mal) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(',')[1]); r.onerror = mal; r.readAsDataURL(f); });
         const { medio: subido } = await bot({ accion: 'subir', nombre: f.name, base64, conservar });
         if (!conservar) temporal = { ...subido, miniatura: subido.tipo === 'image' ? `data:${subido.mime};base64,${base64}` : null };
         await cargarMedios(subido.id);
-      } catch (err) { $('estado-medios').textContent = err.message; }
+      } catch (err) {
+        // el servidor espera una subida hasta 5 minutos; si la conexión no alcanza, la petición se corta sin respuesta del bot
+        const cortada = /Failed to fetch|NetworkError|Load failed|respondió (408|499|502|504)/.test(err.message);
+        $('estado-medios').textContent = cortada ? `La subida de «${f.name}» se cortó antes de terminar. Con ${mb} MB la conexión debe alcanzar a enviarlo en menos de 5 minutos: prueba con una conexión más rápida o un archivo más liviano.` : err.message;
+      }
     });
 
     // ───────── 3. Lista ─────────
