@@ -365,7 +365,12 @@
       $('variables-encabezado').innerHTML = ve.map((v) => `<div class="flex items-center gap-2"><span class="w-40 text-sm font-bold">Encabezado {{${texto(v)}}}</span><input type="text" class="input-field text-sm variable-encabezado" data-v="${texto(v)}" placeholder="Ej.: {nombre}"></div>`).join('');
       $('variables-botones').innerHTML = vb.map((b, i) => (b ? `<div class="flex items-center gap-2"><span class="w-40 text-sm font-bold">Botón «${texto(b.texto)}»</span><input type="text" class="input-field text-sm variable-boton" data-i="${i}" ${b.tipo === 'copy_code' ? 'maxlength="15" placeholder="Código del cupón (hasta 15 caracteres; puede ser {columna})"' : `placeholder="Final del enlace: ${texto(b.url)}"`}></div>` : '')).join('');
       document.querySelectorAll('.variable-encabezado, .variable-boton').forEach((el) => el.addEventListener('input', actualizar));
-      $('variables').innerHTML = vs.map((v) => `<div class="flex items-center gap-2"><span class="w-20 text-sm font-bold">{{${texto(v)}}}</span><input type="text" class="input-field text-sm variable" data-v="${texto(v)}" value="${/^(1|nombre)$/i.test(v) ? '{nombre}' : ''}"></div>`).join('');
+      // el nombre se propone solo donde la plantilla saluda («Hola {{1}}»); en las demás la variable puede ser una fecha o un código: va vacía,
+      // con el ejemplo que aprobó Meta como guía
+      const cuerpoTexto = String(componente('BODY')?.text || '');
+      const ejemplos = componente('BODY')?.example?.body_text?.[0] || [];
+      const saluda = (v) => /^nombre$/i.test(v) || new RegExp(`Hola,?\\s*\\{\\{\\s*${v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\}\\}`, 'i').test(cuerpoTexto);
+      $('variables').innerHTML = vs.map((v, i) => `<div class="flex items-center gap-2"><span class="w-20 text-sm font-bold">{{${texto(v)}}}</span><input type="text" class="input-field text-sm variable" data-v="${texto(v)}" value="${saluda(v) ? '{nombre}' : ''}" placeholder="${texto(ejemplos[i] ? `Ej.: ${ejemplos[i]}` : 'Escribe el valor o usa {columna}')}"></div>`).join('');
       document.querySelectorAll('.variable').forEach((el) => el.addEventListener('input', actualizar));
     }
     const valores = () => Object.fromEntries([...document.querySelectorAll('.variable')].map((el) => [el.dataset.v, el.value.trim()]));
