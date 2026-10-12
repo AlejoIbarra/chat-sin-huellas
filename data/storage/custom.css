@@ -138,6 +138,11 @@ aside img[src^="/brand-assets/logo"] {
   display: none;
 }
 
+/* Capitán (asistente de pago de Chatwoot Enterprise): se oculta de la barra lateral */
+aside li:has(.i-woot-captain) {
+  display: none;
+}
+
 
 /* 6. Lo que el Tailwind compilado de Chatwoot no trae -------------------------------------------------------------------------------------- */
 
