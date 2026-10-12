@@ -927,8 +927,7 @@ body::before {
 /* --------------------------------------------------------------------------
    6.2 CONVERSATIONS LIST & FLOATING CARDS
    -------------------------------------------------------------------------- */
-/* Individual Conversation Item Capsules */
-[class*="conversations-list"] > div,
+/* Individual Conversation Item Capsules (sin [class*="conversations-list"] > div: en Chatwoot 4.18 también tomaba el encabezado de la lista, y su transform al pasar el mouse dejaba el panel de filtros debajo del chat) */
 [class*="conversation-item"],
 .conversation,
 div[role="button"]:has([class*="avatar"]) {
@@ -939,7 +938,6 @@ div[role="button"]:has([class*="avatar"]) {
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-body:not(.dark) [class*="conversations-list"] > div,
 body:not(.dark) [class*="conversation-item"],
 body:not(.dark) .conversation {
   background: #ffffff !important;
@@ -947,7 +945,6 @@ body:not(.dark) .conversation {
   box-shadow: 0 2px 6px rgba(15, 23, 42, 0.02) !important;
 }
 
-body:not(.dark) [class*="conversations-list"] > div:hover,
 body:not(.dark) [class*="conversation-item"]:hover,
 body:not(.dark) .conversation:hover {
   background: #f8fafc !important;
@@ -956,14 +953,12 @@ body:not(.dark) .conversation:hover {
   box-shadow: 0 6px 16px rgba(22, 63, 48, 0.06) !important;
 }
 
-body.dark [class*="conversations-list"] > div,
 body.dark [class*="conversation-item"],
 body.dark .conversation {
   background: #121215 !important;
   border: 1px solid #222226 !important;
 }
 
-body.dark [class*="conversations-list"] > div:hover,
 body.dark [class*="conversation-item"]:hover,
 body.dark .conversation:hover {
   background: #18181b !important;
