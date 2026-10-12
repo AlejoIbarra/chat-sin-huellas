@@ -1,0 +1,9 @@
+# Traducciones de Sin Huellas que Chatwoot 4.18 trae sin traducir.
+# El texto del botón que abre las listas en WhatsApp sale en inglés («Choose an item») y se lo ve el cliente.
+# Se copia a /app/config/locales/ al arrancar (rails y sidekiq: el mensaje de WhatsApp lo arma sidekiq), junto con
+# i18n_default.rb, que pone el español por defecto: sin él, sidekiq trabaja en inglés.
+es:
+  conversations:
+    messages:
+      whatsapp:
+        list_button_label: 'Ver opciones'

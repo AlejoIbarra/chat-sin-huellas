@@ -2,21 +2,26 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Lanzador Masivo - Sin Huellas</title>
+  <title>Lanzador de campañas - Sin Huellas</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     :root { --sh-emerald: #163f30; --sh-gold: #d7a944; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f8fafc; color: #0f172a; margin: 0; }
-    .btn-primary { background-color: var(--sh-emerald); color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; font-weight: 500; transition: all 0.2s; border: none; }
+    .btn-primary { background-color: var(--sh-emerald); color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; font-weight: 500; transition: all 0.2s; border: none; cursor: pointer; }
     .btn-primary:hover { background-color: #113125; }
+    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-sec { background: white; border: 1px solid #cbd5e1; padding: 0.35rem 0.75rem; border-radius: 0.375rem; font-size: 0.875rem; cursor: pointer; }
     .input-field { width: 100%; border: 1px solid #cbd5e1; border-radius: 0.375rem; padding: 0.5rem; outline: none; background: white; }
     .input-field:focus { border-color: var(--sh-gold); box-shadow: 0 0 0 2px rgba(215, 169, 68, 0.2); }
     .card { background: white; border-radius: 0.5rem; border: 1px solid #e2e8f0; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-    .progress-bar { height: 0.5rem; background-color: #e2e8f0; border-radius: 9999px; overflow: hidden; margin-top: 1rem; }
-    .progress-fill { height: 100%; background-color: var(--sh-emerald); width: 0%; transition: width 0.3s ease; }
-    .status-log { max-height: 150px; overflow-y: auto; font-size: 0.875rem; color: #475569; background: #f1f5f9; padding: 0.5rem; border-radius: 0.375rem; border: 1px solid #e2e8f0; }
+    .medio { border: 2px solid transparent; border-radius: 0.5rem; padding: 0.25rem; cursor: pointer; background: #f1f5f9; }
+    .medio.elegido { border-color: var(--sh-gold); background: #fffbeb; }
+    .medio img { width: 100%; height: 6rem; object-fit: cover; border-radius: 0.375rem; }
+    .burbuja { background: #dcf8c6; border-radius: 0.5rem; padding: 0.5rem; max-width: 22rem; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
+    .chat { background: #ece5dd; border-radius: 0.5rem; padding: 1rem; }
+    .aviso { background: #fffbeb; border: 1px solid #fde68a; border-radius: 0.5rem; padding: 0.75rem; font-size: 0.875rem; color: #78350f; }
   </style>
 </head>
 <body class="p-6">
@@ -24,460 +29,358 @@
     <div class="flex items-center gap-4 mb-6">
       <div class="w-12 h-12 bg-[#163f30] rounded-lg flex items-center justify-center text-white font-bold text-xl">SH</div>
       <div>
-        <h1 class="text-2xl font-bold">Lanzador Masivo de Campañas</h1>
-        <p class="text-slate-500 text-sm">Sincroniza contactos y dispara WhatsApp en 1 clic (Modo Automático)</p>
+        <h1 class="text-2xl font-bold">Lanzador de campañas</h1>
+        <p class="text-slate-500 text-sm">El bufete elige la plantilla, el archivo y la lista; el asistente envía en horario y nunca a quien pidió la baja.</p>
       </div>
     </div>
 
-    <!-- Step 2: Campaign Setup -->
-    <div class="card" id="step-setup">
-      <h2 class="text-lg font-semibold mb-4 border-b pb-2">1. Configurar Campaña</h2>
-      <div id="init-error" class="hidden text-red-500 mb-4 bg-red-50 p-3 rounded">
-        No se pudo conectar con el sistema. Asegúrate de abrir esta herramienta dentro del panel principal.
-      </div>
-      <div class="grid grid-cols-2 gap-4 mb-4">
+    <div id="error-general" class="hidden text-red-700 mb-4 bg-red-50 p-3 rounded border border-red-200"></div>
+
+    <!-- 1. Plantilla -->
+    <div class="card">
+      <h2 class="text-lg font-semibold mb-4 border-b pb-2">1. Plantilla</h2>
+      <div class="grid grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium mb-1">Bandeja de WhatsApp</label>
-          <select id="select-inbox" class="input-field"><option>Cargando...</option></select>
+          <label class="block text-sm font-medium mb-1">Número de WhatsApp (bandeja)</label>
+          <select id="bandeja" class="input-field"><option>Cargando…</option></select>
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1">Plantilla de Meta (Template)</label>
-          <select id="select-template" class="input-field"><option>Selecciona bandeja primero</option></select>
+          <label class="block text-sm font-medium mb-1">Plantilla aprobada por Meta</label>
+          <select id="plantilla" class="input-field"><option value="">Elige primero la bandeja</option></select>
         </div>
       </div>
-            <div class="mb-4">
-        <label class="block text-sm font-medium mb-1">Nombre de esta campaña (Uso interno y para la Etiqueta)</label>
-        <input type="text" id="campaign-name" class="input-field" placeholder="Ej: Promo Octubre 2026">
-      </div>
-      <div class="mb-4">
-        <label class="block text-sm font-medium mb-1">Programar envío (Opcional - Déjalo vacío para enviar ahora)</label>
-        <input type="datetime-local" id="campaign-schedule" class="input-field">
-      </div>
-      <div id="template-vars" class="bg-blue-50 p-4 rounded border border-blue-100 hidden">
-        <h3 class="text-sm font-semibold text-blue-800 mb-2">Variables de la Plantilla</h3>
-        <p class="text-xs text-blue-600 mb-2">Si la plantilla tiene variables, escribe el valor o usa {{contact.name}}</p>
-        <div id="template-vars-container" class="space-y-2"></div>
-      </div>
+      <p id="categoria" class="text-xs text-slate-500 mt-2"></p>
     </div>
 
-    <!-- Step 3: File Upload -->
-    <div class="card" id="step-upload">
+    <!-- 2. Archivo -->
+    <div class="card hidden" id="paso-medio">
+      <div class="flex justify-between items-center mb-2 border-b pb-2">
+        <h2 class="text-lg font-semibold">2. <span id="titulo-medio">Imagen</span> de la carpeta «Campañas»</h2>
+        <label class="btn-sec">Subir desde el computador<input type="file" id="subir" class="hidden"></label>
+      </div>
+      <div class="flex justify-between items-start gap-4 mb-3">
+        <p id="reglas-medio" class="text-xs text-slate-500"></p>
+        <label class="flex items-center gap-2 text-sm whitespace-nowrap" title="Sin marcar, el archivo sirve solo para esta campaña y se borra solo"><input type="checkbox" id="conservar" checked> Guardar en la biblioteca de campañas</label>
+      </div>
+      <p id="estado-medios" class="text-sm text-slate-500 mb-3">Cargando la carpeta…</p>
+      <div id="medios" class="grid grid-cols-4 gap-3"></div>
+    </div>
+
+    <!-- 3. Lista -->
+    <div class="card">
       <div class="flex justify-between items-center mb-4 border-b pb-2">
-        <h2 class="text-lg font-semibold">2. Cargar Base de Datos</h2>
-        <a href="#" id="download-template" class="text-sm text-emerald-600 hover:text-emerald-800 font-medium">Descargar archivo de ejemplo (.csv)</a>
+        <h2 class="text-lg font-semibold">3. Lista de números (Excel o CSV)</h2>
+        <a href="#" id="ejemplo" class="text-sm text-emerald-700 font-medium">Descargar ejemplo (.csv)</a>
       </div>
-
-      <input type="file" id="file-upload" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:border file:border-slate-300 file:rounded file:text-sm file:font-semibold file:bg-white file:text-slate-700 hover:file:bg-slate-50 mb-4 cursor-pointer"/>
-      
-      <div id="column-mapping" class="hidden bg-slate-50 p-4 rounded border border-slate-200">
-        <h3 class="text-sm font-semibold mb-3">Mapeo de Columnas</h3>
-        <div class="grid grid-cols-3 gap-4">
-          <div>
-            <label class="block text-sm font-medium mb-1">Teléfono *</label>
-            <select id="map-phone" class="input-field"></select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">Nombre</label>
-            <select id="map-name" class="input-field"></select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">Apellido</label>
-            <select id="map-lastname" class="input-field"></select>
-          </div>
+      <input type="file" id="archivo" accept=".csv,.xlsx,.xls" class="block w-full text-sm mb-3">
+      <div id="mapeo" class="hidden grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Columna del teléfono</label>
+          <select id="col-telefono" class="input-field"></select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Columna del nombre (opcional)</label>
+          <select id="col-nombre" class="input-field"></select>
         </div>
       </div>
-
-      <button id="btn-process" class="btn-primary mt-6 w-full hidden">Procesar y Enviar Campaña</button>
+      <p id="resumen-lista" class="text-sm text-slate-600 mt-2"></p>
     </div>
 
-    <!-- Step 4: Progress -->
-    <div class="card hidden" id="step-progress">
-      <h2 class="text-lg font-semibold mb-2 border-b pb-2">Estado del Proceso</h2>
-      <div class="flex justify-between text-sm font-medium text-slate-600 mb-1 mt-4">
-        <span id="progress-text">Procesando contactos...</span>
-        <span id="progress-percent">0%</span>
+    <!-- 4. Variables -->
+    <div class="card hidden" id="paso-variables">
+      <h2 class="text-lg font-semibold mb-2 border-b pb-2">4. Variables del mensaje</h2>
+      <p class="text-xs text-slate-500 mb-3">Escribe el texto de cada variable. Puedes usar columnas del Excel entre llaves, por ejemplo <b>{nombre}</b>.</p>
+      <div id="variables" class="space-y-2"></div>
+      <div id="variables-encabezado" class="space-y-2 mt-3"></div>
+      <div id="variables-botones" class="space-y-2 mt-3"></div>
+    </div>
+
+    <!-- 5. Vista previa y envío -->
+    <div class="card">
+      <h2 class="text-lg font-semibold mb-4 border-b pb-2">5. Vista previa y envío</h2>
+      <div class="grid grid-cols-2 gap-6">
+        <div class="chat"><div id="vista" class="burbuja text-sm"><span class="text-slate-500">Elige una plantilla para ver cómo le llega al cliente.</span></div></div>
+        <div class="space-y-3">
+          <div>
+            <label class="block text-sm font-medium mb-1">Nombre de la campaña</label>
+            <input type="text" id="nombre" class="input-field" placeholder="Ej.: Promoción de octubre">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Programar (opcional; vacío = ahora)</label>
+            <input type="datetime-local" id="programada" class="input-field">
+          </div>
+          <p id="costo" class="text-sm font-medium"></p>
+        </div>
       </div>
-      <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
-      <div id="status-log" class="status-log mt-4 font-mono"></div>
-      <div id="success-banner" class="hidden mt-4 bg-green-50 text-green-800 p-4 rounded border border-green-200">
-        <h3 class="font-bold text-lg">✅ Campaña Disparada</h3>
-        <p class="text-sm mt-1">Los contactos fueron sincronizados y la campaña se envió correctamente.</p>
-        <button onclick="location.reload()" class="btn-primary mt-3 text-sm">Comenzar Nueva</button>
+      <div class="aviso mt-4">
+        <p class="mb-2"><b>Antes de enviar.</b> El bufete es responsable de contar con la autorización de estos contactos para recibir publicidad (Ley 1581 de 2012) y de cumplir la política de WhatsApp. Si muchos bloquean o reportan los mensajes, Meta puede limitar el número.</p>
+        <p class="mb-2">El asistente envía solo en el horario del bufete (Ley 2300 de 2023), de a poco, y nunca a quien pidió la baja. Cada mensaje queda en la conversación del cliente y, si responde, lo atiende el asistente.</p>
+        <label class="flex items-center gap-2 font-medium"><input type="checkbox" id="acepto"> Entiendo y asumo esa responsabilidad en nombre del bufete</label>
       </div>
+      <button id="enviar" class="btn-primary mt-4 w-full" disabled>Programar campaña</button>
+      <p id="resultado" class="text-sm mt-3"></p>
+    </div>
+
+    <!-- Campañas -->
+    <div class="card">
+      <div class="flex justify-between items-center mb-3 border-b pb-2">
+        <h2 class="text-lg font-semibold">Campañas</h2>
+        <button id="refrescar" class="btn-sec">Actualizar</button>
+      </div>
+      <div class="overflow-x-auto"><table class="w-full text-sm">
+        <thead><tr class="text-left text-slate-500"><th class="py-1">Campaña</th><th>Estado</th><th>Números</th><th>Enviados</th><th>Entregados</th><th>Leídos</th><th>Respondieron</th><th>Baja</th><th>Error</th><th></th></tr></thead>
+        <tbody id="campanas"></tbody>
+      </table></div>
     </div>
   </div>
 
   <script>
-    let accountId = '1';
-    let authHeaders = {};
-    let inboxes = [];
-    let templates = [];
-    let currentData = [];
-    
-    const API_URL = window.location.origin + '/api/v1';
-
-    function getCookie(name) {
-      const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-      if (match) return decodeURIComponent(match[2]);
+    const parametros = new URLSearchParams(location.search);
+    const N8N = (parametros.get('n8n') || 'http://localhost:5678').replace(/\/$/, '');
+    const CUENTA = parametros.get('acc') || '1';
+    const API = `${location.origin}/api/v1/accounts/${CUENTA}`;
+    // Plantillas de ensayo para la bandeja de pruebas (tipo API, sin plantillas de Meta): permiten probar todo el camino con cada formato.
+    const BAJA = { type: 'QUICK_REPLY', text: 'No me interesa' };
+    const PLANTILLAS_PRUEBA = [
+      { name: 'prueba_campana_imagen', language: 'es', category: 'MARKETING', status: 'APPROVED', components: [
+        { type: 'HEADER', format: 'IMAGE' }, { type: 'BODY', text: 'Hola {{1}}, en Sin Huellas te ayudamos a salir de los reportes negativos. Escríbenos y te contamos cómo.' },
+        { type: 'BUTTONS', buttons: [{ type: 'QUICK_REPLY', text: 'Quiero saber más' }, BAJA] }] },
+      { name: 'prueba_campana_video', language: 'es', category: 'MARKETING', status: 'APPROVED', components: [
+        { type: 'HEADER', format: 'VIDEO' }, { type: 'BODY', text: 'Hola {{1}}, mira en un minuto cómo limpiamos un reporte negativo.' }, { type: 'BUTTONS', buttons: [BAJA] }] },
+      { name: 'prueba_campana_documento', language: 'es', category: 'MARKETING', status: 'APPROVED', components: [
+        { type: 'HEADER', format: 'DOCUMENT' }, { type: 'BODY', text: 'Hola {{1}}, te compartimos la guía para salir de DataCrédito.' }, { type: 'BUTTONS', buttons: [BAJA] }] },
+      { name: 'prueba_campana_cupon', language: 'es', category: 'MARKETING', status: 'APPROVED', components: [
+        { type: 'HEADER', format: 'TEXT', text: 'Oferta para {{1}}' }, { type: 'BODY', text: 'Hola {{1}}, tu descuento en la asesoría te espera.' },
+        { type: 'BUTTONS', buttons: [BAJA, { type: 'URL', text: 'Ver oferta', url: 'https://sinhuellas.co/oferta/{{1}}' }, { type: 'COPY_CODE', text: 'Copiar código' }] }] },
+    ];
+    // Lo que acepta Meta en el encabezado (el asistente revisa además el contenido: códecs, color y tamaño)
+    const ARCHIVOS = {
+      IMAGE: { titulo: 'Imagen', acepta: '.jpg,.jpeg,.png,image/jpeg,image/png', max: 5, reglas: 'JPG o PNG en color (RGB o RGBA, 8 bits), de hasta 5 MB.' },
+      VIDEO: { titulo: 'Video', acepta: '.mp4,.3gp,video/mp4,video/3gpp', max: 16, reglas: 'MP4 o 3GP con video H.264 y audio AAC (una pista o sin audio), de hasta 16 MB.' },
+      DOCUMENT: { titulo: 'Documento (PDF)', acepta: '.pdf,application/pdf', max: 100, reglas: 'PDF de hasta 100 MB.' },
+    };
+    // Partes de una plantilla que el lanzador no sabe llenar (las mismas que rechaza el asistente)
+    function noSoportada(t) {
+      const nombres = { LOCATION: 'encabezado de ubicación', PRODUCT: 'encabezado de producto', CAROUSEL: 'carrusel', LIMITED_TIME_OFFER: 'oferta por tiempo limitado' };
+      for (const c of t?.components || []) {
+        const tipo = String(c.type).toUpperCase(); const formato = String(c.format || '').toUpperCase();
+        if (tipo === 'HEADER' && !['TEXT', 'IMAGE', 'VIDEO', 'DOCUMENT'].includes(formato)) return nombres[formato] || `encabezado de tipo ${formato.toLowerCase()}`;
+        if (nombres[tipo]) return nombres[tipo];
+        if (tipo === 'BUTTONS') for (const b of c.buttons || []) if (!['QUICK_REPLY', 'URL', 'PHONE_NUMBER', 'COPY_CODE'].includes(String(b.type).toUpperCase())) return `botón de tipo ${String(b.type).toLowerCase()}`;
+      }
       return null;
     }
+    const PRECIO = { MARKETING: 0.0125, UTILITY: 0.0008 };
+    let sesion = {}; let bandejas = []; let plantillas = []; let plantilla = null; let medio = null; let filas = []; let columnas = [];
 
-    function logStatus(msg) {
-      const logDiv = document.getElementById('status-log');
-      logDiv.innerHTML += `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>`;
-      logDiv.scrollTop = logDiv.scrollHeight;
+    const $ = (id) => document.getElementById(id);
+    const texto = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const error = (m) => { $('error-general').textContent = m; $('error-general').classList.toggle('hidden', !m); };
+    const clave = (s) => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+
+    function cookie(nombre) { const m = document.cookie.match(new RegExp('(^| )' + nombre + '=([^;]+)')); return m ? decodeURIComponent(m[2]) : null; }
+    async function chatwoot(ruta) {
+      const r = await fetch(API + ruta, { headers: { 'access-token': sesion['access-token'], client: sesion.client, uid: sesion.uid } });
+      if (!r.ok) throw new Error(`Chatwoot respondió ${r.status}`);
+      return r.json();
+    }
+    async function bot(cuerpo) {
+      const r = await fetch(`${N8N}/webhook/campanas`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-cw-access-token': sesion['access-token'], 'x-cw-client': sesion.client, 'x-cw-uid': sesion.uid }, body: JSON.stringify(cuerpo) });
+      const j = await r.json().catch(() => ({ error: `El asistente respondió ${r.status}` }));
+      if (j.error) throw new Error(j.error);
+      return j;
     }
 
-    async function fetchAPI(endpoint, options = {}) {
-      const headers = { 
-        'Content-Type': 'application/json',
-        ...authHeaders
-      };
-      
-      const response = await fetch(`${API_URL}/accounts/${accountId}${endpoint}`, { ...options, headers });
-      if (!response.ok) {
-        throw new Error(`API Error: ${response.status}`);
-      }
-      return response.json();
+    // ───────── 1. Plantilla ─────────
+    async function iniciar() {
+      try {
+        sesion = JSON.parse(cookie('cw_d_session_info') || '{}');
+        if (!sesion['access-token']) throw new Error('Abre el lanzador desde Chatwoot con tu sesión iniciada.');
+        const r = await chatwoot('/inboxes');
+        bandejas = r.payload || [];
+        const whatsapp = bandejas.filter((b) => b.channel_type === 'Channel::Whatsapp');
+        const lista = whatsapp.length ? whatsapp : bandejas.filter((b) => b.channel_type === 'Channel::Api');
+        $('bandeja').innerHTML = '<option value="">— Elige el número —</option>' + lista.map((b) => `<option value="${b.id}">${texto(b.name)}${b.channel_type === 'Channel::Api' ? ' (pruebas)' : ''}</option>`).join('');
+        refrescarCampanas();
+      } catch (e) { error(e.message); }
     }
 
-    window.addEventListener('DOMContentLoaded', async () => {
+    $('bandeja').addEventListener('change', async (e) => {
+      const b = bandejas.find((x) => String(x.id) === e.target.value);
+      plantilla = null; actualizar();
+      if (!b) return;
+      if (b.channel_type === 'Channel::Api') plantillas = PLANTILLAS_PRUEBA;
+      else {
+        $('plantilla').innerHTML = '<option>Cargando plantillas…</option>';
+        const r = await chatwoot(`/inboxes/${b.id}/message_templates`).catch(() => ({}));
+        plantillas = (r.payload || r || []).filter((t) => (t.status || 'APPROVED').toUpperCase() === 'APPROVED');
+      }
+      $('plantilla').innerHTML = '<option value="">— Elige la plantilla —</option>' + plantillas.map((t, i) => {
+        const motivo = noSoportada(t);
+        return `<option value="${i}"${motivo ? ' disabled' : ''}>${texto(t.name)} · ${texto(t.language)} · ${texto(t.category)}${motivo ? ` — no se puede: ${texto(motivo)}` : ''}</option>`;
+      }).join('');
+    });
+
+    $('plantilla').addEventListener('change', (e) => {
+      plantilla = plantillas[Number(e.target.value)] || null;
+      medio = null; temporal = null;
+      const fmt = encabezado();
+      $('paso-medio').classList.toggle('hidden', !ARCHIVOS[fmt]);
+      $('titulo-medio').textContent = ARCHIVOS[fmt]?.titulo || 'Archivo';
+      // el selector de archivos solo deja escoger el tipo que pide la plantilla
+      $('subir').setAttribute('accept', ARCHIVOS[fmt]?.acepta || '');
+      $('reglas-medio').textContent = ARCHIVOS[fmt] ? `WhatsApp acepta aquí: ${ARCHIVOS[fmt].reglas}` : '';
+      $('categoria').textContent = plantilla ? `Categoría ${plantilla.category}: cada mensaje entregado cuesta unos USD ${PRECIO[String(plantilla.category).toUpperCase()] ?? PRECIO.MARKETING} (lo cobra Meta).` : '';
+      if (!$('paso-medio').classList.contains('hidden')) cargarMedios();
+      pintarVariables(); actualizar();
+    });
+
+    const componente = (tipo) => (plantilla?.components || []).find((c) => c.type === tipo);
+    const encabezado = () => componente('HEADER')?.format || null;
+    const llaves = (s) => [...new Set([...String(s || '').matchAll(/\{\{\s*([^}]+?)\s*\}\}/g)].map((m) => m[1]))];
+    const variables = () => llaves(componente('BODY')?.text);
+    const variablesEncabezado = () => (encabezado() === 'TEXT' ? llaves(componente('HEADER')?.text) : []);
+    // por posición del botón: el final de un enlace variable o el código de un cupón; los demás botones no llevan nada
+    const botonesVariables = () => (componente('BUTTONS')?.buttons || []).map((b) => {
+      const tipo = String(b.type).toUpperCase();
+      if (tipo === 'URL' && /\{\{/.test(b.url || '')) return { tipo: 'url', texto: b.text, url: b.url };
+      if (tipo === 'COPY_CODE') return { tipo: 'copy_code', texto: b.text };
+      return null;
+    });
+
+    // ───────── 2. Archivo de la carpeta ─────────
+    let temporal = null; // lo subido «solo para esta campaña»: no está en la carpeta, se muestra primero
+    async function cargarMedios(elegir = null) {
+      $('estado-medios').textContent = 'Cargando la carpeta…'; $('medios').innerHTML = '';
       try {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('acc')) accountId = params.get('acc');
-
-        const sessionInfoStr = getCookie('cw_d_session_info');
-        if (!sessionInfoStr) throw new Error("No auth cookie found");
-        
-        const sessionInfo = JSON.parse(sessionInfoStr);
-        if (sessionInfo['access-token']) authHeaders['access-token'] = sessionInfo['access-token'];
-        if (sessionInfo['client']) authHeaders['client'] = sessionInfo['client'];
-        if (sessionInfo['uid']) authHeaders['uid'] = sessionInfo['uid'];
-
-        const data = await fetchAPI('/inboxes');
-        inboxes = data.payload ? data.payload.filter(i => i.channel_type === 'Channel::Whatsapp') : [];
-        
-        const selectBox = document.getElementById('select-inbox');
-        selectBox.innerHTML = '<option value="">-- Selecciona una bandeja --</option>';
-        inboxes.forEach(i => {
-          selectBox.innerHTML += `<option value="${i.id}">${i.name}</option>`;
+        const tipo = encabezado().toLowerCase();
+        const r = await bot({ accion: 'medios' });
+        const todos = [...(temporal && temporal.tipo === tipo ? [temporal] : []), ...r.medios.filter((m) => m.tipo === tipo)];
+        $('estado-medios').textContent = todos.length ? 'Elige uno:' : 'La carpeta no tiene archivos de este tipo. Súbelo desde tu computador.';
+        $('medios').innerHTML = todos.map((m) => `<div class="medio" data-id="${texto(m.id)}"><div class="miniatura h-24 flex items-center justify-center text-3xl">${m.miniatura ? `<img src="${m.miniatura}" alt="">` : m.tipo === 'image' ? '🖼️' : m.tipo === 'video' ? '🎬' : '📄'}</div><p class="text-xs mt-1 truncate" title="${texto(m.nombre)}">${texto(m.nombre)}</p>${m.conservado === false ? '<p class="text-[10px] text-amber-700">Solo para esta campaña</p>' : ''}</div>`).join('');
+        document.querySelectorAll('.medio').forEach((el) => {
+          el.addEventListener('click', () => { document.querySelectorAll('.medio').forEach((x) => x.classList.remove('elegido')); el.classList.add('elegido'); medio = { ...todos.find((m) => m.id === el.dataset.id), miniatura: el.querySelector('img')?.src || null }; actualizar(); });
+          if (!String(el.dataset.id).startsWith('temporal:')) bot({ accion: 'miniatura', id: el.dataset.id }).then((r) => { if (r.miniatura) el.querySelector('.miniatura').innerHTML = `<img src="${r.miniatura}" alt="">`; if (medio?.id === el.dataset.id) { medio.miniatura = r.miniatura; actualizar(); } }).catch(() => {});
         });
-      } catch (err) {
-        document.getElementById('init-error').classList.remove('hidden');
-        console.error(err);
-      }
-    });
+        if (elegir) [...document.querySelectorAll('.medio')].find((el) => el.dataset.id === elegir)?.click();
+      } catch (e) { $('estado-medios').textContent = e.message; }
+    }
 
-    document.getElementById('select-inbox').addEventListener('change', async (e) => {
-      const inboxId = e.target.value;
-      if(!inboxId) return;
-      const tSelect = document.getElementById('select-template');
-      tSelect.innerHTML = '<option>Cargando plantillas...</option>';
+    $('subir').addEventListener('change', async (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      e.target.value = '';
+      const regla = ARCHIVOS[encabezado()];
+      const extension = (f.name.match(/\.([a-z0-9]+)$/i)?.[1] || '').toLowerCase();
+      if (regla && !regla.acepta.split(',').some((a) => a === `.${extension}` || a === f.type)) { $('estado-medios').textContent = `Esta plantilla pide ${regla.titulo.toLowerCase()}: ${regla.reglas}`; return; }
+      if (regla && f.size > regla.max * 1024 * 1024) { $('estado-medios').textContent = `«${f.name}» pesa ${(f.size / 1048576).toFixed(1)} MB y WhatsApp acepta hasta ${regla.max} MB aquí.`; return; }
+      const conservar = $('conservar').checked;
+      const mb = (f.size / 1048576).toFixed(1);
+      $('estado-medios').textContent = `Revisando y subiendo «${f.name}»${conservar ? ' a la carpeta' : ''}…${f.size > 10 * 1048576 ? ` Pesa ${mb} MB: puede tardar unos minutos según tu conexión.` : ''}`;
       try {
-        const data = await fetchAPI(`/inboxes/${inboxId}/message_templates`);
-        templates = data.payload || data;
-        tSelect.innerHTML = '<option value="">-- Selecciona plantilla --</option>';
-        templates.forEach(t => {
-          tSelect.innerHTML += `<option value="${t.name}">${t.name} (${t.language})</option>`;
-        });
+        const base64 = await new Promise((ok, mal) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(',')[1]); r.onerror = mal; r.readAsDataURL(f); });
+        const { medio: subido } = await bot({ accion: 'subir', nombre: f.name, base64, conservar });
+        if (!conservar) temporal = { ...subido, miniatura: subido.tipo === 'image' ? `data:${subido.mime};base64,${base64}` : null };
+        await cargarMedios(subido.id);
       } catch (err) {
-        tSelect.innerHTML = '<option>Error cargando plantillas</option>';
+        // el servidor espera una subida hasta 5 minutos; si la conexión no alcanza, la petición se corta sin respuesta del bot
+        const cortada = /Failed to fetch|NetworkError|Load failed|respondió (408|499|502|504)/.test(err.message);
+        $('estado-medios').textContent = cortada ? `La subida de «${f.name}» se cortó antes de terminar. Con ${mb} MB la conexión debe alcanzar a enviarlo en menos de 5 minutos: prueba con una conexión más rápida o un archivo más liviano.` : err.message;
       }
     });
 
-    document.getElementById('select-template').addEventListener('change', (e) => {
-      const tName = e.target.value;
-      const tmpl = templates.find(t => t.name === tName);
-      const varsContainer = document.getElementById('template-vars-container');
-      if(tmpl && tmpl.components) {
-        let varCount = 0;
-        let hasImageHeader = false;
-        
-        window.currentTemplateVars = []; let templateVars = window.currentTemplateVars;
-        tmpl.components.forEach(c => {
-          if(c.type === 'HEADER' && c.format === 'IMAGE') {
-             hasImageHeader = true;
-          }
-          if(c.text) {
-             const matches = c.text.match(/\{\{([^}]+)\}\}/g);
-             if(matches) {
-               matches.forEach(m => {
-                 let varName = m.replace(/\{|\}/g, '').trim();
-                 templateVars.push(varName);
-               });
-             }
-          }
-        });
-        
-        if(templateVars.length > 0 || hasImageHeader) {
-          document.getElementById('template-vars').classList.remove('hidden');
-          varsContainer.innerHTML = '';
-          
-          if(hasImageHeader) {
-             varsContainer.innerHTML += `
-              <div class="flex items-center gap-2 mb-2">
-                <span class="w-24 text-sm font-bold text-blue-800">Imagen</span>
-                <input type="file" id="var-image-file" class="block w-full text-sm text-slate-500 file:mr-4 file:py-1 file:px-2 file:border file:border-slate-300 file:rounded file:text-xs file:font-semibold file:bg-white file:text-slate-700 hover:file:bg-slate-50 cursor-pointer" accept="image/*">
-                <input type="hidden" id="var-image" value="">
-                <span id="upload-status" class="text-xs text-slate-500 w-24"></span>
-              </div>`;
-              
-              setTimeout(() => {
-                const fileInput = document.getElementById('var-image-file');
-                if(!fileInput) return;
-                fileInput.addEventListener('change', async (e) => {
-                  const file = e.target.files[0];
-                  if(!file) return;
-                  const statusEl = document.getElementById('upload-status');
-                  statusEl.innerText = 'Subiendo...';
-                  statusEl.className = 'text-xs text-blue-500 w-24';
-                  
-                  const formData = new FormData();
-                  formData.append('image', file);
-                  try {
-                    const res = await fetch('https://chat.sinhuellas.co/api/upload_campaign_image', {
-                      method: 'POST',
-                      body: formData
-                    });
-                    const data = await res.json();
-                    document.getElementById('var-image').value = data.url;
-                    statusEl.innerText = '¡Lista!';
-                    statusEl.className = 'text-xs text-emerald-600 font-bold w-24';
-                  } catch(err) {
-                    statusEl.innerText = 'Error';
-                    statusEl.className = 'text-xs text-red-600 font-bold w-24';
-                  }
-                });
-              }, 100);
-          }
-          
-          templateVars.forEach((varName, i) => {
-             let defaultVal = '';
-             if(varName.toLowerCase() === 'nombre') defaultVal = '{{contact.name}}';
-             else defaultVal = `{{contact.custom_attribute.${varName}}}`;
-             
-             varsContainer.innerHTML += `
-              <div class="flex items-center gap-2">
-                <span class="w-24 text-sm font-bold capitalize">{{${varName}}}</span>
-                <input type="text" id="var-${i+1}" class="input-field text-sm" value="${defaultVal}">
-              </div>`;
-          });
-        } else {
-          document.getElementById('template-vars').classList.add('hidden');
-        }
-      } else {
-        document.getElementById('template-vars').classList.add('hidden');
-      }
+    // ───────── 3. Lista ─────────
+    $('archivo').addEventListener('change', (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const leer = (csv) => Papa.parse(csv, { header: true, skipEmptyLines: true, complete: (r) => {
+        filas = r.data; columnas = r.meta.fields || [];
+        const opciones = (nada) => (nada ? '<option value="">— Ninguna —</option>' : '') + columnas.map((c) => `<option value="${texto(c)}">${texto(c)}</option>`).join('');
+        $('col-telefono').innerHTML = opciones(false); $('col-nombre').innerHTML = opciones(true);
+        const tel = columnas.find((c) => /tel|cel|whats|numero|número|movil|móvil/i.test(c)); if (tel) $('col-telefono').value = tel;
+        const nom = columnas.find((c) => /^nombre|name/i.test(c)); if (nom) $('col-nombre').value = nom;
+        $('mapeo').classList.remove('hidden'); actualizar();
+      } });
+      const r = new FileReader();
+      if (/\.xlsx?$/i.test(f.name)) { r.onload = (x) => { const wb = XLSX.read(x.target.result, { type: 'array' }); leer(XLSX.utils.sheet_to_csv(wb.Sheets[wb.SheetNames[0]])); }; r.readAsArrayBuffer(f); }
+      else { r.onload = (x) => leer(x.target.result); r.readAsText(f); }
     });
+    $('col-telefono').addEventListener('change', actualizar); $('col-nombre').addEventListener('change', actualizar);
 
-    document.getElementById('file-upload').addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if(!file) return;
-      
-      const processCSV = (csvStr) => {
-        Papa.parse(csvStr, {
-          header: true,
-          skipEmptyLines: true,
-          complete: function(results) {
-            currentData = results.data;
-            if(currentData.length === 0) return alert("El archivo está vacío.");
-            
-            const columns = Object.keys(currentData[0]);
-            let opts = '<option value="">-- Ignorar --</option>';
-            columns.forEach(c => opts += `<option value="${c}">${c}</option>`);
-            
-            document.getElementById('map-phone').innerHTML = opts;
-            document.getElementById('map-name').innerHTML = opts;
-            document.getElementById('map-lastname').innerHTML = opts;
-            document.getElementById('column-mapping').classList.remove('hidden');
-            document.getElementById('btn-process').classList.remove('hidden');
-          }
-        });
-      };
+    function destinos() {
+      const tel = $('col-telefono').value; const nom = $('col-nombre').value;
+      return filas.filter((f) => String(f[tel] || '').trim()).map((f) => ({ ...f, telefono: String(f[tel]).trim(), nombre: nom ? String(f[nom] || '').trim() : '' }));
+    }
 
-      if(file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-        const reader = new FileReader();
-        reader.onload = (evt) => {
-          const bstr = evt.target.result;
-          const wb = XLSX.read(bstr, {type:'binary'});
-          const wsname = wb.SheetNames[0];
-          const ws = wb.Sheets[wsname];
-          const csv = XLSX.utils.sheet_to_csv(ws);
-          processCSV(csv);
-        };
-        reader.readAsBinaryString(file);
-      } else {
-        const reader = new FileReader();
-        reader.onload = (evt) => processCSV(evt.target.result);
-        reader.readAsText(file);
+    // ───────── 4. Variables ─────────
+    function pintarVariables() {
+      const vs = variables();
+      const ve = variablesEncabezado();
+      const vb = botonesVariables();
+      $('paso-variables').classList.toggle('hidden', !vs.length && !ve.length && !vb.some(Boolean));
+      $('variables-encabezado').innerHTML = ve.map((v) => `<div class="flex items-center gap-2"><span class="w-40 text-sm font-bold">Encabezado {{${texto(v)}}}</span><input type="text" class="input-field text-sm variable-encabezado" data-v="${texto(v)}" placeholder="Ej.: {nombre}"></div>`).join('');
+      $('variables-botones').innerHTML = vb.map((b, i) => (b ? `<div class="flex items-center gap-2"><span class="w-40 text-sm font-bold">Botón «${texto(b.texto)}»</span><input type="text" class="input-field text-sm variable-boton" data-i="${i}" ${b.tipo === 'copy_code' ? 'maxlength="15" placeholder="Código del cupón (hasta 15 caracteres; puede ser {columna})"' : `placeholder="Final del enlace: ${texto(b.url)}"`}></div>` : '')).join('');
+      document.querySelectorAll('.variable-encabezado, .variable-boton').forEach((el) => el.addEventListener('input', actualizar));
+      $('variables').innerHTML = vs.map((v) => `<div class="flex items-center gap-2"><span class="w-20 text-sm font-bold">{{${texto(v)}}}</span><input type="text" class="input-field text-sm variable" data-v="${texto(v)}" value="${/^(1|nombre)$/i.test(v) ? '{nombre}' : ''}"></div>`).join('');
+      document.querySelectorAll('.variable').forEach((el) => el.addEventListener('input', actualizar));
+    }
+    const valores = () => Object.fromEntries([...document.querySelectorAll('.variable')].map((el) => [el.dataset.v, el.value.trim()]));
+    const valoresEncabezado = () => Object.fromEntries([...document.querySelectorAll('.variable-encabezado')].map((el) => [el.dataset.v, el.value.trim()]));
+    const valoresBotones = () => botonesVariables().map((b, i) => (b ? (document.querySelector(`.variable-boton[data-i="${i}"]`)?.value || '').trim() : null));
+    const rellenar = (t, fila) => { const mapa = Object.fromEntries(Object.entries(fila || {}).map(([k, v]) => [clave(k), v])); return String(t).replace(/\{([^{}]+)\}/g, (_, k) => String(mapa[clave(k)] ?? '').trim()); };
+
+    // ───────── 5. Vista previa, costo y envío ─────────
+    function actualizar() {
+      const lista = destinos();
+      $('resumen-lista').textContent = filas.length ? `${lista.length} números en la lista (los repetidos y los inválidos se descartan al programar).` : '';
+      const precio = PRECIO[String(plantilla?.category || 'MARKETING').toUpperCase()] ?? PRECIO.MARKETING;
+      $('costo').textContent = plantilla && lista.length ? `Costo estimado: USD ${(lista.length * precio).toFixed(2)} (${lista.length} × ${precio}). Lo cobra Meta por mensaje entregado.` : '';
+      if (plantilla) {
+        const v = valores(); const fila = lista[0] || { nombre: 'Juan' };
+        const cuerpo = String(componente('BODY')?.text || '').replace(/\{\{\s*([^}]+?)\s*\}\}/g, (_, k) => rellenar(v[k] || `{{${k}}}`, fila));
+        const fmt = encabezado();
+        const cab = fmt === 'TEXT' ? `<p class="font-bold mb-1">${texto(String(componente('HEADER')?.text || '').replace(/\{\{\s*([^}]+?)\s*\}\}/g, (_, k) => rellenar(valoresEncabezado()[k] || `{{${k}}}`, fila)))}</p>`
+          : fmt === 'IMAGE' ? (medio?.miniatura ? `<img src="${medio.miniatura}" class="rounded mb-2 w-full" alt="">` : '<div class="bg-slate-200 rounded mb-2 h-32 flex items-center justify-center text-slate-500">Imagen</div>')
+          : fmt === 'VIDEO' ? `<div class="bg-slate-800 rounded mb-2 h-32 flex items-center justify-center text-white">▶ ${texto(medio?.nombre || 'Video')}</div>`
+          : fmt === 'DOCUMENT' ? `<div class="bg-white rounded mb-2 p-2">📄 ${texto(medio?.nombre || 'Documento.pdf')}</div>` : '';
+        const botones = (componente('BUTTONS')?.buttons || []).map((b) => `<div class="bg-white text-center text-sky-700 rounded mt-1 py-1">${texto(b.text)}</div>`).join('');
+        $('vista').innerHTML = `${cab}<p class="whitespace-pre-wrap">${texto(cuerpo)}</p>${botones}`;
       }
-    });
+      const listo = plantilla && lista.length && $('acepto').checked && $('nombre').value.trim()
+        && (!ARCHIVOS[encabezado()] || medio) && variables().every((v) => valores()[v]) && variablesEncabezado().every((v) => valoresEncabezado()[v])
+        && valoresBotones().every((x, i) => !botonesVariables()[i] || x);
+      $('enviar').disabled = !listo;
+    }
+    ['acepto', 'nombre'].forEach((id) => $(id).addEventListener('input', actualizar)); $('acepto').addEventListener('change', actualizar);
 
-    document.getElementById('btn-process').addEventListener('click', async () => {
-      const inboxId = document.getElementById('select-inbox').value;
-      const tName = document.getElementById('select-template').value;
-      let campaignName = document.getElementById('campaign-name').value.trim();
-      const colPhone = document.getElementById('map-phone').value;
-      const colName = document.getElementById('map-name').value;
-      const colLastName = document.getElementById('map-lastname').value;
-
-      if(!inboxId || !tName || !campaignName || !colPhone) {
-        return alert("Por favor completa los campos requeridos.");
-      }
-
-      const labelName = campaignName.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase() + "_" + Date.now().toString().slice(-5);
-
-      document.getElementById('step-setup').classList.add('opacity-50', 'pointer-events-none');
-      document.getElementById('step-upload').classList.add('hidden');
-      document.getElementById('step-progress').classList.remove('hidden');
-
-      logStatus(`Creando etiqueta: ${labelName}...`);
-      let labelId = null;
+    $('enviar').addEventListener('click', async () => {
+      $('enviar').disabled = true; $('resultado').textContent = 'Programando…';
       try {
-        const labelRes = await fetchAPI('/labels', { 
-          method: 'POST', 
-          body: JSON.stringify({ title: labelName, description: 'Campaña Masiva Express', color: '#163f30' }) 
-        });
-        labelId = labelRes.payload ? labelRes.payload.id : labelRes.id;
-      } catch (err) {
-        try {
-          const listRes = await fetchAPI('/labels');
-          const found = listRes.payload.find(l => l.title === labelName);
-          if (found) labelId = found.id;
-        } catch (e) {}
-      }
-
-      if (!labelId) {
-        return logStatus(`Error: No se pudo crear la etiqueta.`);
-      }
-
-      logStatus(`Iniciando sincronización...`);
-      let successCount = 0;
-      
-      for(let i=0; i<currentData.length; i++) {
-        const row = currentData[i];
-        let phone = row[colPhone] ? String(row[colPhone]).replace(/\D/g,'') : '';
-        if(phone && !phone.startsWith('+')) phone = '+' + phone;
-        
-        let name = colName && row[colName] ? row[colName] : '';
-        let lastName = colLastName && row[colLastName] ? row[colLastName] : '';
-        let fullName = [name, lastName].filter(Boolean).join(' ');
-        if(!fullName) fullName = 'Contacto';
-        
-        let custom_attributes = {};
-        Object.keys(row).forEach(k => {
-          if (k !== colPhone && k !== colName && k !== colLastName) {
-             let safeKey = k.toLowerCase().replace(/[^a-z0-9]/g, '_');
-             if(safeKey) {
-                custom_attributes[safeKey] = row[k];
-                custom_attributes[k] = row[k]; // fallback
-             }
-          }
-        });
-        
-        if(!phone || phone.length < 8) {
-          logStatus(`Fila ${i+1}: Número inválido, saltando.`);
-          continue;
-        }
-
-        try {
-          const search = await fetchAPI(`/contacts/search?q=${encodeURIComponent(phone)}`);
-          let contactId = null;
-          
-          if(search.payload && search.payload.length > 0) {
-            contactId = search.payload[0].id;
-            await fetchAPI(`/contacts/${contactId}`, { method: 'PUT', body: JSON.stringify({ name: fullName, phone_number: phone, custom_attributes }) });
-          } else {
-            const create = await fetchAPI(`/contacts`, { method: 'POST', body: JSON.stringify({ inbox_id: inboxId, name: fullName, phone_number: phone, custom_attributes }) });
-            contactId = create.payload.contact.id;
-          }
-          
-          try {
-             await fetchAPI(`/contacts/${contactId}/contact_inboxes`, { method: 'POST', body: JSON.stringify({ source_id: phone.replace('+', ''), inbox_id: inboxId }) });
-          } catch(e) {}
-
-          await fetchAPI(`/contacts/${contactId}/labels`, { method: 'POST', body: JSON.stringify({ labels: [labelName] }) });
-          successCount++;
-        } catch (err) {
-          logStatus(`Fila ${i+1} (${phone}): Error -> ${err.message}`);
-        }
-
-        const pct = Math.round(((i+1) / currentData.length) * 100);
-        document.getElementById('progress-fill').style.width = pct + '%';
-        document.getElementById('progress-percent').innerText = pct + '%';
-        document.getElementById('progress-text').innerText = `Procesados ${i+1} de ${currentData.length}`;
-      }
-
-      logStatus(`Sincronización terminada. Disparando campaña...`);
-      
-      const tmpl = templates.find(t => t.name === tName);
-      let paramsArray = { body: {} };
-      const varsContainer = document.getElementById('template-vars-container');
-      if(varsContainer) {
-        const imgInput = document.getElementById('var-image');
-        if (imgInput && imgInput.value) {
-           paramsArray.header = { media_url: imgInput.value, media_type: "image" };
-        }
-        if(window.currentTemplateVars) {
-           window.currentTemplateVars.forEach((varName, i) => {
-              const txtInput = document.getElementById('var-' + (i+1));
-              if (txtInput && txtInput.value) {
-                 paramsArray.body[varName] = txtInput.value;
-              }
-           });
-        } else {
-           for(let i=1; i<=20; i++) {
-              const txtInput = document.getElementById('var-' + i);
-              if (txtInput && txtInput.value) {
-                 paramsArray.body[i.toString()] = txtInput.value;
-              }
-           }
-        }
-      }
-
-      try {
-        let scheduledAt = null;
-        const scheduleInput = document.getElementById('campaign-schedule').value;
-        if(scheduleInput) {
-          scheduledAt = new Date(scheduleInput).toISOString();
-        }
-
-        const campaignPayload = {
-          title: campaignName,
-          message: tName,
-          inbox_id: inboxId,
-          audience: [{ type: "Label", id: labelId }],
-          scheduled_at: scheduledAt,
-          template_params: {
-            name: tName,
-            category: tmpl ? tmpl.category : "MARKETING",
-            language: tmpl ? tmpl.language : "es",
-            namespace: tmpl ? tmpl.namespace : "",
-            processed_params: paramsArray
-          }
-        };
-
-        const res = await fetchAPI(`/campaigns`, { method: 'POST', body: JSON.stringify(campaignPayload) });
-        logStatus(`¡Campaña disparada exitosamente!`);
-        document.getElementById('success-banner').classList.remove('hidden');
-      } catch (err) {
-        logStatus(`Error enviando campaña: ${err.message}`);
-      }
+        const programada = $('programada').value ? new Date($('programada').value).toISOString() : null;
+        const r = await bot({ accion: 'crear', nombre: $('nombre').value.trim(), inbox_id: Number($('bandeja').value), plantilla, variables: valores(), encabezado: valoresEncabezado(), botones: valoresBotones(), medio_id: medio?.id || null,
+          destinos: destinos(), programada_para: programada, acepto_aviso: $('acepto').checked });
+        const c = r.campana;
+        $('resultado').innerHTML = `<span class="text-emerald-700 font-medium">Campaña programada: ${c.destinos} números${c.invalidos ? ` (${c.invalidos} inválidos)` : ''}${c.repetidos ? ` (${c.repetidos} repetidos)` : ''}. Empieza a salir el ${new Date(c.sale_desde).toLocaleString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' })} · costo estimado: USD ${c.costo_estimado_usd}.</span>`;
+        refrescarCampanas();
+      } catch (e) { $('resultado').innerHTML = `<span class="text-red-700">${texto(e.message)}</span>`; actualizar(); }
     });
 
-    document.getElementById('download-template').addEventListener('click', (e) => {
+    // ───────── Campañas ─────────
+    const ESTADOS = { programada: 'Programada', enviando: 'Enviando', terminada: 'Terminada', cancelada: 'Cancelada' };
+    async function refrescarCampanas() {
+      try {
+        const r = await bot({ accion: 'estado' });
+        $('campanas').innerHTML = r.campanas.map((c) => `<tr class="border-t"><td class="py-1">${texto(c.nombre)}<div class="text-xs text-slate-500">${texto(c.plantilla)} · ${new Date(c.programada_para).toLocaleString('es-CO')}</div></td><td>${ESTADOS[c.estado] || c.estado}</td><td>${c.total}</td><td>${c.enviados}</td><td>${c.entregados}</td><td>${c.leidos}</td><td>${c.respuestas}</td><td>${c.bajas}</td><td>${c.fallidos}</td><td>${['programada', 'enviando'].includes(c.estado) ? `<button class="btn-sec cancelar" data-id="${c.id}">Cancelar</button>` : ''}</td></tr>`).join('') || '<tr><td colspan="10" class="py-2 text-slate-500">Todavía no hay campañas.</td></tr>';
+        document.querySelectorAll('.cancelar').forEach((b) => b.addEventListener('click', async () => { try { await bot({ accion: 'cancelar', id: Number(b.dataset.id) }); } catch (e) { error(e.message); } refrescarCampanas(); }));
+      } catch (e) { error(e.message); }
+    }
+    $('refrescar').addEventListener('click', refrescarCampanas);
+
+    $('ejemplo').addEventListener('click', (e) => {
       e.preventDefault();
-      const csvContent = "Telefono,Nombre,Apellido,Ciudad,Notas\n+573001234567,Juan,Perez,Bogota,Cliente VIP\n+573119876543,Maria,Gomez,Medellin,Nuevo prospecto\n573205554433,Carlos,Lopez,Cali,Llamar despues";
-      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-      const link = document.createElement("a");
-      const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
-      link.setAttribute("download", "plantilla_masiva_sin_huellas.csv");
-      link.style.visibility = "hidden";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const csv = 'Telefono,Nombre,Ciudad\n+573001234567,Juan Pérez,Pasto\n3119876543,María Gómez,Ipiales\n';
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' })); a.download = 'ejemplo_campana_sin_huellas.csv'; a.click();
     });
+
+    iniciar();
   </script>
 </body>
 </html>
