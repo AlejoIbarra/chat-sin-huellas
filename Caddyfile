@@ -1,0 +1,12 @@
+chat.sinhuellas.co, prueba.sinhuellas.co {
+    handle_path /uploads/* {
+        root * /var/www/chat_uploads
+        file_server
+    }
+    handle /api/upload_campaign_image {
+        reverse_proxy 127.0.0.1:3001
+    }
+    handle {
+        reverse_proxy 127.0.0.1:3000
+    }
+}
