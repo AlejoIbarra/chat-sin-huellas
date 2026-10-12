@@ -1,28 +1,36 @@
 /* ==========================================================================================================================================
-   Apariencia de Sin Huellas sobre Chatwoot 4.18
+   Tema de Sin Huellas sobre Chatwoot 4.18
 
-   Cómo está hecho Chatwoot: con Tailwind. Cada color sale de una variable (un «token») que Chatwoot define en :root para el modo claro y en
-   .dark (en el body) para el oscuro: --blue-1…12, --slate-1…12, --solid-blue, --surface-1… Para darle la identidad del bufete basta
-   redefinir esas variables: el cambio llega solo a todas las pantallas, en claro y en oscuro, sin pelear componente por componente.
-   El único color que Chatwoot dejó fijo es su azul de marca; marca.sh lo cambia por var(--sh-marca) al construir la imagen.
+   Cómo se reparten los estilos:
+   - Lo visual se arma con el Tailwind de Chatwoot, ya compilado: nuestros botones (vueapp.html.erb) y el lanzador (campanas.html) usan sus
+     mismas clases (bg-n-brand, outline-n-container, sm:…, md:…). Así todo se ve y se comporta como Chatwoot, móvil primero, sin compilar
+     nada. Solo existen las clases que Chatwoot usa: bot/test/e2e/chatwoot-clases.test.mjs revisa que cada una exista.
+   - Esta hoja es la capa de tema, como el archivo de colores de cualquier proyecto con Tailwind: Chatwoot saca cada color de una variable
+     (--blue-*, --slate-*, --solid-blue…) que define en :root (claro) y en .dark (oscuro); aquí se redefinen con la identidad del bufete. Su
+     azul de marca quedó fijo en el CSS compilado: marca.sh lo cambia por var(--sh-marca) al construir la imagen.
+   - Además: ajustes a piezas de Chatwoot que no son nuestras (no se les pueden poner clases) y lo poco que su Tailwind compilado no trae.
 
-   Reglas de esta hoja:
-   - Sin !important: se carga después del CSS de Chatwoot (vueapp.html.erb la deja de última), así que con la misma especificidad gana.
-   - Sin selectores amplios ([class*="…"], header, div:has(img)…): cada regla nombra lo que cambia.
-   - Móvil primero: la regla base es la del celular y @media (min-width: …) agrega lo de pantallas grandes.
-   - Los colores son tokens (RGB sin comas, como los de Chatwoot): se usan con rgb(var(--x)) o rgb(var(--x) / opacidad).
+   Reglas: sin !important (esta hoja se carga de última y gana por orden), sin selectores amplios ([class*="…"], header, div:has(img)…), móvil
+   primero (la regla base es la del celular; @media (min-width: …) agrega lo de pantallas grandes) y colores como variables RGB sin comas,
+   como las de Chatwoot: rgb(var(--x)) o rgb(var(--x) / opacidad).
 
-   1. Paleta del bufete · 2. Tokens de Chatwoot, modo claro · 3. Modo oscuro · 4. Identidad · 5. Componentes de Sin Huellas ·
-   6. Arreglos de Chatwoot en celular
+   1. Paleta · 2. Tokens de Chatwoot en claro · 3. Modo oscuro · 4. Identidad · 5. Piezas de Chatwoot · 6. Lo que su Tailwind no trae
    ========================================================================================================================================== */
 
 
-/* 1. Paleta del bufete ----------------------------------------------------------------------------------------------------------------- */
+/* 1. Paleta ------------------------------------------------------------------------------------------------------------------------------ */
 
 :root {
   --sh-esmeralda: 22 63 48;   /* #163f30 */
   --sh-oro: 215 169 68;       /* #d7a944 */
   --sh-marca: var(--sh-esmeralda);
+
+  /* WhatsApp, para la vista previa del lanzador: el mensaje se muestra con los colores con que lo ve el cliente */
+  --sh-wa-fondo: 239 234 226;
+  --sh-wa-burbuja: 217 253 211;
+  --sh-wa-texto: 17 27 33;
+  --sh-wa-boton: 255 255 255;
+  --sh-wa-enlace: 2 126 181;
 }
 
 
@@ -76,6 +84,12 @@
   --solid-blue-2: 22 26 24;
   --border-blue: 38, 122, 90, .5;
   --border-blue-strong: 199 241 220;
+
+  --sh-wa-fondo: 11 20 26;
+  --sh-wa-burbuja: 0 92 75;
+  --sh-wa-texto: 233 237 239;
+  --sh-wa-boton: 31 44 51;
+  --sh-wa-enlace: 83 189 235;
 }
 
 
@@ -92,6 +106,13 @@ body::before {
   pointer-events: none;
 }
 
+::selection {
+  background: rgb(var(--sh-marca) / .25);
+}
+
+
+/* 5. Piezas de Chatwoot (no son nuestras: no se les pueden poner clases) ------------------------------------------------------------------ */
+
 /* Logo del bufete en la barra lateral: Chatwoot lo muestra de 16 px; a 28 px se reconoce */
 aside div:has(> img[src^="/brand-assets/logo"]) {
   width: 2rem;
@@ -103,110 +124,25 @@ aside img[src^="/brand-assets/logo"] {
   height: 1.75rem;
 }
 
-::selection {
-  background: rgb(var(--sh-marca) / .25);
-}
-
-/* El estado «Pendientes» se muestra como «Bot atendiendo» (vueapp.html.erb); Chatwoot pone en mayúscula cada palabra de esa etiqueta */
-.sh-texto-tal-cual {
-  text-transform: none;
-}
-
-
-/* 5. Componentes de Sin Huellas (los crea vueapp.html.erb) ------------------------------------------------------------------------------- */
-
-/* 5.1 Botón «Enviar plantilla» en la caja de respuesta de las conversaciones de WhatsApp. En celular va solo el ícono, para no empujar
-       fuera de la pantalla el botón de enviar de Chatwoot; el nombre completo está en su título y en el aviso de las 24 horas. */
-.sh-plantilla {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: .375rem;
-  min-width: 2rem;
-  height: 2rem;
-  padding: 0 .5rem;
-  border: 1px solid rgb(var(--sh-oro));
-  border-radius: .5rem;
-  background: rgb(var(--sh-marca));
-  color: #fff;
-  font-size: .8125rem;
-  font-weight: 600;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.sh-plantilla:hover {
-  filter: brightness(1.15);
-}
-
-.sh-plantilla:focus-visible {
-  outline: 2px solid rgb(var(--sh-oro));
-  outline-offset: 2px;
-}
-
-/* En celular el texto no se ve, pero sigue ahí para los lectores de pantalla */
-.sh-plantilla__texto {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
-/* En el aviso de las 24 horas siempre con texto, en blanco sobre el rojo del aviso */
-.sh-plantilla--aviso {
-  border-color: #fff;
-  background: #fff;
-  color: rgb(var(--sh-esmeralda));
-}
-
-.sh-plantilla--aviso .sh-plantilla__texto {
-  position: static;
-  width: auto;
+/* El aviso de las 24 horas tiene alto fijo y en el celular corta su propio texto: con alto automático caben el texto y el botón */
+.woot-banner {
+  flex-wrap: wrap;
+  row-gap: .5rem;
   height: auto;
-  overflow: visible;
-  clip-path: none;
+  min-height: 3rem;
+  padding-block: .5rem;
 }
 
-/* El ícono de plantillas propio de Chatwoot se reemplaza por el botón de arriba: pide la dirección del archivo a mano y no la revisa */
+/* El ícono de plantillas de Chatwoot se reemplaza por nuestro botón «Enviar plantilla»: pide la dirección del archivo a mano y no la revisa */
 .left-wrap > button:has(.i-ph-whatsapp-logo) {
   display: none;
 }
 
-/* 5.2 Botón «Envío masivo» de Campañas. En celular flota abajo a la derecha (el menú de Chatwoot flota a la izquierda); en pantallas
-       grandes va en el encabezado, junto a «Crear campaña». */
-.sh-express {
-  position: fixed;
-  right: 1rem;
-  bottom: calc(1rem + env(safe-area-inset-bottom));
-  z-index: 30;
-  display: inline-flex;
-  align-items: center;
-  gap: .5rem;
-  min-height: 2.75rem;
-  padding: 0 1.125rem;
-  border: 1px solid rgb(var(--sh-oro));
-  border-radius: 999px;
-  background: rgb(var(--sh-marca));
-  color: #fff;
-  font-size: .875rem;
-  font-weight: 700;
-  white-space: nowrap;
-  box-shadow: 0 8px 20px rgb(0 0 0 / .2);
-  cursor: pointer;
-}
 
-.sh-express:hover {
-  filter: brightness(1.15);
-}
+/* 6. Lo que el Tailwind compilado de Chatwoot no trae -------------------------------------------------------------------------------------- */
 
-.sh-express:focus-visible {
-  outline: 2px solid rgb(var(--sh-oro));
-  outline-offset: 2px;
-}
-
-/* 5.3 Ventana del lanzador (campañas y plantilla suelta): pantalla completa en celular, centrada en pantallas grandes */
+/* 6.1 Ventana del lanzador (la crea vueapp.html.erb): pantalla completa en el celular, respetando la muesca del iPhone; centrada y con
+       esquinas redondeadas desde 768 px. Chatwoot no compiló esos tamaños ni md:rounded-*. */
 .sh-lanzador {
   position: fixed;
   inset: 0;
@@ -220,7 +156,7 @@ aside img[src^="/brand-assets/logo"] {
   position: relative;
   width: 100%;
   height: 100%;
-  padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom); /* la muesca y la barra de inicio del iPhone */
+  padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
   overflow: hidden;
   background: rgb(var(--background-color));
 }
@@ -250,56 +186,11 @@ aside img[src^="/brand-assets/logo"] {
 }
 
 .sh-lanzador__cerrar:focus-visible {
-  outline: 2px solid rgb(var(--sh-oro));
+  outline: 2px solid rgb(var(--sh-marca));
   outline-offset: 2px;
 }
 
-
-/* 6. Arreglos de Chatwoot en celular -------------------------------------------------------------------------------------------------------- */
-
-/* El aviso de las 24 horas tiene alto fijo y en celular corta su propio texto: con alto automático el texto y el botón caben */
-.woot-banner {
-  flex-wrap: wrap;
-  row-gap: .5rem;
-  height: auto;
-  min-height: 3rem;
-  padding-block: .5rem;
-}
-
-
-/* Pantallas grandes ---------------------------------------------------------------------------------------------------------------------- */
-
-@media (min-width: 640px) {
-  .sh-plantilla {
-    padding: 0 .75rem;
-  }
-
-  .sh-plantilla__texto {
-    position: static;
-    width: auto;
-    height: auto;
-    overflow: visible;
-    clip-path: none;
-  }
-}
-
 @media (min-width: 768px) {
-  /* en el encabezado, pegado a «Crear campaña» y con su misma altura y forma */
-  .sh-express {
-    position: static;
-    min-height: 2rem;
-    margin-left: auto;
-    padding: 0 .75rem;
-    border-radius: .5rem;
-    box-shadow: none;
-  }
-
-  /* sin el encabezado de Campañas donde ubicarse, sigue flotando */
-  .sh-express--flotante {
-    position: fixed;
-    box-shadow: 0 8px 20px rgb(0 0 0 / .2);
-  }
-
   .sh-lanzador {
     backdrop-filter: blur(4px);
   }
@@ -311,4 +202,24 @@ aside img[src^="/brand-assets/logo"] {
     border-radius: 1rem;
     box-shadow: 0 25px 50px -12px rgb(0 0 0 / .35);
   }
+}
+
+/* 6.2 Vista previa del lanzador: los colores de WhatsApp (no son de Chatwoot). El espaciado y la forma van con clases de Tailwind. */
+.sh-wa-fondo {
+  background: rgb(var(--sh-wa-fondo));
+}
+
+.sh-wa-burbuja {
+  background: rgb(var(--sh-wa-burbuja));
+  color: rgb(var(--sh-wa-texto));
+}
+
+.sh-wa-boton {
+  background: rgb(var(--sh-wa-boton));
+  color: rgb(var(--sh-wa-enlace));
+}
+
+.sh-wa-video {
+  background: #1f2c33; /* el reproductor de WhatsApp es oscuro en los dos modos */
+  color: #fff;
 }

@@ -95,8 +95,8 @@
           const valor = nodo.nodeValue;
           if (valor.includes('Iniciar sesión en Chatwoot')) nodo.nodeValue = valor.replace(/Iniciar sesión en Chatwoot/g, 'Iniciar sesión en Chat sin huellas');
           if (valor.trim() === 'Pendientes') nodo.nodeValue = 'Bot atendiendo';
-          // Chatwoot pone en mayúscula cada palabra de la etiqueta de estado («Bot Atendiendo»)
-          if (nodo.nodeValue === 'Bot atendiendo') nodo.parentElement?.classList.add('sh-texto-tal-cual');
+          // Chatwoot pone en mayúscula cada palabra de la etiqueta de estado («Bot Atendiendo»); normal-case (Tailwind de Chatwoot) lo deja tal cual
+          if (nodo.nodeValue === 'Bot atendiendo') nodo.parentElement?.classList.add('normal-case');
         }
         function revisarArbol(raiz) {
           const recorrido = document.createTreeWalker(raiz, NodeFilter.SHOW_TEXT);
@@ -141,8 +141,10 @@
           if (e.origin === window.location.origin && e.data && e.data.sh === 'cerrar-lanzador') document.querySelector('.sh-lanzador')?.remove();
         });
 
-        // Botón «Envío masivo» en las páginas de Campañas: en el encabezado, junto a «Crear campaña» (custom.css lo hace flotar en el celular).
-        // Si la página no tiene ese encabezado, flota también en pantallas grandes.
+        // Botón «Envío masivo» en las páginas de Campañas, con las clases de Tailwind de los botones de Chatwoot: en el celular flota abajo a la
+        // derecha (el menú de Chatwoot flota a la izquierda) y desde 768 px va en el encabezado, junto a «Crear campaña». Si la página no tiene
+        // ese encabezado, flota siempre.
+        const ENVIO_MASIVO = 'fixed bottom-4 right-4 z-30 ms-auto inline-flex items-center justify-center gap-2 h-9 px-3 rounded-lg border-0 outline outline-1 outline-transparent bg-n-brand text-white text-sm font-medium shadow transition-all duration-100 ease-out hover:enabled:brightness-110 focus-visible:brightness-110 active:enabled:scale-[0.97]';
         function botonEnvioMasivo() {
           const enCampanas = window.location.pathname.includes('/campaigns');
           let boton = document.getElementById('sh-envio-masivo');
@@ -156,7 +158,7 @@
             boton.innerHTML = '<span aria-hidden="true">⚡</span>Envío masivo';
             boton.addEventListener('click', () => window.shAbrirLanzador());
           }
-          boton.className = crear ? 'sh-express' : 'sh-express sh-express--flotante';
+          boton.className = crear ? `${ENVIO_MASIVO} md:static` : ENVIO_MASIVO;
           if (crear) crear.parentElement.insertBefore(boton, crear); else document.body.appendChild(boton);
         }
         setInterval(botonEnvioMasivo, 500);
@@ -168,12 +170,20 @@
         const deWhatsapp = {}; // conversación → true si es de una bandeja de WhatsApp
         const actual = () => window.location.pathname.match(/\/accounts\/(\d+)\/(?:.*\/)?conversations\/(\d+)/);
         const abrir = () => { const m = actual(); if (m) window.shAbrirLanzador('&conv=' + m[2]); };
+        // Las clases de Tailwind de los botones de Chatwoot: el de marca en la caja de respuesta (en el celular solo el ícono, para no empujar
+        // el botón de enviar) y el de contorno en el aviso de las 24 horas. La clase sh-plantilla solo sirve para encontrarlos.
+        const EN_CAJA = 'sh-plantilla inline-flex items-center justify-center min-w-0 gap-2 h-8 px-2.5 rounded-lg border-0 outline outline-1 outline-transparent bg-n-brand text-white text-sm transition-all duration-100 ease-out hover:enabled:brightness-110 focus-visible:brightness-110 active:enabled:scale-[0.97]';
+        const EN_AVISO = 'sh-plantilla inline-flex items-center justify-center min-w-0 gap-2 h-8 px-3 rounded-lg border-0 outline outline-1 outline-n-container bg-n-button-color text-n-slate-12 text-sm font-medium transition-all duration-100 ease-out hover:enabled:bg-n-alpha-2 focus-visible:bg-n-alpha-2';
         function boton(enAviso) {
           const b = document.createElement('button');
           b.type = 'button';
-          b.className = enAviso ? 'sh-plantilla sh-plantilla--aviso' : 'sh-plantilla';
+          b.className = enAviso ? EN_AVISO : EN_CAJA;
           b.title = 'Enviar una plantilla de WhatsApp';
-          b.innerHTML = enAviso ? '<span class="sh-plantilla__texto">Elegir plantilla</span>' : '<span aria-hidden="true">📨</span><span class="sh-plantilla__texto">Enviar plantilla</span>';
+          if (enAviso) b.textContent = 'Elegir plantilla';
+          else {
+            b.setAttribute('aria-label', 'Enviar plantilla');
+            b.innerHTML = '<span aria-hidden="true">📨</span><span class="hidden sm:inline">Enviar plantilla</span>';
+          }
           b.addEventListener('click', abrir);
           return b;
         }
