@@ -1512,7 +1512,8 @@ body:not(.dark) [class*="dropdown"] input {
 
 
 /* Fix the invisible active sidebar item caused by overzealous submenu background rules */
-body:not(.dark) [class*="submenu"] {
+body:not(.dark) .sidebar [class*="submenu"],
+body:not(.dark) nav [class*="submenu"] {
   background-color: transparent !important;
   background: transparent !important;
 }
@@ -1609,4 +1610,141 @@ body.dark [class*="bg-slate-900"],
 body.dark [class*="bg-woot-900"] {
   background-color: #000000 !important;
 }
+
+/* ==========================================================================
+   CONVERSATION CARD CONTEXT MENU FIX (Light & Dark Mode)
+   ========================================================================== */
+
+/* Outer floating container */
+body:not(.dark) div.fixed[class*="z-[9999]"] > div,
+body:not(.dark) div.fixed[style*="top"][style*="left"] > div,
+body:not(.dark) div:has(> .menu-with-submenu),
+body:not(.dark) div:has(> .menu) {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12) !important;
+}
+
+/* Menu items (both regular and submenu items) */
+body:not(.dark) .menu-with-submenu,
+body:not(.dark) div:has(> .menu-with-submenu) .menu,
+body:not(.dark) div:has(> .menu-with-submenu) .menu-with-submenu,
+body:not(.dark) div.fixed[class*="z-[9999]"] .menu,
+body:not(.dark) div.fixed[class*="z-[9999]"] .menu-with-submenu {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: none !important;
+  border-radius: 8px !important;
+  margin: 1px 0 !important;
+  transition: background-color 0.15s ease !important;
+}
+
+/* Hover state for all items */
+body:not(.dark) .menu-with-submenu:hover,
+body:not(.dark) div:has(> .menu-with-submenu) .menu:hover,
+body:not(.dark) div:has(> .menu-with-submenu) .menu-with-submenu:hover,
+body:not(.dark) div.fixed[class*="z-[9999]"] .menu:hover,
+body:not(.dark) div.fixed[class*="z-[9999]"] .menu-with-submenu:hover {
+  background-color: #f1f5f9 !important;
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+/* Text and icons inside items */
+body:not(.dark) .menu-with-submenu *,
+body:not(.dark) .menu-with-submenu p,
+body:not(.dark) .menu-with-submenu fluent-icon,
+body:not(.dark) div:has(> .menu-with-submenu) .menu *,
+body:not(.dark) div:has(> .menu-with-submenu) .menu-with-submenu *,
+body:not(.dark) div.fixed[class*="z-[9999]"] .menu *,
+body:not(.dark) div.fixed[class*="z-[9999]"] .menu-with-submenu * {
+  color: #0f172a !important;
+  fill: #0f172a !important;
+}
+
+/* Dividers */
+body:not(.dark) div:has(> .menu-with-submenu) hr,
+body:not(.dark) div.fixed[class*="z-[9999]"] hr {
+  border: none !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  margin: 4px 0 !important;
+  background: transparent !important;
+}
+
+/* Submenu Flyout (Prioridad, Etiquetas, Agentes, etc.) */
+body:not(.dark) .menu-with-submenu .submenu {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12) !important;
+  padding: 6px !important;
+}
+
+body:not(.dark) .menu-with-submenu .submenu .menu {
+  background-color: transparent !important;
+  border-radius: 6px !important;
+}
+
+body:not(.dark) .menu-with-submenu .submenu .menu:hover {
+  background-color: #f1f5f9 !important;
+}
+
+body:not(.dark) .menu-with-submenu .submenu input {
+  background-color: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+  border-radius: 6px !important;
+}
+
+/* Dark Mode Context Menu */
+body.dark div.fixed[class*="z-[9999]"] > div,
+body.dark div:has(> .menu-with-submenu) {
+  background-color: #121215 !important;
+  background: #121215 !important;
+  border: 1px solid #27272a !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+}
+
+body.dark .menu-with-submenu,
+body.dark div:has(> .menu-with-submenu) .menu,
+body.dark div:has(> .menu-with-submenu) .menu-with-submenu {
+  background-color: transparent !important;
+  color: #ffffff !important;
+  border-radius: 8px !important;
+}
+
+body.dark .menu-with-submenu:hover,
+body.dark div:has(> .menu-with-submenu) .menu:hover,
+body.dark div:has(> .menu-with-submenu) .menu-with-submenu:hover {
+  background-color: #18181b !important;
+  color: #ffffff !important;
+}
+
+body.dark .menu-with-submenu *,
+body.dark div:has(> .menu-with-submenu) .menu *,
+body.dark div:has(> .menu-with-submenu) .menu-with-submenu * {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+}
+
+body.dark div:has(> .menu-with-submenu) hr {
+  border: none !important;
+  border-bottom: 1px solid #27272a !important;
+  margin: 4px 0 !important;
+}
+
+body.dark .menu-with-submenu .submenu {
+  background-color: #121215 !important;
+  background: #121215 !important;
+  border: 1px solid #27272a !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+  padding: 6px !important;
+}
+
 
