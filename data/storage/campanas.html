@@ -29,8 +29,8 @@
     <div class="flex items-center gap-4 mb-6">
       <div class="w-12 h-12 bg-[#163f30] rounded-lg flex items-center justify-center text-white font-bold text-xl">SH</div>
       <div>
-        <h1 class="text-2xl font-bold">Lanzador de campañas</h1>
-        <p class="text-slate-500 text-sm">El bufete elige la plantilla, el archivo y la lista; el asistente envía en horario y nunca a quien pidió la baja.</p>
+        <h1 id="titulo" class="text-2xl font-bold">Lanzador de campañas</h1>
+        <p id="subtitulo" class="text-slate-500 text-sm">El bufete elige la plantilla, el archivo y la lista; el asistente envía en horario y nunca a quien pidió la baja.</p>
       </div>
     </div>
 
@@ -39,8 +39,9 @@
     <!-- 1. Plantilla -->
     <div class="card">
       <h2 class="text-lg font-semibold mb-4 border-b pb-2">1. Plantilla</h2>
+      <p id="para" class="hidden text-sm mb-3"></p>
       <div class="grid grid-cols-2 gap-4">
-        <div>
+        <div id="campo-bandeja">
           <label class="block text-sm font-medium mb-1">Número de WhatsApp (bandeja)</label>
           <select id="bandeja" class="input-field"><option>Cargando…</option></select>
         </div>
@@ -55,8 +56,12 @@
     <!-- 2. Archivo -->
     <div class="card hidden" id="paso-medio">
       <div class="flex justify-between items-center mb-2 border-b pb-2">
-        <h2 class="text-lg font-semibold">2. <span id="titulo-medio">Imagen</span> de la carpeta «Campañas»</h2>
+        <h2 class="text-lg font-semibold">2. <span id="titulo-medio">Imagen</span> <span class="text-sm font-normal text-slate-500">de la carpeta «Campañas», de tu computador o de un enlace</span></h2>
         <label class="btn-sec">Subir desde el computador<input type="file" id="subir" class="hidden"></label>
+      </div>
+      <div class="flex gap-2 mb-3">
+        <input type="url" id="enlace" class="input-field text-sm" placeholder="…o pega el enlace directo del archivo (https://…); también sirve un enlace de Google Drive del bufete">
+        <button id="traer" class="btn-sec whitespace-nowrap">Traer del enlace</button>
       </div>
       <div class="flex justify-between items-start gap-4 mb-3">
         <p id="reglas-medio" class="text-xs text-slate-500"></p>
@@ -67,7 +72,7 @@
     </div>
 
     <!-- 3. Lista -->
-    <div class="card">
+    <div class="card" id="paso-lista">
       <div class="flex justify-between items-center mb-4 border-b pb-2">
         <h2 class="text-lg font-semibold">3. Lista de números (Excel o CSV)</h2>
         <a href="#" id="ejemplo" class="text-sm text-emerald-700 font-medium">Descargar ejemplo (.csv)</a>
@@ -101,20 +106,20 @@
       <div class="grid grid-cols-2 gap-6">
         <div class="chat"><div id="vista" class="burbuja text-sm"><span class="text-slate-500">Elige una plantilla para ver cómo le llega al cliente.</span></div></div>
         <div class="space-y-3">
-          <div>
+          <div id="campo-nombre">
             <label class="block text-sm font-medium mb-1">Nombre de la campaña</label>
             <input type="text" id="nombre" class="input-field" placeholder="Ej.: Promoción de octubre">
           </div>
-          <div>
+          <div id="campo-programar">
             <label class="block text-sm font-medium mb-1">Programar (opcional; vacío = ahora)</label>
             <input type="datetime-local" id="programada" class="input-field">
           </div>
           <p id="costo" class="text-sm font-medium"></p>
         </div>
       </div>
-      <div class="aviso mt-4">
+      <div class="aviso mt-4" id="paso-aviso">
         <p class="mb-2"><b>Antes de enviar.</b> El bufete es responsable de contar con la autorización de estos contactos para recibir publicidad (Ley 1581 de 2012) y de cumplir la política de WhatsApp. Si muchos bloquean o reportan los mensajes, Meta puede limitar el número.</p>
-        <p class="mb-2">El asistente envía solo en el horario del bufete (Ley 2300 de 2023), de a poco, y nunca a quien pidió la baja. Cada mensaje queda en la conversación del cliente y, si responde, lo atiende el asistente.</p>
+        <p class="mb-2" id="aviso-envio">El asistente envía solo en el horario del bufete (Ley 2300 de 2023), de a poco, y nunca a quien pidió la baja. Cada mensaje queda en la conversación del cliente y, si responde, lo atiende el asistente.</p>
         <label class="flex items-center gap-2 font-medium"><input type="checkbox" id="acepto"> Entiendo y asumo esa responsabilidad en nombre del bufete</label>
       </div>
       <button id="enviar" class="btn-primary mt-4 w-full" disabled>Programar campaña</button>
@@ -122,7 +127,7 @@
     </div>
 
     <!-- Campañas -->
-    <div class="card">
+    <div class="card" id="paso-campanas">
       <div class="flex justify-between items-center mb-3 border-b pb-2">
         <h2 class="text-lg font-semibold">Campañas</h2>
         <button id="refrescar" class="btn-sec">Actualizar</button>
@@ -138,6 +143,9 @@
     const parametros = new URLSearchParams(location.search);
     const N8N = (parametros.get('n8n') || 'http://localhost:5678').replace(/\/$/, '');
     const CUENTA = parametros.get('acc') || '1';
+    // Abierto desde una conversación (botón «Enviar plantilla»): una plantilla a esa persona, ya y a nombre de quien la envía; sin lista ni programación
+    const CONV = Number(parametros.get('conv')) || null;
+    let destino = null;
     const API = `${location.origin}/api/v1/accounts/${CUENTA}`;
     // Plantillas de ensayo para la bandeja de pruebas (tipo API, sin plantillas de Meta): permiten probar todo el camino con cada formato.
     const BAJA = { type: 'QUICK_REPLY', text: 'No me interesa' };
@@ -201,8 +209,24 @@
         const whatsapp = bandejas.filter((b) => b.channel_type === 'Channel::Whatsapp');
         const lista = whatsapp.length ? whatsapp : bandejas.filter((b) => b.channel_type === 'Channel::Api');
         $('bandeja').innerHTML = '<option value="">— Elige el número —</option>' + lista.map((b) => `<option value="${b.id}">${texto(b.name)}${b.channel_type === 'Channel::Api' ? ' (pruebas)' : ''}</option>`).join('');
-        refrescarCampanas();
+        if (CONV) await modoConversacion();
+        else refrescarCampanas();
       } catch (e) { error(e.message); }
+    }
+
+    async function modoConversacion() {
+      const c = await chatwoot(`/conversations/${CONV}`);
+      destino = { telefono: c.meta?.sender?.phone_number || '', nombre: c.meta?.sender?.name || '' };
+      document.title = 'Enviar plantilla - Sin Huellas';
+      $('titulo').textContent = 'Enviar plantilla';
+      $('subtitulo').textContent = 'Sale ya y a tu nombre: tú tomas la conversación y el asistente deja de responder en ella. Cuando la persona responda, puedes escribirle normal por 24 horas.';
+      $('para').innerHTML = `Para: <b>${texto(destino.nombre || 'sin nombre')}</b> · ${texto(destino.telefono)}`;
+      $('para').classList.remove('hidden');
+      ['campo-bandeja', 'paso-lista', 'campo-nombre', 'campo-programar', 'paso-campanas'].forEach((id) => $(id).classList.add('hidden'));
+      $('aviso-envio').textContent = 'Las promociones salen solo en el horario del bufete (Ley 2300 de 2023) y nunca a quien pidió la baja.';
+      $('enviar').textContent = 'Enviar ahora';
+      $('bandeja').value = String(c.inbox_id);
+      $('bandeja').dispatchEvent(new Event('change'));
     }
 
     $('bandeja').addEventListener('change', async (e) => {
@@ -279,14 +303,35 @@
       try {
         const base64 = await new Promise((ok, mal) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(',')[1]); r.onerror = mal; r.readAsDataURL(f); });
         const { medio: subido } = await bot({ accion: 'subir', nombre: f.name, base64, conservar });
-        if (!conservar) temporal = { ...subido, miniatura: subido.tipo === 'image' ? `data:${subido.mime};base64,${base64}` : null };
-        await cargarMedios(subido.id);
+        await recibido(subido, conservar ? null : `data:${subido.mime};base64,${base64}`);
       } catch (err) {
         // el servidor espera una subida hasta 5 minutos; si la conexión no alcanza, la petición se corta sin respuesta del bot
         const cortada = /Failed to fetch|NetworkError|Load failed|respondió (408|499|502|504)/.test(err.message);
         $('estado-medios').textContent = cortada ? `La subida de «${f.name}» se cortó antes de terminar. Con ${mb} MB la conexión debe alcanzar a enviarlo en menos de 5 minutos: prueba con una conexión más rápida o un archivo más liviano.` : err.message;
       }
     });
+
+    /** Lo subido o traído de un enlace: «solo para esta campaña» se muestra primero; lo guardado aparece en la carpeta. Queda elegido. */
+    async function recibido(subido, miniatura) {
+      if (subido.conservado === false) temporal = { ...subido, miniatura: subido.tipo === 'image' ? (miniatura || subido.url || null) : null };
+      await cargarMedios(subido.id);
+    }
+
+    $('traer').addEventListener('click', async () => {
+      const url = $('enlace').value.trim();
+      if (!url) { $('estado-medios').textContent = 'Pega primero el enlace del archivo.'; return; }
+      const conservar = $('conservar').checked;
+      $('traer').disabled = true;
+      $('estado-medios').textContent = `Descargando y revisando el archivo del enlace${conservar ? ' (queda en la carpeta)' : ''}…`;
+      try {
+        const { medio: subido } = await bot({ accion: 'enlace', url, conservar });
+        if (subido.tipo !== encabezado().toLowerCase()) { $('estado-medios').textContent = `Esta plantilla pide ${ARCHIVOS[encabezado()].titulo.toLowerCase()} y el enlace trae otro tipo de archivo.`; return; }
+        await recibido(subido, null);
+        $('enlace').value = '';
+      } catch (err) { $('estado-medios').textContent = err.message; }
+      finally { $('traer').disabled = false; }
+    });
+    $('enlace').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); $('traer').click(); } });
 
     // ───────── 3. Lista ─────────
     $('archivo').addEventListener('change', (e) => {
@@ -306,6 +351,7 @@
     $('col-telefono').addEventListener('change', actualizar); $('col-nombre').addEventListener('change', actualizar);
 
     function destinos() {
+      if (CONV) return destino?.telefono ? [{ telefono: destino.telefono, nombre: destino.nombre }] : [];
       const tel = $('col-telefono').value; const nom = $('col-nombre').value;
       return filas.filter((f) => String(f[tel] || '').trim()).map((f) => ({ ...f, telefono: String(f[tel]).trim(), nombre: nom ? String(f[nom] || '').trim() : '' }));
     }
@@ -332,7 +378,11 @@
       const lista = destinos();
       $('resumen-lista').textContent = filas.length ? `${lista.length} números en la lista (los repetidos y los inválidos se descartan al programar).` : '';
       const precio = PRECIO[String(plantilla?.category || 'MARKETING').toUpperCase()] ?? PRECIO.MARKETING;
-      $('costo').textContent = plantilla && lista.length ? `Costo estimado: USD ${(lista.length * precio).toFixed(2)} (${lista.length} × ${precio}). Lo cobra Meta por mensaje entregado.` : '';
+      const promo = String(plantilla?.category || '').toUpperCase() === 'MARKETING';
+      if (CONV) {
+        $('costo').textContent = plantilla ? `Costo: unos USD ${precio} (lo cobra Meta si se entrega).` : '';
+        $('paso-aviso').classList.toggle('hidden', !promo);
+      } else $('costo').textContent = plantilla && lista.length ? `Costo estimado: USD ${(lista.length * precio).toFixed(2)} (${lista.length} × ${precio}). Lo cobra Meta por mensaje entregado.` : '';
       if (plantilla) {
         const v = valores(); const fila = lista[0] || { nombre: 'Juan' };
         const cuerpo = String(componente('BODY')?.text || '').replace(/\{\{\s*([^}]+?)\s*\}\}/g, (_, k) => rellenar(v[k] || `{{${k}}}`, fila));
@@ -344,7 +394,7 @@
         const botones = (componente('BUTTONS')?.buttons || []).map((b) => `<div class="bg-white text-center text-sky-700 rounded mt-1 py-1">${texto(b.text)}</div>`).join('');
         $('vista').innerHTML = `${cab}<p class="whitespace-pre-wrap">${texto(cuerpo)}</p>${botones}`;
       }
-      const listo = plantilla && lista.length && $('acepto').checked && $('nombre').value.trim()
+      const listo = plantilla && lista.length && (CONV ? (!promo || $('acepto').checked) : ($('acepto').checked && $('nombre').value.trim()))
         && (!ARCHIVOS[encabezado()] || medio) && variables().every((v) => valores()[v]) && variablesEncabezado().every((v) => valoresEncabezado()[v])
         && valoresBotones().every((x, i) => !botonesVariables()[i] || x);
       $('enviar').disabled = !listo;
@@ -352,7 +402,15 @@
     ['acepto', 'nombre'].forEach((id) => $(id).addEventListener('input', actualizar)); $('acepto').addEventListener('change', actualizar);
 
     $('enviar').addEventListener('click', async () => {
-      $('enviar').disabled = true; $('resultado').textContent = 'Programando…';
+      $('enviar').disabled = true; $('resultado').textContent = CONV ? 'Enviando…' : 'Programando…';
+      if (CONV) {
+        try {
+          await bot({ accion: 'enviar_uno', conversation_id: CONV, plantilla, variables: valores(), encabezado: valoresEncabezado(), botones: valoresBotones(), medio_id: medio?.id || null, acepto_aviso: $('acepto').checked });
+          $('resultado').innerHTML = '<span class="text-emerald-700 font-medium">Plantilla enviada. Ahora tú atiendes esta conversación.</span>';
+          setTimeout(() => window.parent.postMessage({ sh: 'cerrar-lanzador' }, location.origin), 1500);
+        } catch (e) { $('resultado').innerHTML = `<span class="text-red-700">${texto(e.message)}</span>`; actualizar(); }
+        return;
+      }
       try {
         const programada = $('programada').value ? new Date($('programada').value).toISOString() : null;
         const r = await bot({ accion: 'crear', nombre: $('nombre').value.trim(), inbox_id: Number($('bandeja').value), plantilla, variables: valores(), encabezado: valoresEncabezado(), botones: valoresBotones(), medio_id: medio?.id || null,
