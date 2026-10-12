@@ -1,5 +1,5 @@
 # Chatwoot de Sin Huellas: la imagen oficial con la apariencia y los ajustes de data/storage ya puestos en su lugar.
-# Hace lo mismo que docker-compose.yaml al arrancar, pero dentro de la imagen, para construirla desde Git (Easypanel, rama integracion-bot).
+# Hace lo mismo que docker-compose.yaml al arrancar, pero dentro de la imagen, para construirla desde Git (Easypanel, rama main).
 # La misma imagen sirve para la web y para sidekiq:
 #   web:     (comando por defecto) prepara o actualiza la base y abre en el puerto 3000
 #   sidekiq: bundle exec sidekiq -C config/sidekiq.yml
@@ -35,7 +35,11 @@ RUN set -e; \
     cp /app/custom_storage/sessions_new.html.erb /app/app/views/super_admin/devise/sessions/new.html.erb; \
     cp /app/custom_storage/campanas.html /app/public/campanas.html; \
     cp /app/custom_storage/zz-sinhuellas.es.yml /app/config/locales/zz-sinhuellas.es.yml; \
-    cp /app/custom_storage/i18n_default.rb /app/config/initializers/i18n_default.rb
+    cp /app/custom_storage/i18n_default.rb /app/config/initializers/i18n_default.rb; \
+    cp -r /app/custom_storage/privacy /app/public/; \
+    cp -r /app/custom_storage/terms /app/public/; \
+    cp /app/custom_storage/privacy.html /app/public/; \
+    cp /app/custom_storage/tiktokVCWaYAGPTtL07smB08Kwl56OCrCHqgnS.txt /app/public/
 
 # Espera a Postgres y borra el server.pid que pudo quedar de un apagón (como en docker-compose.yaml)
 ENTRYPOINT ["docker/entrypoints/rails.sh"]
