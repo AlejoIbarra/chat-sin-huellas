@@ -1748,3 +1748,11 @@ body.dark .menu-with-submenu .submenu {
 }
 
 
+/* La capa que oscurece la pantalla detrás de una ventana (plantillas de WhatsApp, confirmaciones) lleva la clase «skip-context-menu»,
+   que también coincide con [class*="context-menu"] de los menús de clic derecho y quedaba blanca (o negra en modo oscuro), tapando todo. */
+body:not(.dark) .modal-mask.skip-context-menu,
+body.dark .modal-mask.skip-context-menu {
+  background: rgba(15, 23, 42, 0.45) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
