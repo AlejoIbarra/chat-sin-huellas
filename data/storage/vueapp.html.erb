@@ -91,6 +91,8 @@
             if (node.nodeValue.includes('Iniciar sesión en Chatwoot')) {
               node.nodeValue = node.nodeValue.replace(/Iniciar sesión en Chatwoot/g, 'Iniciar sesión en Chat sin huellas');
             }
+            // El estado «Pendientes» es donde atiende el bot: el equipo lo ve con ese nombre (solo el texto exacto, en el menú de estado y su etiqueta)
+            if (node.nodeValue.trim() === 'Pendientes') node.nodeValue = 'Bot atendiendo';
           }
         }
         document.addEventListener('DOMContentLoaded', ensureCustomCssLast);
