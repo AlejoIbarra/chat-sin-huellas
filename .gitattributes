@@ -1,0 +1,2 @@
+# Los scripts que corren dentro del contenedor de Chatwoot (Linux) llevan saltos de línea de Linux también en Windows
+*.sh text eol=lf
