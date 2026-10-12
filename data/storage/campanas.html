@@ -2,142 +2,551 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Lanzador de campañas - Sin Huellas</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script>
+    // El mismo modo (claro u oscuro) que Chatwoot, antes de pintar la página para que no parpadee
+    try { if (window.parent !== window && window.parent.document.body.classList.contains('dark')) document.documentElement.dataset.tema = 'oscuro'; } catch (e) { /* abierto fuera de Chatwoot */ }
+  </script>
   <style>
-    :root { --sh-emerald: #163f30; --sh-gold: #d7a944; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f8fafc; color: #0f172a; margin: 0; }
-    .btn-primary { background-color: var(--sh-emerald); color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; font-weight: 500; transition: all 0.2s; border: none; cursor: pointer; }
-    .btn-primary:hover { background-color: #113125; }
-    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
-    .btn-sec { background: white; border: 1px solid #cbd5e1; padding: 0.35rem 0.75rem; border-radius: 0.375rem; font-size: 0.875rem; cursor: pointer; }
-    .input-field { width: 100%; border: 1px solid #cbd5e1; border-radius: 0.375rem; padding: 0.5rem; outline: none; background: white; }
-    .input-field:focus { border-color: var(--sh-gold); box-shadow: 0 0 0 2px rgba(215, 169, 68, 0.2); }
-    .card { background: white; border-radius: 0.5rem; border: 1px solid #e2e8f0; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-    .medio { border: 2px solid transparent; border-radius: 0.5rem; padding: 0.25rem; cursor: pointer; background: #f1f5f9; }
-    .medio.elegido { border-color: var(--sh-gold); background: #fffbeb; }
-    .medio img { width: 100%; height: 6rem; object-fit: cover; border-radius: 0.375rem; }
-    .burbuja { background: #dcf8c6; border-radius: 0.5rem; padding: 0.5rem; max-width: 22rem; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
-    .chat { background: #ece5dd; border-radius: 0.5rem; padding: 1rem; }
-    .aviso { background: #fffbeb; border: 1px solid #fde68a; border-radius: 0.5rem; padding: 0.75rem; font-size: 0.875rem; color: #78350f; }
+    /* Lanzador de campañas y de plantillas sueltas. Estilos propios, sin dependencias: móvil primero (la regla base es la del celular y
+       las @media agregan lo de pantallas grandes) y con colores en variables para el modo claro y el oscuro. */
+
+    :root {
+      color-scheme: light;
+      --marca: #163f30;
+      --marca-hover: #1f523f;
+      --enlace: #196246;
+      --oro: #d7a944;
+      --foco: rgb(215 169 68 / .45);
+      --fondo: #f6f7f6;
+      --superficie: #ffffff;
+      --superficie-2: #eff3f1;
+      --texto: #14201b;
+      --texto-suave: #55625c;
+      --borde: #d6ddd9;
+      --entrada: #ffffff;
+      --ok: #166b46;
+      --peligro: #b42318;
+      --peligro-fondo: #fef3f2;
+      --aviso-fondo: #fffaeb;
+      --aviso-borde: #f2d27a;
+      --aviso-texto: #6b4a07;
+      --chat: #efeae2;
+      --burbuja: #d9fdd3;
+      --burbuja-texto: #111b21;
+      --burbuja-boton: #ffffff;
+      --burbuja-enlace: #027eb5;
+      --radio: .75rem;
+    }
+
+    :root[data-tema="oscuro"] {
+      color-scheme: dark;
+      --marca: #267a5a;
+      --marca-hover: #2e8c68;
+      --enlace: #74d3a8;
+      --foco: rgb(215 169 68 / .55);
+      --fondo: #141517;
+      --superficie: #1c1d20;
+      --superficie-2: #26282c;
+      --texto: #ecedee;
+      --texto-suave: #a4aab0;
+      --borde: #35383d;
+      --entrada: #17181a;
+      --ok: #74d3a8;
+      --peligro: #f97066;
+      --peligro-fondo: #3a1715;
+      --aviso-fondo: #2b2416;
+      --aviso-borde: #6b5520;
+      --aviso-texto: #f3dfae;
+      --chat: #0b141a;
+      --burbuja: #005c4b;
+      --burbuja-texto: #e9edef;
+      --burbuja-boton: #1f2c33;
+      --burbuja-enlace: #53bdeb;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--fondo);
+      color: var(--texto);
+      font: 1rem/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    h1, h2, p { margin: 0; }
+
+    /* Estructura */
+    .lanzador {
+      display: grid;
+      gap: 1rem;
+      max-width: 56rem;
+      margin: 0 auto;
+      padding: 1rem 1rem 0;
+    }
+
+    /* Encabezado fijo arriba: el botón de cerrar de la ventana (custom.css) queda siempre sobre su esquina derecha, nunca sobre el contenido */
+    .encabezado {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      min-height: 3.75rem;
+      padding: .5rem 4rem .5rem 1rem;
+      border-bottom: 1px solid var(--borde);
+      background: var(--superficie);
+    }
+
+    .encabezado__logo {
+      flex: none;
+      display: grid;
+      place-items: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: .625rem;
+      background: var(--marca);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .encabezado__titulo { font-size: 1.125rem; line-height: 1.3; }
+
+    .tarjeta {
+      display: grid;
+      gap: .875rem;
+      min-width: 0; /* en la cuadrícula, una tarjeta no crece más que su columna aunque su contenido sea ancho */
+      padding: 1rem;
+      border: 1px solid var(--borde);
+      border-radius: var(--radio);
+      background: var(--superficie);
+    }
+
+    .tarjeta__cabeza {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: .25rem .75rem;
+      padding-bottom: .625rem;
+      border-bottom: 1px solid var(--borde);
+    }
+
+    .tarjeta__titulo { font-size: 1.0625rem; font-weight: 600; }
+
+    .nota { font-size: .875rem; color: var(--texto-suave); }
+
+    .para { font-size: .9375rem; }
+
+    /* Campos: una columna en el celular; dos cuando caben (las columnas vacías se cierran solas) */
+    .campos { display: grid; gap: .75rem; }
+
+    .campos--dos { grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
+
+    .campo { display: grid; gap: .25rem; min-width: 0; }
+
+    .campo label { font-size: .875rem; font-weight: 600; }
+
+    .entrada {
+      width: 100%;
+      min-height: 2.75rem;
+      padding: .5rem .75rem;
+      border: 1px solid var(--borde);
+      border-radius: .5rem;
+      background: var(--entrada);
+      color: var(--texto);
+      font: inherit;
+      font-size: 1rem; /* 16 px: el iPhone no hace zoom al escribir */
+    }
+
+    .entrada:focus-visible {
+      border-color: var(--oro);
+      outline: 3px solid var(--foco);
+      outline-offset: 1px;
+    }
+
+    .entrada-archivo { width: 100%; font: inherit; font-size: .9375rem; color: var(--texto-suave); }
+
+    .entrada-archivo::file-selector-button {
+      min-height: 2.75rem;
+      margin-right: .75rem;
+      padding: .5rem 1rem;
+      border: 1px solid var(--borde);
+      border-radius: .5rem;
+      background: var(--superficie-2);
+      color: var(--texto);
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Botones */
+    .boton {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      min-height: 2.75rem;
+      padding: .5rem 1rem;
+      border: 1px solid transparent;
+      border-radius: .5rem;
+      font: inherit;
+      font-size: .9375rem;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .boton:focus-visible,
+    .boton:has(input:focus-visible) {
+      outline: 3px solid var(--foco);
+      outline-offset: 2px;
+    }
+
+    .boton:disabled { opacity: .5; cursor: not-allowed; }
+
+    .boton--principal { background: var(--marca); color: #fff; }
+
+    .boton--principal:hover:not(:disabled) { background: var(--marca-hover); }
+
+    .boton--secundario { border-color: var(--borde); background: var(--superficie); color: var(--texto); }
+
+    .boton--secundario:hover:not(:disabled) { background: var(--superficie-2); }
+
+    .boton--chico { min-height: 2.25rem; padding: .25rem .75rem; font-size: .875rem; }
+
+    .boton--ancho { width: 100%; }
+
+    .enlace { color: var(--enlace); font-size: .875rem; font-weight: 600; }
+
+    .visualmente-oculto {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    .casilla { display: flex; align-items: flex-start; gap: .625rem; font-size: .9375rem; cursor: pointer; }
+
+    .casilla input { flex: none; width: 1.25rem; height: 1.25rem; margin: .125rem 0 0; accent-color: var(--marca); }
+
+    /* 2. Archivo */
+    .archivo-origen { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+    .archivo-origen .entrada { flex: 1 1 14rem; }
+
+    .medios { display: grid; grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr)); gap: .5rem; }
+
+    .medio {
+      display: grid;
+      gap: .25rem;
+      min-width: 0;
+      padding: .375rem;
+      border: 2px solid transparent;
+      border-radius: .625rem;
+      background: var(--superficie-2);
+      color: var(--texto);
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .medio:focus-visible { outline: 3px solid var(--foco); }
+
+    .medio[aria-pressed="true"] { border-color: var(--oro); }
+
+    .medio__miniatura {
+      display: grid;
+      place-items: center;
+      height: 5.5rem;
+      overflow: hidden;
+      border-radius: .375rem;
+      background: var(--superficie);
+      font-size: 1.75rem;
+    }
+
+    .medio__miniatura img { width: 100%; height: 100%; object-fit: cover; }
+
+    .medio__nombre { overflow: hidden; font-size: .75rem; text-overflow: ellipsis; white-space: nowrap; }
+
+    .medio__aviso { font-size: .6875rem; color: var(--aviso-texto); }
+
+    /* 5. Vista previa: la burbuja como la ve el cliente en WhatsApp */
+    .previa { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: 1rem; align-items: start; }
+
+    .chat { padding: .75rem; border-radius: .625rem; background: var(--chat); }
+
+    .burbuja {
+      max-width: 22rem;
+      padding: .5rem .625rem;
+      border-radius: .5rem;
+      background: var(--burbuja);
+      color: var(--burbuja-texto);
+      font-size: .9375rem;
+      overflow-wrap: anywhere;
+      box-shadow: 0 1px .5px rgb(0 0 0 / .13);
+    }
+
+    .burbuja__imagen { display: block; width: 100%; margin-bottom: .5rem; border-radius: .375rem; }
+
+    .burbuja__marcador {
+      display: grid;
+      place-items: center;
+      height: 7rem;
+      margin-bottom: .5rem;
+      padding: .5rem;
+      border-radius: .375rem;
+      background: rgb(0 0 0 / .08);
+      text-align: center;
+    }
+
+    .burbuja__marcador--video { background: #1f2c33; color: #fff; }
+
+    .burbuja__documento { margin-bottom: .5rem; padding: .5rem; border-radius: .375rem; background: rgb(0 0 0 / .06); }
+
+    .burbuja__titulo { margin-bottom: .25rem; font-weight: 700; }
+
+    .burbuja__texto { white-space: pre-wrap; }
+
+    .burbuja__boton {
+      margin-top: .375rem;
+      padding: .375rem;
+      border-radius: .375rem;
+      background: var(--burbuja-boton);
+      color: var(--burbuja-enlace);
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .burbuja__vacio { color: var(--texto-suave); }
+
+    .aviso {
+      display: grid;
+      gap: .5rem;
+      padding: .875rem;
+      border: 1px solid var(--aviso-borde);
+      border-radius: .625rem;
+      background: var(--aviso-fondo);
+      color: var(--aviso-texto);
+      font-size: .875rem;
+    }
+
+    .aviso .casilla { font-weight: 600; }
+
+    /* Barra de envío: queda pegada abajo mientras se llena el formulario, así el botón siempre está a la vista */
+    .barra-envio {
+      position: sticky;
+      bottom: 0;
+      z-index: 1;
+      display: grid;
+      gap: .5rem;
+      margin: 0 -1rem;
+      padding: .75rem 1rem calc(.75rem + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--borde);
+      background: var(--superficie);
+      box-shadow: 0 -4px 12px rgb(0 0 0 / .06);
+    }
+
+    .resultado { font-size: .9375rem; }
+
+    .resultado--ok { color: var(--ok); font-weight: 600; }
+
+    .resultado--error,
+    .alerta { color: var(--peligro); }
+
+    .alerta { padding: .75rem; border: 1px solid currentColor; border-radius: .5rem; background: var(--peligro-fondo); }
+
+    /* Campañas: en el celular cada campaña es una ficha; en pantallas grandes, una tabla */
+    .tabla { width: 100%; border-collapse: collapse; font-size: .875rem; }
+
+    .tabla thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+
+    .tabla tr {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .25rem 1rem;
+      padding: .75rem 0;
+      border-top: 1px solid var(--borde);
+    }
+
+    .tabla td { display: flex; justify-content: space-between; gap: .5rem; }
+
+    .tabla td::before { content: attr(data-etiqueta); color: var(--texto-suave); }
+
+    .tabla .tabla__campana,
+    .tabla .tabla__accion { grid-column: 1 / -1; display: block; }
+
+    .tabla .tabla__campana::before,
+    .tabla .tabla__accion::before { content: none; }
+
+    .tabla__detalle { font-size: .75rem; color: var(--texto-suave); }
+
+    /* Si algo de la tabla no cabe, se desplaza dentro de su tarjeta y la página no se corre de lado */
+    .tabla-desplazable { min-width: 0; overflow-x: auto; }
+
+    /* Pantallas grandes */
+    @media (min-width: 640px) {
+      .encabezado { padding-left: 1.5rem; }
+
+      .lanzador { gap: 1.25rem; padding: 1.5rem 1.5rem 0; }
+
+      .tarjeta { padding: 1.25rem 1.5rem; }
+
+      .barra-envio { margin: 0 -1.5rem; padding-inline: 1.5rem; }
+    }
+
+    /* La tabla de 10 columnas necesita unos 900 px; antes, fichas */
+    @media (min-width: 900px) {
+      .tabla thead { position: static; width: auto; height: auto; overflow: visible; clip-path: none; }
+
+      .tabla tr { display: table-row; }
+
+      .tabla th { padding: .375rem .5rem; color: var(--texto-suave); font-weight: 500; text-align: left; }
+
+      .tabla td,
+      .tabla .tabla__campana,
+      .tabla .tabla__accion { display: table-cell; padding: .5rem; border-top: 1px solid var(--borde); vertical-align: top; }
+
+      .tabla td::before { content: none; }
+    }
+
+    /* Al final para que gane a cualquier display de arriba: lo oculto no se ve */
+    [hidden] { display: none; }
   </style>
 </head>
-<body class="p-6">
-  <div class="max-w-4xl mx-auto">
-    <div class="flex items-center gap-4 mb-6">
-      <div class="w-12 h-12 bg-[#163f30] rounded-lg flex items-center justify-center text-white font-bold text-xl">SH</div>
-      <div>
-        <h1 id="titulo" class="text-2xl font-bold">Lanzador de campañas</h1>
-        <p id="subtitulo" class="text-slate-500 text-sm">El bufete elige la plantilla, el archivo y la lista; el asistente envía en horario y nunca a quien pidió la baja.</p>
-      </div>
-    </div>
+<body>
+  <header class="encabezado">
+    <div class="encabezado__logo" aria-hidden="true">SH</div>
+    <h1 id="titulo" class="encabezado__titulo">Lanzador de campañas</h1>
+  </header>
 
-    <div id="error-general" class="hidden text-red-700 mb-4 bg-red-50 p-3 rounded border border-red-200"></div>
+  <main class="lanzador">
+    <p id="subtitulo" class="nota">El bufete elige la plantilla, el archivo y la lista; el asistente envía en horario y nunca a quien pidió la baja.</p>
+
+    <p id="error-general" class="alerta" role="alert" hidden></p>
 
     <!-- 1. Plantilla -->
-    <div class="card">
-      <h2 class="text-lg font-semibold mb-4 border-b pb-2">1. Plantilla</h2>
-      <p id="para" class="hidden text-sm mb-3"></p>
-      <div class="grid grid-cols-2 gap-4">
-        <div id="campo-bandeja">
-          <label class="block text-sm font-medium mb-1">Número de WhatsApp (bandeja)</label>
-          <select id="bandeja" class="input-field"><option>Cargando…</option></select>
+    <section class="tarjeta" aria-labelledby="titulo-1">
+      <div class="tarjeta__cabeza"><h2 id="titulo-1" class="tarjeta__titulo">1. Plantilla</h2></div>
+      <p id="para" class="para" hidden></p>
+      <div class="campos campos--dos">
+        <div id="campo-bandeja" class="campo">
+          <label for="bandeja">Número de WhatsApp (bandeja)</label>
+          <select id="bandeja" class="entrada"><option>Cargando…</option></select>
         </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">Plantilla aprobada por Meta</label>
-          <select id="plantilla" class="input-field"><option value="">Elige primero la bandeja</option></select>
+        <div class="campo">
+          <label for="plantilla">Plantilla aprobada por Meta</label>
+          <select id="plantilla" class="entrada"><option value="">Elige primero la bandeja</option></select>
         </div>
       </div>
-      <p id="categoria" class="text-xs text-slate-500 mt-2"></p>
-    </div>
+      <p id="categoria" class="nota"></p>
+    </section>
 
     <!-- 2. Archivo -->
-    <div class="card hidden" id="paso-medio">
-      <div class="flex justify-between items-center mb-2 border-b pb-2">
-        <h2 class="text-lg font-semibold">2. <span id="titulo-medio">Imagen</span> <span class="text-sm font-normal text-slate-500">de la carpeta «Campañas», de tu computador o de un enlace</span></h2>
-        <label class="btn-sec">Subir desde el computador<input type="file" id="subir" class="hidden"></label>
+    <section id="paso-medio" class="tarjeta" aria-labelledby="titulo-2" hidden>
+      <div class="tarjeta__cabeza">
+        <h2 id="titulo-2" class="tarjeta__titulo">2. <span id="titulo-medio">Imagen</span></h2>
+        <p class="nota">Elige uno de la carpeta «Campañas», súbelo o pega su enlace</p>
       </div>
-      <div class="flex gap-2 mb-3">
-        <input type="url" id="enlace" class="input-field text-sm" placeholder="…o pega el enlace directo del archivo (https://…); también sirve un enlace de Google Drive del bufete">
-        <button id="traer" class="btn-sec whitespace-nowrap">Traer del enlace</button>
+      <div class="archivo-origen">
+        <label class="boton boton--secundario">Subir un archivo<input type="file" id="subir" class="visualmente-oculto"></label>
+        <input type="url" id="enlace" class="entrada" placeholder="…o pega el enlace del archivo (https://…)" aria-label="Enlace del archivo; también sirve uno de Google Drive del bufete">
+        <button id="traer" type="button" class="boton boton--secundario">Traer del enlace</button>
       </div>
-      <div class="flex justify-between items-start gap-4 mb-3">
-        <p id="reglas-medio" class="text-xs text-slate-500"></p>
-        <label class="flex items-center gap-2 text-sm whitespace-nowrap" title="Sin marcar, el archivo sirve solo para esta campaña y se borra solo"><input type="checkbox" id="conservar" checked> Guardar en la biblioteca de campañas</label>
-      </div>
-      <p id="estado-medios" class="text-sm text-slate-500 mb-3">Cargando la carpeta…</p>
-      <div id="medios" class="grid grid-cols-4 gap-3"></div>
-    </div>
+      <label class="casilla" title="Sin marcar, el archivo sirve solo para esta campaña y se borra solo"><input type="checkbox" id="conservar" checked> Guardar en la biblioteca de campañas</label>
+      <p id="reglas-medio" class="nota"></p>
+      <p id="estado-medios" role="status" aria-live="polite">Cargando la carpeta…</p>
+      <div id="medios" class="medios"></div>
+    </section>
 
     <!-- 3. Lista -->
-    <div class="card" id="paso-lista">
-      <div class="flex justify-between items-center mb-4 border-b pb-2">
-        <h2 class="text-lg font-semibold">3. Lista de números (Excel o CSV)</h2>
-        <a href="#" id="ejemplo" class="text-sm text-emerald-700 font-medium">Descargar ejemplo (.csv)</a>
+    <section id="paso-lista" class="tarjeta" aria-labelledby="titulo-3">
+      <div class="tarjeta__cabeza">
+        <h2 id="titulo-3" class="tarjeta__titulo">3. Lista de números (Excel o CSV)</h2>
+        <a href="#" id="ejemplo" class="enlace">Descargar ejemplo (.csv)</a>
       </div>
-      <input type="file" id="archivo" accept=".csv,.xlsx,.xls" class="block w-full text-sm mb-3">
-      <div id="mapeo" class="hidden grid grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-medium mb-1">Columna del teléfono</label>
-          <select id="col-telefono" class="input-field"></select>
+      <input type="file" id="archivo" accept=".csv,.xlsx,.xls" class="entrada-archivo" aria-label="Archivo con la lista de números">
+      <div id="mapeo" class="campos campos--dos" hidden>
+        <div class="campo">
+          <label for="col-telefono">Columna del teléfono</label>
+          <select id="col-telefono" class="entrada"></select>
         </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">Columna del nombre (opcional)</label>
-          <select id="col-nombre" class="input-field"></select>
+        <div class="campo">
+          <label for="col-nombre">Columna del nombre (opcional)</label>
+          <select id="col-nombre" class="entrada"></select>
         </div>
       </div>
-      <p id="resumen-lista" class="text-sm text-slate-600 mt-2"></p>
-    </div>
+      <p id="resumen-lista" class="nota"></p>
+    </section>
 
     <!-- 4. Variables -->
-    <div class="card hidden" id="paso-variables">
-      <h2 class="text-lg font-semibold mb-2 border-b pb-2">4. Variables del mensaje</h2>
-      <p class="text-xs text-slate-500 mb-3">Escribe el texto de cada variable. Puedes usar columnas del Excel entre llaves, por ejemplo <b>{nombre}</b>.</p>
-      <div id="variables" class="space-y-2"></div>
-      <div id="variables-encabezado" class="space-y-2 mt-3"></div>
-      <div id="variables-botones" class="space-y-2 mt-3"></div>
-    </div>
+    <section id="paso-variables" class="tarjeta" aria-labelledby="titulo-4" hidden>
+      <div class="tarjeta__cabeza">
+        <h2 id="titulo-4" class="tarjeta__titulo">4. Variables del mensaje</h2>
+        <p class="nota">Escribe el texto de cada una. Puedes usar columnas del Excel entre llaves, por ejemplo <b>{nombre}</b>.</p>
+      </div>
+      <div id="variables" class="campos"></div>
+      <div id="variables-encabezado" class="campos"></div>
+      <div id="variables-botones" class="campos"></div>
+    </section>
 
     <!-- 5. Vista previa y envío -->
-    <div class="card">
-      <h2 class="text-lg font-semibold mb-4 border-b pb-2">5. Vista previa y envío</h2>
-      <div class="grid grid-cols-2 gap-6">
-        <div class="chat"><div id="vista" class="burbuja text-sm"><span class="text-slate-500">Elige una plantilla para ver cómo le llega al cliente.</span></div></div>
-        <div class="space-y-3">
-          <div id="campo-nombre">
-            <label class="block text-sm font-medium mb-1">Nombre de la campaña</label>
-            <input type="text" id="nombre" class="input-field" placeholder="Ej.: Promoción de octubre">
+    <section class="tarjeta" aria-labelledby="titulo-5">
+      <div class="tarjeta__cabeza"><h2 id="titulo-5" class="tarjeta__titulo">5. Vista previa y envío</h2></div>
+      <div class="previa">
+        <div class="chat"><div id="vista" class="burbuja"><span class="burbuja__vacio">Elige una plantilla para ver cómo le llega al cliente.</span></div></div>
+        <div class="campos">
+          <div id="campo-nombre" class="campo">
+            <label for="nombre">Nombre de la campaña</label>
+            <input type="text" id="nombre" class="entrada" placeholder="Ej.: Promoción de octubre">
           </div>
-          <div id="campo-programar">
-            <label class="block text-sm font-medium mb-1">Programar (opcional; vacío = ahora)</label>
-            <input type="datetime-local" id="programada" class="input-field">
+          <div id="campo-programar" class="campo">
+            <label for="programada">Programar (opcional; vacío = ahora)</label>
+            <input type="datetime-local" id="programada" class="entrada">
           </div>
-          <p id="costo" class="text-sm font-medium"></p>
+          <p id="costo" class="nota"></p>
         </div>
       </div>
-      <div class="aviso mt-4" id="paso-aviso">
-        <p class="mb-2"><b>Antes de enviar.</b> El bufete es responsable de contar con la autorización de estos contactos para recibir publicidad (Ley 1581 de 2012) y de cumplir la política de WhatsApp. Si muchos bloquean o reportan los mensajes, Meta puede limitar el número.</p>
-        <p class="mb-2" id="aviso-envio">El asistente envía solo en el horario del bufete (Ley 2300 de 2023), de a poco, y nunca a quien pidió la baja. Cada mensaje queda en la conversación del cliente y, si responde, lo atiende el asistente.</p>
-        <label class="flex items-center gap-2 font-medium"><input type="checkbox" id="acepto"> Entiendo y asumo esa responsabilidad en nombre del bufete</label>
+      <div id="paso-aviso" class="aviso">
+        <p><b>Antes de enviar.</b> El bufete es responsable de contar con la autorización de estos contactos para recibir publicidad (Ley 1581 de 2012) y de cumplir la política de WhatsApp. Si muchos bloquean o reportan los mensajes, Meta puede limitar el número.</p>
+        <p id="aviso-envio">El asistente envía solo en el horario del bufete (Ley 2300 de 2023), de a poco, y nunca a quien pidió la baja. Cada mensaje queda en la conversación del cliente y, si responde, lo atiende el asistente.</p>
+        <label class="casilla"><input type="checkbox" id="acepto"> Entiendo y asumo esa responsabilidad en nombre del bufete</label>
       </div>
-      <button id="enviar" class="btn-primary mt-4 w-full" disabled>Programar campaña</button>
-      <p id="resultado" class="text-sm mt-3"></p>
+    </section>
+
+    <div class="barra-envio">
+      <p id="falta" class="nota" aria-live="polite"></p>
+      <button id="enviar" type="button" class="boton boton--principal boton--ancho" disabled>Programar campaña</button>
+      <p id="resultado" class="resultado" role="status" aria-live="polite"></p>
     </div>
 
     <!-- Campañas -->
-    <div class="card" id="paso-campanas">
-      <div class="flex justify-between items-center mb-3 border-b pb-2">
-        <h2 class="text-lg font-semibold">Campañas</h2>
-        <button id="refrescar" class="btn-sec">Actualizar</button>
+    <section id="paso-campanas" class="tarjeta" aria-labelledby="titulo-campanas">
+      <div class="tarjeta__cabeza">
+        <h2 id="titulo-campanas" class="tarjeta__titulo">Campañas</h2>
+        <button id="refrescar" type="button" class="boton boton--secundario boton--chico">Actualizar</button>
       </div>
-      <div class="overflow-x-auto"><table class="w-full text-sm">
-        <thead><tr class="text-left text-slate-500"><th class="py-1">Campaña</th><th>Estado</th><th>Números</th><th>Enviados</th><th>Entregados</th><th>Leídos</th><th>Respondieron</th><th>Baja</th><th>Error</th><th></th></tr></thead>
-        <tbody id="campanas"></tbody>
-      </table></div>
-    </div>
-  </div>
+      <div class="tabla-desplazable">
+        <table class="tabla">
+          <thead><tr><th>Campaña</th><th>Estado</th><th>Números</th><th>Enviados</th><th>Entregados</th><th>Leídos</th><th>Respondieron</th><th>Baja</th><th>Error</th><th><span class="visualmente-oculto">Acción</span></th></tr></thead>
+          <tbody id="campanas"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
 
   <script>
     const parametros = new URLSearchParams(location.search);
@@ -183,8 +592,9 @@
 
     const $ = (id) => document.getElementById(id);
     const texto = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-    const error = (m) => { $('error-general').textContent = m; $('error-general').classList.toggle('hidden', !m); };
+    const error = (m) => { $('error-general').textContent = m; $('error-general').hidden = !m; };
     const clave = (s) => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+    const resultado = (mensaje, tipo) => { $('resultado').textContent = mensaje; $('resultado').className = tipo ? `resultado resultado--${tipo}` : 'resultado'; };
 
     function cookie(nombre) { const m = document.cookie.match(new RegExp('(^| )' + nombre + '=([^;]+)')); return m ? decodeURIComponent(m[2]) : null; }
     async function chatwoot(ruta) {
@@ -211,6 +621,7 @@
         $('bandeja').innerHTML = '<option value="">— Elige el número —</option>' + lista.map((b) => `<option value="${b.id}">${texto(b.name)}${b.channel_type === 'Channel::Api' ? ' (pruebas)' : ''}</option>`).join('');
         if (CONV) await modoConversacion();
         else refrescarCampanas();
+        actualizar();
       } catch (e) { error(e.message); }
     }
 
@@ -221,8 +632,8 @@
       $('titulo').textContent = 'Enviar plantilla';
       $('subtitulo').textContent = 'Sale ya y a tu nombre: tú tomas la conversación y el asistente deja de responder en ella. Cuando la persona responda, puedes escribirle normal por 24 horas.';
       $('para').innerHTML = `Para: <b>${texto(destino.nombre || 'sin nombre')}</b> · ${texto(destino.telefono)}`;
-      $('para').classList.remove('hidden');
-      ['campo-bandeja', 'paso-lista', 'campo-nombre', 'campo-programar', 'paso-campanas'].forEach((id) => $(id).classList.add('hidden'));
+      $('para').hidden = false;
+      ['campo-bandeja', 'paso-lista', 'campo-nombre', 'campo-programar', 'paso-campanas'].forEach((id) => { $(id).hidden = true; });
       $('aviso-envio').textContent = 'Las promociones salen solo en el horario del bufete (Ley 2300 de 2023) y nunca a quien pidió la baja.';
       $('enviar').textContent = 'Enviar ahora';
       $('bandeja').value = String(c.inbox_id);
@@ -249,13 +660,13 @@
       plantilla = plantillas[Number(e.target.value)] || null;
       medio = null; temporal = null;
       const fmt = encabezado();
-      $('paso-medio').classList.toggle('hidden', !ARCHIVOS[fmt]);
+      $('paso-medio').hidden = !ARCHIVOS[fmt];
       $('titulo-medio').textContent = ARCHIVOS[fmt]?.titulo || 'Archivo';
       // el selector de archivos solo deja escoger el tipo que pide la plantilla
       $('subir').setAttribute('accept', ARCHIVOS[fmt]?.acepta || '');
       $('reglas-medio').textContent = ARCHIVOS[fmt] ? `WhatsApp acepta aquí: ${ARCHIVOS[fmt].reglas}` : '';
       $('categoria').textContent = plantilla ? `Categoría ${plantilla.category}: cada mensaje entregado cuesta unos USD ${PRECIO[String(plantilla.category).toUpperCase()] ?? PRECIO.MARKETING} (lo cobra Meta).` : '';
-      if (!$('paso-medio').classList.contains('hidden')) cargarMedios();
+      if (!$('paso-medio').hidden) cargarMedios();
       pintarVariables(); actualizar();
     });
 
@@ -274,17 +685,26 @@
 
     // ───────── 2. Archivo de la carpeta ─────────
     let temporal = null; // lo subido «solo para esta campaña»: no está en la carpeta, se muestra primero
+    const icono = (tipo) => (tipo === 'image' ? '🖼️' : tipo === 'video' ? '🎬' : '📄');
     async function cargarMedios(elegir = null) {
       $('estado-medios').textContent = 'Cargando la carpeta…'; $('medios').innerHTML = '';
       try {
         const tipo = encabezado().toLowerCase();
         const r = await bot({ accion: 'medios' });
         const todos = [...(temporal && temporal.tipo === tipo ? [temporal] : []), ...r.medios.filter((m) => m.tipo === tipo)];
-        $('estado-medios').textContent = todos.length ? 'Elige uno:' : 'La carpeta no tiene archivos de este tipo. Súbelo desde tu computador.';
-        $('medios').innerHTML = todos.map((m) => `<div class="medio" data-id="${texto(m.id)}"><div class="miniatura h-24 flex items-center justify-center text-3xl">${m.miniatura ? `<img src="${m.miniatura}" alt="">` : m.tipo === 'image' ? '🖼️' : m.tipo === 'video' ? '🎬' : '📄'}</div><p class="text-xs mt-1 truncate" title="${texto(m.nombre)}">${texto(m.nombre)}</p>${m.conservado === false ? '<p class="text-[10px] text-amber-700">Solo para esta campaña</p>' : ''}</div>`).join('');
+        $('estado-medios').textContent = todos.length ? 'Elige uno:' : 'La carpeta no tiene archivos de este tipo. Súbelo o pega su enlace.';
+        $('medios').innerHTML = todos.map((m) => `<button type="button" class="medio" data-id="${texto(m.id)}" aria-pressed="false">`
+          + `<span class="medio__miniatura">${m.miniatura ? `<img src="${m.miniatura}" alt="">` : icono(m.tipo)}</span>`
+          + `<span class="medio__nombre" title="${texto(m.nombre)}">${texto(m.nombre)}</span>`
+          + `${m.conservado === false ? '<span class="medio__aviso">Solo para esta campaña</span>' : ''}</button>`).join('');
         document.querySelectorAll('.medio').forEach((el) => {
-          el.addEventListener('click', () => { document.querySelectorAll('.medio').forEach((x) => x.classList.remove('elegido')); el.classList.add('elegido'); medio = { ...todos.find((m) => m.id === el.dataset.id), miniatura: el.querySelector('img')?.src || null }; actualizar(); });
-          if (!String(el.dataset.id).startsWith('temporal:')) bot({ accion: 'miniatura', id: el.dataset.id }).then((r) => { if (r.miniatura) el.querySelector('.miniatura').innerHTML = `<img src="${r.miniatura}" alt="">`; if (medio?.id === el.dataset.id) { medio.miniatura = r.miniatura; actualizar(); } }).catch(() => {});
+          el.addEventListener('click', () => {
+            document.querySelectorAll('.medio').forEach((x) => { x.classList.remove('elegido'); x.setAttribute('aria-pressed', 'false'); });
+            el.classList.add('elegido'); el.setAttribute('aria-pressed', 'true');
+            medio = { ...todos.find((m) => m.id === el.dataset.id), miniatura: el.querySelector('img')?.src || null };
+            actualizar();
+          });
+          if (!String(el.dataset.id).startsWith('temporal:')) bot({ accion: 'miniatura', id: el.dataset.id }).then((r) => { if (r.miniatura) el.querySelector('.medio__miniatura').innerHTML = `<img src="${r.miniatura}" alt="">`; if (medio?.id === el.dataset.id) { medio.miniatura = r.miniatura; actualizar(); } }).catch(() => {});
         });
         if (elegir) [...document.querySelectorAll('.medio')].find((el) => el.dataset.id === elegir)?.click();
       } catch (e) { $('estado-medios').textContent = e.message; }
@@ -342,7 +762,7 @@
         $('col-telefono').innerHTML = opciones(false); $('col-nombre').innerHTML = opciones(true);
         const tel = columnas.find((c) => /tel|cel|whats|numero|número|movil|móvil/i.test(c)); if (tel) $('col-telefono').value = tel;
         const nom = columnas.find((c) => /^nombre|name/i.test(c)); if (nom) $('col-nombre').value = nom;
-        $('mapeo').classList.remove('hidden'); actualizar();
+        $('mapeo').hidden = false; actualizar();
       } });
       const r = new FileReader();
       if (/\.xlsx?$/i.test(f.name)) { r.onload = (x) => { const wb = XLSX.read(x.target.result, { type: 'array' }); leer(XLSX.utils.sheet_to_csv(wb.Sheets[wb.SheetNames[0]])); }; r.readAsArrayBuffer(f); }
@@ -357,20 +777,24 @@
     }
 
     // ───────── 4. Variables ─────────
+    const campoVariable = (id, etiqueta, entrada) => `<div class="campo"><label for="${id}">${etiqueta}</label>${entrada}</div>`;
     function pintarVariables() {
       const vs = variables();
       const ve = variablesEncabezado();
       const vb = botonesVariables();
-      $('paso-variables').classList.toggle('hidden', !vs.length && !ve.length && !vb.some(Boolean));
-      $('variables-encabezado').innerHTML = ve.map((v) => `<div class="flex items-center gap-2"><span class="w-40 text-sm font-bold">Encabezado {{${texto(v)}}}</span><input type="text" class="input-field text-sm variable-encabezado" data-v="${texto(v)}" placeholder="Ej.: {nombre}"></div>`).join('');
-      $('variables-botones').innerHTML = vb.map((b, i) => (b ? `<div class="flex items-center gap-2"><span class="w-40 text-sm font-bold">Botón «${texto(b.texto)}»</span><input type="text" class="input-field text-sm variable-boton" data-i="${i}" ${b.tipo === 'copy_code' ? 'maxlength="15" placeholder="Código del cupón (hasta 15 caracteres; puede ser {columna})"' : `placeholder="Final del enlace: ${texto(b.url)}"`}></div>` : '')).join('');
+      $('paso-variables').hidden = !vs.length && !ve.length && !vb.some(Boolean);
+      $('variables-encabezado').innerHTML = ve.map((v, i) => campoVariable(`var-cab-${i}`, `Encabezado {{${texto(v)}}}`,
+        `<input type="text" id="var-cab-${i}" class="entrada variable-encabezado" data-v="${texto(v)}" placeholder="Ej.: {nombre}">`)).join('');
+      $('variables-botones').innerHTML = vb.map((b, i) => (b ? campoVariable(`var-boton-${i}`, `Botón «${texto(b.texto)}»`,
+        `<input type="text" id="var-boton-${i}" class="entrada variable-boton" data-i="${i}" ${b.tipo === 'copy_code' ? 'maxlength="15" placeholder="Código del cupón (hasta 15 caracteres; puede ser {columna})"' : `placeholder="Final del enlace: ${texto(b.url)}"`}>`) : '')).join('');
       document.querySelectorAll('.variable-encabezado, .variable-boton').forEach((el) => el.addEventListener('input', actualizar));
       // el nombre se propone solo donde la plantilla saluda («Hola {{1}}»); en las demás la variable puede ser una fecha o un código: va vacía,
       // con el ejemplo que aprobó Meta como guía
       const cuerpoTexto = String(componente('BODY')?.text || '');
       const ejemplos = componente('BODY')?.example?.body_text?.[0] || [];
       const saluda = (v) => /^nombre$/i.test(v) || new RegExp(`Hola,?\\s*\\{\\{\\s*${v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\}\\}`, 'i').test(cuerpoTexto);
-      $('variables').innerHTML = vs.map((v, i) => `<div class="flex items-center gap-2"><span class="w-20 text-sm font-bold">{{${texto(v)}}}</span><input type="text" class="input-field text-sm variable" data-v="${texto(v)}" value="${saluda(v) ? '{nombre}' : ''}" placeholder="${texto(ejemplos[i] ? `Ej.: ${ejemplos[i]}` : 'Escribe el valor o usa {columna}')}"></div>`).join('');
+      $('variables').innerHTML = vs.map((v, i) => campoVariable(`var-${i}`, `{{${texto(v)}}}`,
+        `<input type="text" id="var-${i}" class="entrada variable" data-v="${texto(v)}" value="${saluda(v) ? '{nombre}' : ''}" placeholder="${texto(ejemplos[i] ? `Ej.: ${ejemplos[i]}` : 'Escribe el valor o usa {columna}')}">`)).join('');
       document.querySelectorAll('.variable').forEach((el) => el.addEventListener('input', actualizar));
     }
     const valores = () => Object.fromEntries([...document.querySelectorAll('.variable')].map((el) => [el.dataset.v, el.value.trim()]));
@@ -379,6 +803,33 @@
     const rellenar = (t, fila) => { const mapa = Object.fromEntries(Object.entries(fila || {}).map(([k, v]) => [clave(k), v])); return String(t).replace(/\{([^{}]+)\}/g, (_, k) => String(mapa[clave(k)] ?? '').trim()); };
 
     // ───────── 5. Vista previa, costo y envío ─────────
+    function vistaPrevia(lista) {
+      const v = valores(); const fila = lista[0] || { nombre: 'Juan' };
+      // una variable sin valor se ve como {{1}}: así se nota qué falta
+      const cuerpo = String(componente('BODY')?.text || '').replace(/\{\{\s*([^}]+?)\s*\}\}/g, (_, k) => (v[k] ? rellenar(v[k], fila) : `{{${k}}}`));
+      const fmt = encabezado();
+      const cabecera = fmt === 'TEXT' ? `<p class="burbuja__titulo">${texto(String(componente('HEADER')?.text || '').replace(/\{\{\s*([^}]+?)\s*\}\}/g, (_, k) => (valoresEncabezado()[k] ? rellenar(valoresEncabezado()[k], fila) : `{{${k}}}`)))}</p>`
+        : fmt === 'IMAGE' ? (medio?.miniatura ? `<img src="${medio.miniatura}" class="burbuja__imagen" alt="">` : '<div class="burbuja__marcador">Imagen</div>')
+        : fmt === 'VIDEO' ? `<div class="burbuja__marcador burbuja__marcador--video">▶ ${texto(medio?.nombre || 'Video')}</div>`
+        : fmt === 'DOCUMENT' ? `<div class="burbuja__documento">📄 ${texto(medio?.nombre || 'Documento.pdf')}</div>` : '';
+      const botones = (componente('BUTTONS')?.buttons || []).map((b) => `<div class="burbuja__boton">${texto(b.text)}</div>`).join('');
+      $('vista').innerHTML = `${cabecera}<p class="burbuja__texto">${texto(cuerpo)}</p>${botones}`;
+    }
+
+    /** Lo que falta para poder enviar, en palabras (el botón se activa cuando no falta nada) */
+    function faltantes(lista, promo) {
+      const f = [];
+      if (!plantilla) return ['elegir la plantilla'];
+      if (ARCHIVOS[encabezado()] && !medio) f.push(`elegir ${encabezado() === 'IMAGE' ? 'la imagen' : encabezado() === 'VIDEO' ? 'el video' : 'el PDF'}`);
+      if (!CONV && !lista.length) f.push('cargar la lista de números');
+      const sinValor = [...variables().filter((v) => !valores()[v]).map((v) => `{{${v}}}`), ...variablesEncabezado().filter((v) => !valoresEncabezado()[v]).map((v) => `{{${v}}} del encabezado`),
+        ...valoresBotones().flatMap((x, i) => (botonesVariables()[i] && !x ? [`el botón «${botonesVariables()[i].texto}»`] : []))];
+      if (sinValor.length) f.push(`llenar ${sinValor.join(', ')}`);
+      if (!CONV && !$('nombre').value.trim()) f.push('ponerle nombre a la campaña');
+      if ((!CONV || promo) && !$('acepto').checked) f.push('marcar el aviso de responsabilidad');
+      return f;
+    }
+
     function actualizar() {
       const lista = destinos();
       $('resumen-lista').textContent = filas.length ? `${lista.length} números en la lista (los repetidos y los inválidos se descartan al programar).` : '';
@@ -386,34 +837,24 @@
       const promo = String(plantilla?.category || '').toUpperCase() === 'MARKETING';
       if (CONV) {
         $('costo').textContent = plantilla ? `Costo: unos USD ${precio} (lo cobra Meta si se entrega).` : '';
-        $('paso-aviso').classList.toggle('hidden', !promo);
+        $('paso-aviso').hidden = !promo;
       } else $('costo').textContent = plantilla && lista.length ? `Costo estimado: USD ${(lista.length * precio).toFixed(2)} (${lista.length} × ${precio}). Lo cobra Meta por mensaje entregado.` : '';
-      if (plantilla) {
-        const v = valores(); const fila = lista[0] || { nombre: 'Juan' };
-        const cuerpo = String(componente('BODY')?.text || '').replace(/\{\{\s*([^}]+?)\s*\}\}/g, (_, k) => rellenar(v[k] || `{{${k}}}`, fila));
-        const fmt = encabezado();
-        const cab = fmt === 'TEXT' ? `<p class="font-bold mb-1">${texto(String(componente('HEADER')?.text || '').replace(/\{\{\s*([^}]+?)\s*\}\}/g, (_, k) => rellenar(valoresEncabezado()[k] || `{{${k}}}`, fila)))}</p>`
-          : fmt === 'IMAGE' ? (medio?.miniatura ? `<img src="${medio.miniatura}" class="rounded mb-2 w-full" alt="">` : '<div class="bg-slate-200 rounded mb-2 h-32 flex items-center justify-center text-slate-500">Imagen</div>')
-          : fmt === 'VIDEO' ? `<div class="bg-slate-800 rounded mb-2 h-32 flex items-center justify-center text-white">▶ ${texto(medio?.nombre || 'Video')}</div>`
-          : fmt === 'DOCUMENT' ? `<div class="bg-white rounded mb-2 p-2">📄 ${texto(medio?.nombre || 'Documento.pdf')}</div>` : '';
-        const botones = (componente('BUTTONS')?.buttons || []).map((b) => `<div class="bg-white text-center text-sky-700 rounded mt-1 py-1">${texto(b.text)}</div>`).join('');
-        $('vista').innerHTML = `${cab}<p class="whitespace-pre-wrap">${texto(cuerpo)}</p>${botones}`;
-      }
-      const listo = plantilla && lista.length && (CONV ? (!promo || $('acepto').checked) : ($('acepto').checked && $('nombre').value.trim()))
-        && (!ARCHIVOS[encabezado()] || medio) && variables().every((v) => valores()[v]) && variablesEncabezado().every((v) => valoresEncabezado()[v])
-        && valoresBotones().every((x, i) => !botonesVariables()[i] || x);
-      $('enviar').disabled = !listo;
+      if (plantilla) vistaPrevia(lista);
+      const falta = faltantes(lista, promo);
+      $('falta').textContent = falta.length ? `Falta: ${falta.join(' · ')}.` : '';
+      $('falta').hidden = !falta.length;
+      $('enviar').disabled = falta.length > 0;
     }
     ['acepto', 'nombre'].forEach((id) => $(id).addEventListener('input', actualizar)); $('acepto').addEventListener('change', actualizar);
 
     $('enviar').addEventListener('click', async () => {
-      $('enviar').disabled = true; $('resultado').textContent = CONV ? 'Enviando…' : 'Programando…';
+      $('enviar').disabled = true; resultado(CONV ? 'Enviando…' : 'Programando…');
       if (CONV) {
         try {
           await bot({ accion: 'enviar_uno', conversation_id: CONV, plantilla, variables: valores(), encabezado: valoresEncabezado(), botones: valoresBotones(), medio_id: medio?.id || null, acepto_aviso: $('acepto').checked });
-          $('resultado').innerHTML = '<span class="text-emerald-700 font-medium">Plantilla enviada. Ahora tú atiendes esta conversación.</span>';
+          resultado('Plantilla enviada. Ahora tú atiendes esta conversación.', 'ok');
           setTimeout(() => window.parent.postMessage({ sh: 'cerrar-lanzador' }, location.origin), 1500);
-        } catch (e) { $('resultado').innerHTML = `<span class="text-red-700">${texto(e.message)}</span>`; actualizar(); }
+        } catch (e) { resultado(e.message, 'error'); actualizar(); }
         return;
       }
       try {
@@ -421,17 +862,22 @@
         const r = await bot({ accion: 'crear', nombre: $('nombre').value.trim(), inbox_id: Number($('bandeja').value), plantilla, variables: valores(), encabezado: valoresEncabezado(), botones: valoresBotones(), medio_id: medio?.id || null,
           destinos: destinos(), programada_para: programada, acepto_aviso: $('acepto').checked });
         const c = r.campana;
-        $('resultado').innerHTML = `<span class="text-emerald-700 font-medium">Campaña programada: ${c.destinos} números${c.invalidos ? ` (${c.invalidos} inválidos)` : ''}${c.repetidos ? ` (${c.repetidos} repetidos)` : ''}. Empieza a salir el ${new Date(c.sale_desde).toLocaleString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' })} · costo estimado: USD ${c.costo_estimado_usd}.</span>`;
+        resultado(`Campaña programada: ${c.destinos} números${c.invalidos ? ` (${c.invalidos} inválidos)` : ''}${c.repetidos ? ` (${c.repetidos} repetidos)` : ''}. Empieza a salir el ${new Date(c.sale_desde).toLocaleString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' })} · costo estimado: USD ${c.costo_estimado_usd}.`, 'ok');
         refrescarCampanas();
-      } catch (e) { $('resultado').innerHTML = `<span class="text-red-700">${texto(e.message)}</span>`; actualizar(); }
+      } catch (e) { resultado(e.message, 'error'); actualizar(); }
     });
 
     // ───────── Campañas ─────────
     const ESTADOS = { programada: 'Programada', enviando: 'Enviando', terminada: 'Terminada', cancelada: 'Cancelada' };
+    const celda = (etiqueta, valor) => `<td data-etiqueta="${etiqueta}">${valor}</td>`;
     async function refrescarCampanas() {
       try {
         const r = await bot({ accion: 'estado' });
-        $('campanas').innerHTML = r.campanas.map((c) => `<tr class="border-t"><td class="py-1">${texto(c.nombre)}<div class="text-xs text-slate-500">${texto(c.plantilla)} · ${new Date(c.programada_para).toLocaleString('es-CO')}</div></td><td>${ESTADOS[c.estado] || c.estado}</td><td>${c.total}</td><td>${c.enviados}</td><td>${c.entregados}</td><td>${c.leidos}</td><td>${c.respuestas}</td><td>${c.bajas}</td><td>${c.fallidos}</td><td>${['programada', 'enviando'].includes(c.estado) ? `<button class="btn-sec cancelar" data-id="${c.id}">Cancelar</button>` : ''}</td></tr>`).join('') || '<tr><td colspan="10" class="py-2 text-slate-500">Todavía no hay campañas.</td></tr>';
+        $('campanas').innerHTML = r.campanas.map((c) => `<tr><td class="tabla__campana">${texto(c.nombre)}<div class="tabla__detalle">${texto(c.plantilla)} · ${new Date(c.programada_para).toLocaleString('es-CO')}</div></td>`
+          + celda('Estado', ESTADOS[c.estado] || c.estado) + celda('Números', c.total) + celda('Enviados', c.enviados) + celda('Entregados', c.entregados) + celda('Leídos', c.leidos)
+          + celda('Respondieron', c.respuestas) + celda('Baja', c.bajas) + celda('Error', c.fallidos)
+          + `<td class="tabla__accion">${['programada', 'enviando'].includes(c.estado) ? `<button type="button" class="boton boton--secundario boton--chico cancelar" data-id="${c.id}">Cancelar</button>` : ''}</td></tr>`).join('')
+          || '<tr><td class="tabla__campana nota">Todavía no hay campañas.</td></tr>';
         document.querySelectorAll('.cancelar').forEach((b) => b.addEventListener('click', async () => { try { await bot({ accion: 'cancelar', id: Number(b.dataset.id) }); } catch (e) { error(e.message); } refrescarCampanas(); }));
       } catch (e) { error(e.message); }
     }

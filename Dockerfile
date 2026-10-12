@@ -41,6 +41,9 @@ RUN set -e; \
     cp /app/custom_storage/privacy.html /app/public/; \
     cp /app/custom_storage/tiktokVCWaYAGPTtL07smB08Kwl56OCrCHqgnS.txt /app/public/
 
+# Color de marca: Chatwoot dejó fijo su azul en el CSS compilado; marca.sh lo cambia por la variable --sh-marca que define custom.css
+RUN sh /app/custom_storage/marca.sh
+
 # Espera a Postgres y borra el server.pid que pudo quedar de un apagón (como en docker-compose.yaml)
 ENTRYPOINT ["docker/entrypoints/rails.sh"]
 CMD ["sh", "-c", "bundle exec rails db:chatwoot_prepare && exec bundle exec rails s -p 3000 -b 0.0.0.0"]

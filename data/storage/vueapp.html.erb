@@ -76,103 +76,107 @@
     <% end %>
     <%= vite_client_tag %>
     <%= vite_javascript_tag @application_pack %>
-    <link rel="stylesheet" id="sinhuellas-custom-css" href="/custom.css?v=1791347814$(date +%s)<%= Time.now.to_i %>">
+    <%# custom.css se pide con una versión sacada de su contenido: Chatwoot sirve /public con caché de un año %>
+    <link rel="stylesheet" id="sinhuellas-custom-css" href="/custom.css?v=<%= (Digest::MD5.file(Rails.public_path.join('custom.css')).hexdigest[0, 12] rescue '0') %>">
     <script>
+      // Apariencia de Sin Huellas: custom.css de último y los textos propios. Lo visual vive en custom.css; aquí solo se crean elementos y clases.
       (function() {
-        function ensureCustomCssLast() {
-          var link = document.getElementById('sinhuellas-custom-css');
-          if (link && document.head && document.head.lastElementChild !== link) document.head.appendChild(link);
+        // custom.css gana a Chatwoot por orden, sin !important: va de último aunque Chatwoot agregue sus hojas al cambiar de pantalla
+        const ponerAlFinal = () => {
+          const hoja = document.getElementById('sinhuellas-custom-css');
+          if (hoja && hoja !== document.head.lastElementChild) document.head.appendChild(hoja);
+        };
+        new MutationObserver(ponerAlFinal).observe(document.head, { childList: true });
+        ponerAlFinal();
+
+        // Textos: el nombre del producto y el estado «Pendientes», que es donde atiende el bot. Un observador revisa solo lo que cambia
+        // (recorrer toda la página cada pocos milisegundos gasta batería en el celular).
+        function revisarTexto(nodo) {
+          const valor = nodo.nodeValue;
+          if (valor.includes('Iniciar sesión en Chatwoot')) nodo.nodeValue = valor.replace(/Iniciar sesión en Chatwoot/g, 'Iniciar sesión en Chat sin huellas');
+          if (valor.trim() === 'Pendientes') nodo.nodeValue = 'Bot atendiendo';
+          // Chatwoot pone en mayúscula cada palabra de la etiqueta de estado («Bot Atendiendo»)
+          if (nodo.nodeValue === 'Bot atendiendo') nodo.parentElement?.classList.add('sh-texto-tal-cual');
         }
-        function replaceTexts() {
-          if (document.title && document.title.includes('Chatwoot')) document.title = document.title.replace(/Chatwoot/g, 'Chat sin huellas');
-          var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
-          var node;
-          while (node = walker.nextNode()) {
-            if (node.nodeValue.includes('Iniciar sesión en Chatwoot')) {
-              node.nodeValue = node.nodeValue.replace(/Iniciar sesión en Chatwoot/g, 'Iniciar sesión en Chat sin huellas');
+        function revisarArbol(raiz) {
+          const recorrido = document.createTreeWalker(raiz, NodeFilter.SHOW_TEXT);
+          for (let nodo = recorrido.nextNode(); nodo; nodo = recorrido.nextNode()) revisarTexto(nodo);
+        }
+        function iniciar() {
+          revisarArbol(document.body);
+          new MutationObserver((cambios) => {
+            for (const cambio of cambios) {
+              if (cambio.type === 'characterData') revisarTexto(cambio.target);
+              else cambio.addedNodes.forEach((n) => (n.nodeType === Node.TEXT_NODE ? revisarTexto(n) : n.nodeType === Node.ELEMENT_NODE && revisarArbol(n)));
             }
-            // El estado «Pendientes» es donde atiende el bot: el equipo lo ve con ese nombre (solo el texto exacto, en el menú de estado y su etiqueta)
-            if (node.nodeValue.trim() === 'Pendientes') node.nodeValue = 'Bot atendiendo';
-          }
+          }).observe(document.body, { childList: true, subtree: true, characterData: true });
         }
-        document.addEventListener('DOMContentLoaded', ensureCustomCssLast);
-        window.addEventListener('load', ensureCustomCssLast);
-        setTimeout(ensureCustomCssLast, 1000);
-        setInterval(replaceTexts, 100);
+        if (document.body) iniciar(); else document.addEventListener('DOMContentLoaded', iniciar);
+        setInterval(() => { if (document.title.includes('Chatwoot')) document.title = document.title.replace(/Chatwoot/g, 'Chat sin huellas'); }, 1000);
       })();
 
-      // Injection script for Massive Campaigns Express Button
+      // Lanzador de campañas y de plantillas sueltas (campanas.html), en una ventana encima de Chatwoot. «extra» agrega parámetros: el botón
+      // «Enviar plantilla» de una conversación pasa &conv=ID.
       (function() {
-        // Abre el lanzador encima de Chatwoot; «extra» agrega parámetros (el botón «Enviar plantilla» de una conversación pasa &conv=ID)
         window.shAbrirLanzador = (extra = '') => {
-              const csrfMeta = document.querySelector('meta[name="csrf-token"]');
-              const csrfToken = csrfMeta ? csrfMeta.content : '';
-              const match = window.location.pathname.match(/\/accounts\/(\d+)/);
-              const accountId = match ? match[1] : '1';
-
-              const overlay = document.createElement('div');
-              overlay.id = 'sh-mass-campaign-overlay';
-              overlay.style.cssText = 'position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px);';
-
-              const modal = document.createElement('div');
-              modal.style.cssText = 'width: 90%; max-width: 900px; height: 85vh; background: white; border-radius: 1rem; overflow: hidden; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);';
-
-              const closeBtn = document.createElement('button');
-              closeBtn.innerHTML = '✕';
-              closeBtn.style.cssText = 'position: absolute; top: 1rem; right: 1rem; background: #f1f5f9; border: none; border-radius: 50%; width: 32px; height: 32px; font-weight: bold; cursor: pointer; color: #475569; z-index: 10; display:flex; align-items:center; justify-content:center; font-size:16px;';
-              closeBtn.onclick = () => document.body.removeChild(overlay);
-
-              const iframe = document.createElement('iframe');
-              // Chatwoot sirve /public con caché de un año: «v» cambia sola con el contenido, así cada cambio del lanzador llega al navegador
-              iframe.src = '/campanas.html?v=<%= (Digest::MD5.file(Rails.public_path.join('campanas.html')).hexdigest[0, 12] rescue '0') %>&csrf=' + encodeURIComponent(csrfToken) + '&acc=' + accountId + '&n8n=' + encodeURIComponent('<%= ENV.fetch("SH_N8N_URL_PUBLICA", "") %>') + extra;
-              iframe.style.cssText = 'width: 100%; height: 100%; border: none; background: transparent;';
-
-              modal.appendChild(closeBtn);
-              modal.appendChild(iframe);
-              overlay.appendChild(modal);
-              document.body.appendChild(overlay);
+          if (document.querySelector('.sh-lanzador')) return;
+          const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+          const cuenta = (window.location.pathname.match(/\/accounts\/(\d+)/) || [])[1] || '1';
+          const capa = document.createElement('div');
+          capa.className = 'sh-lanzador';
+          capa.innerHTML = '<div class="sh-lanzador__panel" role="dialog" aria-modal="true" aria-label="Lanzador de Sin Huellas">'
+            + '<button type="button" class="sh-lanzador__cerrar" aria-label="Cerrar">✕</button>'
+            + '<iframe class="sh-lanzador__marco" title="Lanzador de Sin Huellas"></iframe></div>';
+          // Chatwoot sirve /public con caché de un año: «v» cambia sola con el contenido, así cada cambio del lanzador llega al navegador
+          capa.querySelector('iframe').src = '/campanas.html?v=<%= (Digest::MD5.file(Rails.public_path.join('campanas.html')).hexdigest[0, 12] rescue '0') %>&csrf=' + encodeURIComponent(csrf) + '&acc=' + cuenta + '&n8n=' + encodeURIComponent('<%= ENV.fetch("SH_N8N_URL_PUBLICA", "") %>') + extra;
+          const alEscape = (e) => { if (e.key === 'Escape') cerrar(); };
+          const cerrar = () => { capa.remove(); document.removeEventListener('keydown', alEscape); };
+          capa.querySelector('.sh-lanzador__cerrar').addEventListener('click', cerrar);
+          document.addEventListener('keydown', alEscape);
+          document.body.appendChild(capa);
+          capa.querySelector('.sh-lanzador__cerrar').focus();
         };
         // el lanzador pide cerrarse después de enviar una plantilla suelta
         window.addEventListener('message', (e) => {
-          if (e.origin === window.location.origin && e.data && e.data.sh === 'cerrar-lanzador') document.getElementById('sh-mass-campaign-overlay')?.remove();
+          if (e.origin === window.location.origin && e.data && e.data.sh === 'cerrar-lanzador') document.querySelector('.sh-lanzador')?.remove();
         });
 
-        function manageCampaignButton() {
-          const btnId = 'sh-mass-campaign-btn';
-          let btn = document.getElementById(btnId);
-          const isCampaignsPage = window.location.pathname.includes('/campaigns');
-          
-          if (isCampaignsPage && !btn) {
-            btn = document.createElement('button');
-            btn.id = btnId;
-            btn.innerText = '⚡️ Envío Masivo Express';
-            btn.style.cssText = 'position: fixed; top: 18px; right: 280px; z-index: 999999; background: #163f30; color: white; padding: 0.5rem 1.25rem; border-radius: 999px; font-weight: 700; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); font-size: 14px; box-shadow: 0 10px 15px -3px rgba(22,63,48,0.4); transition: all 0.2s;'; btn.onmouseover = () => btn.style.transform = 'translateY(-2px)'; btn.onmouseout = () => btn.style.transform = 'translateY(0)';
-            
-            btn.onclick = () => window.shAbrirLanzador();
-            
-            document.body.appendChild(btn);
-          } else if (!isCampaignsPage && btn) {
-            btn.remove();
+        // Botón «Envío masivo» en las páginas de Campañas: en el encabezado, junto a «Crear campaña» (custom.css lo hace flotar en el celular).
+        // Si la página no tiene ese encabezado, flota también en pantallas grandes.
+        function botonEnvioMasivo() {
+          const enCampanas = window.location.pathname.includes('/campaigns');
+          let boton = document.getElementById('sh-envio-masivo');
+          if (!enCampanas) { boton?.remove(); return; }
+          const crear = document.querySelector('[class~="group/campaign-button"]');
+          if (boton && (crear ? boton.nextElementSibling === crear : boton.isConnected)) return;
+          if (!boton) {
+            boton = document.createElement('button');
+            boton.id = 'sh-envio-masivo';
+            boton.type = 'button';
+            boton.innerHTML = '<span aria-hidden="true">⚡</span>Envío masivo';
+            boton.addEventListener('click', () => window.shAbrirLanzador());
           }
+          boton.className = crear ? 'sh-express' : 'sh-express sh-express--flotante';
+          if (crear) crear.parentElement.insertBefore(boton, crear); else document.body.appendChild(boton);
         }
-
-        setInterval(manageCampaignButton, 500);
+        setInterval(botonEnvioMasivo, 500);
       })();
 
-      // Botón «Enviar plantilla» en las conversaciones de WhatsApp (en la caja de respuesta y en el aviso de las 24 horas): abre el lanzador para esa
-      // conversación, con la vista previa fiel y el archivo de la carpeta, del computador o de un enlace, revisado antes de enviar. El ícono de plantillas
-      // propio de Chatwoot se esconde: pide la dirección del archivo a mano, no la revisa y, si Meta no puede usarla, el mensaje falla minutos después.
+      // Botón «Enviar plantilla» en las conversaciones de WhatsApp: en la caja de respuesta y en el aviso de las 24 horas. Abre el lanzador para
+      // esa conversación, con la vista previa fiel y el archivo de la carpeta, del computador o de un enlace, revisado antes de enviar.
       (function() {
-        const estilo = document.createElement('style');
-        estilo.textContent = '.left-wrap > button:has(.i-ph-whatsapp-logo){display:none!important}'
-          + '.sh-plantilla{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;margin-left:4px;border-radius:8px;border:1px solid #d7a944;background:#163f30;color:#fff;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}'
-          + '.sh-plantilla:hover{filter:brightness(1.2)}'
-          + '.woot-banner .sh-plantilla{height:28px;background:#fff;color:#163f30;border-color:#fff}';
-        document.head.appendChild(estilo);
         const deWhatsapp = {}; // conversación → true si es de una bandeja de WhatsApp
         const actual = () => window.location.pathname.match(/\/accounts\/(\d+)\/(?:.*\/)?conversations\/(\d+)/);
         const abrir = () => { const m = actual(); if (m) window.shAbrirLanzador('&conv=' + m[2]); };
-        const boton = (texto) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'sh-plantilla'; b.textContent = texto; b.onclick = abrir; return b; };
+        function boton(enAviso) {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = enAviso ? 'sh-plantilla sh-plantilla--aviso' : 'sh-plantilla';
+          b.title = 'Enviar una plantilla de WhatsApp';
+          b.innerHTML = enAviso ? '<span class="sh-plantilla__texto">Elegir plantilla</span>' : '<span aria-hidden="true">📨</span><span class="sh-plantilla__texto">Enviar plantilla</span>';
+          b.addEventListener('click', abrir);
+          return b;
+        }
         function revisar() {
           const m = actual();
           const conv = m && m[2];
@@ -186,9 +190,9 @@
           }
           if (!conv || !deWhatsapp[conv]) { document.querySelectorAll('.sh-plantilla').forEach((b) => b.remove()); return; }
           const barra = document.querySelector('.reply-box .left-wrap');
-          if (barra && !barra.querySelector('.sh-plantilla')) barra.appendChild(boton('📨 Enviar plantilla'));
+          if (barra && !barra.querySelector('.sh-plantilla')) barra.appendChild(boton(false));
           const aviso = [...document.querySelectorAll('.woot-banner')].find((x) => /24/.test(x.textContent));
-          if (aviso && !aviso.querySelector('.sh-plantilla')) aviso.appendChild(boton('Elegir plantilla'));
+          if (aviso && !aviso.querySelector('.sh-plantilla')) aviso.appendChild(boton(true));
         }
         setInterval(revisar, 600);
       })();
