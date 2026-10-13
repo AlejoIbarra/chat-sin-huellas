@@ -12,7 +12,8 @@
 
    Reglas: sin !important (esta hoja se carga de última y gana por orden), sin selectores amplios ([class*="…"], header, div:has(img)…), móvil
    primero (la regla base es la del celular; @media (min-width: …) agrega lo de pantallas grandes) y colores como variables RGB sin comas,
-   como las de Chatwoot: rgb(var(--x)) o rgb(var(--x) / opacidad).
+   como las de Chatwoot: rgb(var(--x)) o rgb(var(--x) / opacidad). La excepción son las piezas de Chatwoot pensadas para el computador que no
+   caben en el celular: su arreglo va en @media (max-width: 767px), para no repetir sus estilos de computador (5.1).
 
    1. Paleta · 2. Tokens de Chatwoot en claro · 3. Modo oscuro · 4. Identidad · 5. Piezas de Chatwoot · 6. Lo que su Tailwind no trae
    ========================================================================================================================================== */
@@ -239,6 +240,92 @@ aside img[src^="/brand-assets/logo"] {
 /* Capitán (asistente de pago de Chatwoot Enterprise): se oculta de la barra lateral */
 aside li:has(.i-woot-captain) {
   display: none;
+}
+
+/* Cabecera de Contactos: con poco espacio (el celular, o una tablet con la barra lateral a la vista) el buscador y las acciones bajan a su
+   propia línea; antes no cedían y el título se encogía hasta desaparecer («C.» en el celular, nada a 768 px) */
+header > .max-w-5xl.justify-between.py-6 {
+  flex-wrap: wrap;
+}
+
+header > .max-w-5xl.justify-between.py-6 > .text-xl {
+  flex-shrink: 0;
+}
+
+header > .max-w-5xl.justify-between.py-6 > .flex-shrink-0 {
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+/* 5.1 En el celular, las piezas de Chatwoot pensadas para el computador que no caben a 320 px. Cada selector apunta a una sola pieza (su
+       clase solo aparece en ella o en su gemela, como los dos paneles de filtros). bot/test/e2e/chatwoot-movil.test.mjs revisa a ese ancho
+       las vistas y ventanas de quien atiende. */
+@media (max-width: 767px) {
+  /* La lista de conversaciones no se ensancha con un título largo (#verificacion-atrasada…): el título termina en «…» y los botones de
+     filtrar y ordenar quedan a la vista, igual que el panel de filtros que abren */
+  .conversations-list-wrap {
+    min-width: 0;
+  }
+
+  /* «Crear campaña» (Live Chat y SMS): era una ventana de 400 px junto al botón, cortada a la izquierda; aquí ocupa la pantalla y se desplaza */
+  .group\/campaign-button > div.absolute {
+    position: fixed;
+    inset: calc(.5rem + env(safe-area-inset-top)) .5rem auto;
+    width: auto;
+    max-height: calc(100dvh - 1rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  }
+
+  /* Filtros de conversaciones y de contactos, y «Ordenar» de contactos: el panel a lo ancho de la pantalla, y los botones de los filtros
+     bajan de línea si no caben */
+  .lg\:w-\[750px\],
+  .ltr\:-right-32.backdrop-blur-\[100px\] {
+    position: fixed;
+    inset: calc(.5rem + env(safe-area-inset-top)) .5rem auto;
+    width: auto;
+    max-height: calc(100dvh - 1rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    overflow-y: auto;
+  }
+
+  .lg\:w-\[750px\] .justify-between {
+    flex-wrap: wrap;
+  }
+
+  /* Menús desplegables (⋮ y acciones): suben desde abajo a lo ancho, como en las apps del celular; pegados al botón se salían por un lado */
+  .min-w-\[136px\].backdrop-blur-\[100px\] {
+    position: fixed;
+    inset: auto .5rem calc(.5rem + env(safe-area-inset-bottom));
+    width: auto;
+    max-height: 70dvh;
+  }
+
+  /* Con una de esas hojas abierta se esconde el botón flotante del menú: quedaba encima (las hojas viven dentro de la cabecera de la
+     página, que está en una capa más baja que ese botón) */
+  body:has(.group\/campaign-button > div.absolute, .lg\:w-\[750px\], .ltr\:-right-32.backdrop-blur-\[100px\], .min-w-\[136px\].backdrop-blur-\[100px\]) .fixed.bottom-4.z-40.md\:hidden {
+    display: none;
+  }
+
+  /* Barra del editor (mensaje de una campaña): sus íconos bajan de línea en vez de cortarse a la derecha */
+  .ProseMirror-menubar {
+    flex-wrap: wrap;
+  }
+
+  /* Cabecera de una conversación: el nombre de la bandeja termina en «…»; su línea era más ancha que la columna y se cortaba en seco */
+  .conversation--header--actions {
+    max-width: 100%;
+  }
+
+  /* Paginación (Contactos): libre el botón flotante del menú, abajo a la izquierda, y solo anterior y siguiente con «1 de N páginas»;
+     con «Mostrando…» y los saltos al inicio y al final no cabía */
+  footer.sticky > .border-t {
+    justify-content: flex-end;
+    padding-inline: 5rem .75rem;
+  }
+
+  footer.sticky > .border-t > div:first-child,
+  footer.sticky > .border-t > div:last-child > button:first-child,
+  footer.sticky > .border-t > div:last-child > button:last-child {
+    display: none;
+  }
 }
 
 
