@@ -501,12 +501,16 @@
     // ───────── Campañas: una ficha por campaña, con sus cifras en cuatro columnas ─────────
     const ESTADOS = { programada: 'Programada', enviando: 'Enviando', terminada: 'Terminada', cancelada: 'Cancelada' };
     const cifra = (etiqueta, valor) => `<div class="grid"><span class="text-base font-semibold">${valor}</span><span class="text-xs text-n-slate-11">${etiqueta}</span></div>`;
+    const fechaCorta = (t) => new Date(t).toLocaleString('es-CO', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+    // Cuándo sale de verdad (la franja de avisos de la Ley 2300 puede correr la hora programada), cuándo salió y cuándo llega el informe
+    const cuando = (c) => (c.salio_en ? `salió ${fechaCorta(c.salio_en)}${c.informe_hacia ? ` · informe por correo ${fechaCorta(c.informe_hacia)}` : ''}`
+      : c.sale_desde ? `sale ${fechaCorta(c.sale_desde)}` : `programada para ${fechaCorta(c.programada_para)}`);
     async function refrescarCampanas() {
       try {
         const r = await bot({ accion: 'estado' });
         $('campanas').innerHTML = r.campanas.map((c) => `<article class="grid gap-2 py-3">`
           + `<div class="flex flex-wrap items-start justify-between gap-2"><div class="min-w-0"><p class="font-medium break-words">${texto(c.nombre)}</p>`
-          + `<p class="text-xs text-n-slate-11">${texto(c.plantilla)} · ${new Date(c.programada_para).toLocaleString('es-CO')} · ${ESTADOS[c.estado] || c.estado}</p></div>`
+          + `<p class="text-xs text-n-slate-11">${ESTADOS[c.estado] || c.estado} · ${cuando(c)}</p><p class="text-xs text-n-slate-11">${texto(c.plantilla)}</p></div>`
           + `${['programada', 'enviando'].includes(c.estado) ? `<button type="button" class="cancelar ${CLASE.botonChico}" data-id="${c.id}">Cancelar</button>` : ''}</div>`
           + `<div class="grid grid-cols-4 gap-2 text-center">${cifra('Números', c.total)}${cifra('Enviados', c.enviados)}${cifra('Entregados', c.entregados)}${cifra('Leídos', c.leidos)}`
           + `${cifra('Respondieron', c.respuestas)}${cifra('Baja', c.bajas)}${cifra('Error', c.fallidos)}</div></article>`).join('')
