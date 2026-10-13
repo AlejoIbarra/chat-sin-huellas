@@ -18,6 +18,7 @@ RUN set -e; \
     cp /app/custom_storage/sinhuellas_logo.svg /app/app/javascript/dashboard/assets/images/bubble-logo.svg; \
     cp /app/custom_storage/sinhuellas_logo.svg /app/app/javascript/widget/assets/images/logo.svg; \
     cp /app/custom_storage/sinhuellas_logo.png /app/public/brand-assets/logo.png; \
+    cp /app/custom_storage/portada-formulario.jpg /app/public/brand-assets/portada-formulario.jpg; \
     cp /app/custom_storage/sinhuellas_logo.png /app/public/brand-assets/logo_dark.png; \
     cp /app/custom_storage/sinhuellas_logo.png /app/public/brand-assets/logo_thumbnail.png; \
     cp /app/custom_storage/sinhuellas_logo.png /app/public/favicon.ico; \
