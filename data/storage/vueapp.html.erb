@@ -115,6 +115,92 @@
         setInterval(() => { if (document.title.includes('Chatwoot')) document.title = document.title.replace(/Chatwoot/g, 'Chat sin huellas'); }, 1000);
       })();
 
+      // Modo claro u oscuro. Chatwoot guarda la elección de cada persona en su navegador (color_scheme: light, dark o auto) y en «auto» copia
+      // el modo del equipo. Aquí «auto» también sigue el sol de Pasto, la sede principal: oscuro del atardecer al amanecer. Si el equipo está
+      // en modo oscuro se respeta, y si la persona elige Claro u Oscuro (con el botón de la barra lateral o en Cambiar apariencia), manda su
+      // elección. Chatwoot sigue aplicando el tema como siempre: solo se le contesta con el sol incluido cuando pregunta si está oscuro.
+      (function() {
+        const PASTO = { lat: 1.2136, lon: -77.2811 };
+        /** ¿Es de noche en Pasto? Cálculo solar de la NOAA, con la refracción del horizonte. En Colombia el amanecer y el atardecer caen el
+         *  mismo día UTC, así que antes del uno o después del otro es de noche. */
+        function deNoche(ahora = new Date()) {
+          const rad = Math.PI / 180;
+          const g = 2 * Math.PI / 365 * ((ahora - Date.UTC(ahora.getUTCFullYear(), 0, 1)) / 864e5);
+          const ecuacion = 229.18 * (0.000075 + 0.001868 * Math.cos(g) - 0.032077 * Math.sin(g) - 0.014615 * Math.cos(2 * g) - 0.040849 * Math.sin(2 * g));
+          const declinacion = 0.006918 - 0.399912 * Math.cos(g) + 0.070257 * Math.sin(g) - 0.006758 * Math.cos(2 * g) + 0.000907 * Math.sin(2 * g) - 0.002697 * Math.cos(3 * g) + 0.00148 * Math.sin(3 * g);
+          const mitad = 4 * Math.acos(Math.cos(90.833 * rad) / (Math.cos(PASTO.lat * rad) * Math.cos(declinacion)) - Math.tan(PASTO.lat * rad) * Math.tan(declinacion)) / rad;
+          const mediodia = 720 - 4 * PASTO.lon - ecuacion; // en minutos desde la medianoche UTC
+          const minuto = ahora.getUTCHours() * 60 + ahora.getUTCMinutes();
+          return minuto < mediodia - mitad || minuto > mediodia + mitad;
+        }
+        const original = window.matchMedia.bind(window);
+        const equipo = original('(prefers-color-scheme: dark)');
+        const afueraOscuro = () => equipo.matches || deNoche();
+        window.matchMedia = (consulta) => (String(consulta).replace(/\s/g, '') === '(prefers-color-scheme:dark)'
+          ? { media: consulta, get matches() { return afueraOscuro(); }, onchange: null, addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {} }
+          : original(consulta));
+
+        const eleccion = () => { const v = localStorage.getItem('color_scheme'); return v === 'light' || v === 'dark' ? v : 'auto'; };
+        const oscuro = () => eleccion() === 'dark' || (eleccion() === 'auto' && afueraOscuro());
+        // Botón al final de la fila del logo de la barra lateral (en el celular, arriba del menú), con las clases del botón «redactar» de
+        // Chatwoot, que queda justo debajo: mismo tamaño y mismo ícono de 14 px (p-0 quita el relleno que Chatwoot les da a los botones).
+        // El ícono muestra el modo al que se pasa; lo elegido queda guardado igual que si se eligiera en Cambiar apariencia.
+        const BOTON = 'inline-flex items-center justify-center flex-shrink-0 h-7 w-8 p-0 rounded-lg border-0 outline outline-1 outline-n-weak bg-n-button-color text-n-slate-11 text-sm transition-all duration-100 ease-out hover:enabled:bg-n-alpha-2 focus-visible:bg-n-alpha-2 dark:hover:enabled:bg-n-solid-2 dark:focus-visible:bg-n-solid-2 active:enabled:scale-[0.97]';
+        function pintar() {
+          const boton = document.getElementById('sh-tema');
+          if (!boton) return;
+          const o = document.body.classList.contains('dark');
+          const accion = o ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro';
+          boton.firstElementChild.className = (o ? 'i-lucide-sun' : 'i-lucide-moon') + ' flex-shrink-0';
+          boton.setAttribute('aria-label', accion);
+          boton.title = accion + (eleccion() === 'auto' ? '. Ahora cambia solo: claro de día, oscuro de noche.' : '. Quedó fijo; para que vuelva a cambiar solo: menú del perfil › Cambiar apariencia › Automático.');
+        }
+        // Lo mismo que hace Chatwoot al aplicar el tema
+        function aplicar() {
+          if (!document.body) return;
+          document.body.classList.toggle('dark', oscuro());
+          document.documentElement.style.setProperty('color-scheme', oscuro() ? 'dark' : 'light');
+          pintar();
+        }
+        function botonTema() {
+          const fila = document.querySelector('aside > section > div');
+          if (!fila || fila.querySelector('#sh-tema')) return;
+          const boton = document.createElement('button');
+          boton.id = 'sh-tema';
+          boton.type = 'button';
+          boton.className = BOTON;
+          boton.innerHTML = '<span aria-hidden="true"></span>';
+          boton.addEventListener('click', () => {
+            localStorage.setItem('color_scheme', document.body.classList.contains('dark') ? 'light' : 'dark');
+            localStorage.setItem('color_scheme:ts', String(Date.now())); // como lo guarda Chatwoot
+            aplicar();
+          });
+          fila.appendChild(boton);
+          pintar();
+        }
+        function iniciar() {
+          aplicar();
+          new MutationObserver(pintar).observe(document.body, { attributes: true, attributeFilter: ['class'] }); // Cambiar apariencia
+          setInterval(botonTema, 600);
+        }
+        if (document.body) iniciar(); else document.addEventListener('DOMContentLoaded', iniciar);
+        equipo.addEventListener('change', aplicar);
+        window.addEventListener('storage', (e) => { if (e.key === 'color_scheme') aplicar(); }); // lo elegido en otra pestaña
+        document.addEventListener('visibilitychange', aplicar); // al volver a la pestaña: el computador pudo haber dormido
+        setInterval(aplicar, 60000); // el amanecer y el atardecer
+
+        // En Cambiar apariencia, «Sistema» es este modo automático: se renombra en los textos de Chatwoot (vue-i18n), no en la página. Si una
+        // versión nueva de Chatwoot no lo deja, queda «Sistema» y todo lo demás funciona igual.
+        const renombrar = setInterval(() => {
+          const app = document.getElementById('app')?.__vue_app__;
+          if (!app) return;
+          clearInterval(renombrar);
+          const p = app._context?.provides || {};
+          const i18n = Object.getOwnPropertySymbols(p).map((s) => p[s]).find((v) => typeof v?.global?.mergeLocaleMessage === 'function');
+          i18n?.global.mergeLocaleMessage('es', { COMMAND_BAR: { COMMANDS: { SYSTEM_MODE: 'Automático: claro de día, oscuro de noche' } } });
+        }, 500);
+      })();
+
       // Lanzador de campañas y de plantillas sueltas (campanas.html), en una ventana encima de Chatwoot. «extra» agrega parámetros: el botón
       // «Enviar plantilla» de una conversación pasa &conv=ID.
       (function() {
