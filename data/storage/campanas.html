@@ -208,6 +208,8 @@
       return null;
     }
     const PRECIO = { MARKETING: 0.0125, UTILITY: 0.0008 };
+    // Nombre claro y para qué sirve cada plantilla nuestra: la lista vive en Chatwoot (vueapp.html.erb), que abre este lanzador
+    const NOMBRES = (() => { try { return window.parent.shPlantillas || {}; } catch (e) { return {}; } })();
     let sesion = {}; let bandejas = []; let plantillas = []; let plantilla = null; let medio = null; let filas = []; let columnas = [];
 
     const $ = (id) => document.getElementById(id);
@@ -275,10 +277,15 @@
         const r = await chatwoot(`/inboxes/${b.id}/message_templates`).catch(() => ({}));
         plantillas = (r.payload || r || []).filter((t) => (t.status || 'APPROVED').toUpperCase() === 'APPROVED');
       }
-      $('plantilla').innerHTML = '<option value="">— Elige la plantilla —</option>' + plantillas.map((t, i) => {
+      // las nuestras con su nombre claro (vueapp.html.erb) y las que envía el asistente solo, aparte y al final
+      const opcion = ({ t, i, p }) => {
         const motivo = noSoportada(t);
-        return `<option value="${i}"${motivo ? ' disabled' : ''}>${texto(t.name)} · ${texto(t.language)} · ${texto(t.category)}${motivo ? ` — no se puede: ${texto(motivo)}` : ''}</option>`;
-      }).join('');
+        return `<option value="${i}"${motivo ? ' disabled' : ''}>${texto(p ? p.titulo : `${t.name} · ${t.language} · ${t.category}`)}${motivo ? ` — no se puede: ${texto(motivo)}` : ''}</option>`;
+      };
+      const todas = plantillas.map((t, i) => ({ t, i, p: NOMBRES[t.name] }));
+      const delAsistente = todas.filter((x) => x.p?.quien === 'asistente');
+      $('plantilla').innerHTML = '<option value="">— Elige la plantilla —</option>' + todas.filter((x) => x.p?.quien !== 'asistente').map(opcion).join('')
+        + (delAsistente.length ? `<optgroup label="Las envía el asistente solo">${delAsistente.map(opcion).join('')}</optgroup>` : '');
     });
 
     $('plantilla').addEventListener('change', (e) => {
@@ -290,7 +297,7 @@
       // el selector de archivos solo deja escoger el tipo que pide la plantilla
       $('subir').setAttribute('accept', ARCHIVOS[fmt]?.acepta || '');
       $('reglas-medio').textContent = ARCHIVOS[fmt] ? `WhatsApp acepta aquí: ${ARCHIVOS[fmt].reglas}` : '';
-      $('categoria').textContent = plantilla ? `Categoría ${plantilla.category}: cada mensaje entregado cuesta unos USD ${PRECIO[String(plantilla.category).toUpperCase()] ?? PRECIO.MARKETING} (lo cobra Meta).` : '';
+      $('categoria').textContent = plantilla ? `${NOMBRES[plantilla.name] ? `${NOMBRES[plantilla.name].para} ` : ''}Categoría ${plantilla.category}: cada mensaje entregado cuesta unos USD ${PRECIO[String(plantilla.category).toUpperCase()] ?? PRECIO.MARKETING} (lo cobra Meta).` : '';
       if (visible('paso-medio')) cargarMedios();
       pintarVariables(); actualizar();
     });

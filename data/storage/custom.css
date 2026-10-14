@@ -81,8 +81,10 @@
 }
 
 /* La barra lateral en el verde del logo, con letra clara: se redefinen las variables de Chatwoot solo dentro de ella. Son todas las que usa
-   lo que vive en la barra, menús incluidos (el del perfil se abre dentro de ella); si faltara una, ese elemento saldría con el color claro. */
-body:not(.dark) aside {
+   lo que vive en la barra, menús incluidos (el del perfil se abre dentro de ella); si faltara una, ese elemento saldría con el color claro.
+   Va con #app: la barra es el único <aside> dentro de la aplicación; los paneles que se abren encima (el de una plantilla, en Ajustes →
+   Plantillas) también son <aside>, pero Chatwoot los pone fuera de #app, y con «aside» a secas su letra salía blanca sobre blanco. */
+body:not(.dark) #app aside {
   --background-color: var(--sh-verde);
   --slate-12: 255 255 255;
   --slate-11: 207 224 214;
@@ -201,7 +203,7 @@ body::before {
 }
 
 /* Elemento activo de la barra lateral: una línea de oro a la izquierda, el acento del logo */
-aside a.active {
+#app aside a.active {
   box-shadow: inset 3px 0 0 rgb(var(--sh-oro));
 }
 
@@ -213,12 +215,12 @@ aside a.active {
 /* 5. Piezas de Chatwoot (no son nuestras: no se les pueden poner clases) ------------------------------------------------------------------ */
 
 /* Logo del bufete en la barra lateral: Chatwoot lo muestra de 16 px; a 28 px se reconoce */
-aside div:has(> img[src^="/brand-assets/logo"]) {
+#app aside div:has(> img[src^="/brand-assets/logo"]) {
   width: 2rem;
   height: 2rem;
 }
 
-aside img[src^="/brand-assets/logo"] {
+#app aside img[src^="/brand-assets/logo"] {
   width: 1.75rem;
   height: 1.75rem;
 }
@@ -238,7 +240,7 @@ aside img[src^="/brand-assets/logo"] {
 }
 
 /* Capitán (asistente de pago de Chatwoot Enterprise): se oculta de la barra lateral */
-aside li:has(.i-woot-captain) {
+#app aside li:has(.i-woot-captain) {
   display: none;
 }
 

@@ -89,14 +89,44 @@
         new MutationObserver(ponerAlFinal).observe(document.head, { childList: true });
         ponerAlFinal();
 
-        // Textos: el nombre del producto y el estado «Pendientes», que es donde atiende el bot. Un observador revisa solo lo que cambia
-        // (recorrer toda la página cada pocos milisegundos gasta batería en el celular).
+        // Plantillas de WhatsApp: en Meta tienen nombres técnicos que no se pueden cambiar (el asistente las envía por ese nombre). En Ajustes →
+        // Plantillas se ven con un nombre claro y, al abrir una, para qué sirve y quién la envía; el lanzador (campanas.html) usa esta misma
+        // lista. Las que no están aquí (las que el bufete cree en Meta) se ven con su nombre de Meta.
+        const PLANTILLAS = window.shPlantillas = {
+          pago_verificado_elige_horario: { titulo: 'Pago verificado: elegir la fecha', quien: 'asistente', para: 'La envía el asistente cuando el equipo verifica el pago y la persona lleva más de 24 horas sin escribir. Con el botón, ella elige la fecha de su cita.' },
+          datos_pendientes: { titulo: 'Faltan los datos de la cita', quien: 'asistente', para: 'La envía el asistente cuando la persona aún no llena el formulario de su cita y lleva más de 24 horas sin escribir. Con el botón, recibe el enlace.' },
+          recordatorio_cita: { titulo: 'Recordatorio de la cita', quien: 'asistente', para: 'La envía el asistente antes de cada cita, con la fecha, el lugar o el enlace de la videollamada y el código. También confirma la cita que el equipo agendó a mano, si la persona lleva más de 24 horas sin escribir.' },
+          seguimiento_asesoria: { titulo: 'Recordatorio para tomar la asesoría', quien: 'asistente', para: 'La envía el asistente una sola vez, el día en que la persona dijo que pagaría, si no llegó el comprobante. Solo a quien aceptó recibir promociones.' },
+          seguimiento_solicitud: { titulo: 'Retomar una conversación', quien: 'equipo', para: 'La usa el equipo para volver a escribirle a alguien que lleva más de 24 horas sin escribir, con el botón «Enviar plantilla» de la conversación. Lleva la fecha de su solicitud.' },
+          documento_asesoria: { titulo: 'Enviar el documento de la asesoría', quien: 'equipo', para: 'La usa el equipo para enviarle a la persona el PDF de su asesoría, con el botón «Enviar plantilla» de la conversación. Lleva el código de la cita.' },
+        };
+        // Chatwoot muestra el estado y la categoría como los manda Meta, en inglés
+        const EN_ESPANOL = { Approved: 'Aprobada', Rejected: 'Rechazada', Pending: 'En revisión', Paused: 'Pausada', Disabled: 'Desactivada', Utility: 'Utilidad', Authentication: 'Autenticación' };
+        const SUBTITULO = 'Consulta cómo aparece esta plantilla en WhatsApp.';
+        const TITULOS = new Set(Object.values(PLANTILLAS).map((p) => p.titulo));
+        function nombrarPlantilla(nodo) {
+          if (!window.location.pathname.includes('/settings/templates')) return;
+          const valor = nodo.nodeValue.trim();
+          if (EN_ESPANOL[valor]) { nodo.nodeValue = EN_ESPANOL[valor]; return; }
+          if (TITULOS.has(valor)) return; // ya tiene su nombre claro (el cambio de texto vuelve a pasar por aquí)
+          const p = PLANTILLAS[valor];
+          const el = nodo.parentElement;
+          // en el panel de una plantilla, debajo del título va para qué sirve (o el texto de Chatwoot si no es una de las nuestras)
+          if (el?.matches('aside header h3') && el.nextElementSibling) el.nextElementSibling.textContent = p ? `${p.para} En Meta se llama ${valor}.` : SUBTITULO;
+          if (!p) return;
+          nodo.nodeValue = p.titulo;
+          el?.setAttribute('title', `${p.para} En Meta se llama ${valor}.`);
+        }
+
+        // Textos: el nombre del producto, el estado «Pendientes» (es donde atiende el bot) y las plantillas. Un observador revisa solo lo que
+        // cambia (recorrer toda la página cada pocos milisegundos gasta batería en el celular).
         function revisarTexto(nodo) {
           const valor = nodo.nodeValue;
           if (valor.includes('Iniciar sesión en Chatwoot')) nodo.nodeValue = valor.replace(/Iniciar sesión en Chatwoot/g, 'Iniciar sesión en Chat sin huellas');
           if (valor.trim() === 'Pendientes') nodo.nodeValue = 'Bot atendiendo';
           // Chatwoot pone en mayúscula cada palabra de la etiqueta de estado («Bot Atendiendo»); normal-case (Tailwind de Chatwoot) lo deja tal cual
           if (nodo.nodeValue === 'Bot atendiendo') nodo.parentElement?.classList.add('normal-case');
+          nombrarPlantilla(nodo);
         }
         function revisarArbol(raiz) {
           const recorrido = document.createTreeWalker(raiz, NodeFilter.SHOW_TEXT);
@@ -163,7 +193,7 @@
           pintar();
         }
         function botonTema() {
-          const fila = document.querySelector('aside > section > div');
+          const fila = document.querySelector('#app aside > section > div');
           if (!fila || fila.querySelector('#sh-tema')) return;
           const boton = document.createElement('button');
           boton.id = 'sh-tema';
