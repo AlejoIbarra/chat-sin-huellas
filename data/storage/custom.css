@@ -259,6 +259,30 @@ header > .max-w-5xl.justify-between.py-6 > .flex-shrink-0 {
   min-width: 0;
 }
 
+/* Botón redondo del contacto (el del muñequito, arriba a la derecha de la conversación): abre el panel de las macros. Chatwoot lo deja
+   transparente, con el ícono del color del texto, y sobre su pastilla blanca (gris en oscuro) casi no se veía. Lleva el verde y el oro del
+   logo, iguales en los dos modos; el aro de oro lo despega del fondo oscuro. Lo identifica su ícono, el único así en la conversación. El
+   color se repite en :hover porque el gris del hover de Chatwoot lo taparía al tocarlo en el celular. */
+.conversation-details-wrap button:has(> .i-ph-user-bold),
+.conversation-details-wrap button:has(> .i-ph-user-bold):hover {
+  background-color: rgb(var(--sh-verde));
+  color: rgb(var(--sh-oro));
+  box-shadow: inset 0 0 0 1.5px rgb(var(--sh-oro) / .6);
+}
+
+/* Con el mouse encima, el aro se completa y brilla; con el dedo no, porque ahí el hover se queda pegado después de tocar */
+@media (hover: hover) {
+  .conversation-details-wrap button:has(> .i-ph-user-bold):hover {
+    box-shadow: inset 0 0 0 1.5px rgb(var(--sh-oro)), 0 0 0 4px rgb(var(--sh-oro) / .3);
+    transform: scale(1.08);
+  }
+}
+
+.conversation-details-wrap button:has(> .i-ph-user-bold):focus-visible {
+  outline: 2px solid rgb(var(--sh-oro));
+  outline-offset: 2px;
+}
+
 /* 5.1 En el celular, las piezas de Chatwoot pensadas para el computador que no caben a 320 px. Cada selector apunta a una sola pieza (su
        clase solo aparece en ella o en su gemela, como los dos paneles de filtros). bot/test/e2e/chatwoot-movil.test.mjs revisa a ese ancho
        las vistas y ventanas de quien atiende. */
