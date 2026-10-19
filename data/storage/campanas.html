@@ -509,8 +509,8 @@
     const ESTADOS = { programada: 'Programada', enviando: 'Enviando', terminada: 'Terminada', cancelada: 'Cancelada' };
     const cifra = (etiqueta, valor) => `<div class="grid"><span class="text-base font-semibold">${valor}</span><span class="text-xs text-n-slate-11">${etiqueta}</span></div>`;
     const fechaCorta = (t) => new Date(t).toLocaleString('es-CO', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
-    // Cuándo sale de verdad (la franja de avisos de la Ley 2300 puede correr la hora programada), cuándo salió y cuándo llega el informe
-    const cuando = (c) => (c.salio_en ? `salió ${fechaCorta(c.salio_en)}${c.informe_hacia ? ` · informe por correo ${fechaCorta(c.informe_hacia)}` : ''}`
+    // Cuándo sale de verdad (la franja de avisos de la Ley 2300 puede correr la hora programada) o cuándo salió
+    const cuando = (c) => (c.salio_en ? `salió ${fechaCorta(c.salio_en)}`
       : c.sale_desde ? `sale ${fechaCorta(c.sale_desde)}` : `programada para ${fechaCorta(c.programada_para)}`);
     async function refrescarCampanas() {
       try {
