@@ -33,6 +33,8 @@ RUN set -e; \
     done; \
     cp /app/custom_storage/custom.css /app/public/custom.css; \
     cp /app/custom_storage/vueapp.html.erb /app/app/views/layouts/vueapp.html.erb; \
+    mkdir -p /app/app/controllers/concerns; \
+    cp /app/custom_storage/instagram_concern.rb /app/app/controllers/concerns/instagram_concern.rb; \
     mkdir -p /app/app/views/super_admin/application /app/app/views/super_admin/devise/sessions /app/app/views/super_admin/instance_statuses /app/app/controllers/super_admin; \
     cp /app/custom_storage/_navigation.html.erb /app/app/views/super_admin/application/_navigation.html.erb; \
     cp /app/custom_storage/instance_status_show.html.erb /app/app/views/super_admin/instance_statuses/show.html.erb; \
