@@ -28,6 +28,9 @@ RUN set -e; \
     cp /app/custom_storage/sinhuellas_logo.png /app/public/favicon-512x512.png; \
     cp /app/custom_storage/sinhuellas_logo.png /app/public/apple-icon.png; \
     cp /app/custom_storage/sinhuellas_logo.png /app/public/apple-touch-icon.png; \
+    for f in /app/public/android-icon-*.png /app/public/apple-icon-*.png /app/public/ms-icon-*.png; do \
+      [ -f "$f" ] && cp /app/custom_storage/sinhuellas_logo.png "$f" || true; \
+    done; \
     cp /app/custom_storage/custom.css /app/public/custom.css; \
     cp /app/custom_storage/vueapp.html.erb /app/app/views/layouts/vueapp.html.erb; \
     mkdir -p /app/app/views/super_admin/application /app/app/views/super_admin/devise/sessions /app/app/views/super_admin/instance_statuses /app/app/controllers/super_admin; \
