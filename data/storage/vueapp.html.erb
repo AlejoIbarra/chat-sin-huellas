@@ -300,8 +300,30 @@
 
       // Botón «Enviar plantilla» en las conversaciones de WhatsApp: en la caja de respuesta y en el aviso de las 24 horas. Abre el lanzador para
       // esa conversación, con la vista previa fiel y el archivo de la carpeta, del computador o de un enlace, revisado antes de enviar.
+      // Canales informativos (21-nov, Luis): fuera de WhatsApp no se registran pagos, citas ni procesos (Meta no deja escribirle al cliente
+      // pasadas 24 horas y no se sabe su número), así que en esos chats las macros no se muestran y en su lugar va un aviso con la respuesta
+      // rápida que lleva al cliente al WhatsApp. Si una macro llega por otro camino (Ctrl+K), el asistente tampoco la ejecuta.
       (function() {
-        const deWhatsapp = {}; // conversación → true si es de una bandeja de WhatsApp
+        const canal = {}; // conversación → su canal («Channel::Whatsapp», «Channel::Instagram»…); null mientras se pregunta
+        const DE_CASOS = ['Channel::Whatsapp', 'Channel::Api'];
+        const RED = { 'Channel::FacebookPage': ['Facebook', 'whatsapp-facebook'], 'Channel::Instagram': ['Instagram', 'whatsapp-instagram'], 'Channel::Tiktok': ['TikTok', null], 'Channel::WebWidget': ['chat de la página web', null] };
+        // El bloque «Macros» del panel derecho (un AccordionItem de Chatwoot): en un canal informativo se ocultan su título y su lista y adentro
+        // queda el aviso, con las clases de ese mismo bloque. Lo que dibuja Chatwoot no se borra: solo se oculta y vuelve al cambiar de chat.
+        const AVISO = 'sh-canal-informativo m-0 rounded-lg outline outline-1 outline-n-weak bg-n-slate-2 py-2 px-4 text-n-slate-12';
+        function macrosSegunCanal(c) {
+          if (c === null) return; // todavía se está preguntando el canal
+          const titulo = [...document.querySelectorAll('h5')].find((h) => h.textContent.trim() === 'Macros');
+          const bloque = titulo && titulo.closest('button') && titulo.closest('button').parentElement;
+          if (!bloque) return;
+          const informativo = Boolean(c) && !DE_CASOS.includes(c);
+          let aviso = bloque.querySelector(':scope > .sh-canal-informativo');
+          for (const hijo of bloque.children) if (hijo !== aviso) hijo.style.display = informativo ? 'none' : '';
+          if (!informativo) { if (aviso) aviso.remove(); return; }
+          const [nombre, rapida] = RED[c] || ['este canal', null];
+          if (!aviso) { aviso = document.createElement('p'); aviso.className = AVISO; bloque.appendChild(aviso); }
+          const texto = `Canal informativo (${nombre}): aquí no se registran pagos, citas ni procesos, así que no hay macros. Para eso, envíe ${rapida ? '/' + rapida : 'la respuesta rápida /whatsapp de su red'}: con un toque el cliente sigue por WhatsApp.`;
+          if (aviso.textContent !== texto) aviso.textContent = texto;
+        }
         const actual = () => window.location.pathname.match(/\/accounts\/(\d+)\/(?:.*\/)?conversations\/(\d+)/);
         const abrir = () => { const m = actual(); if (m) window.shAbrirLanzador('&conv=' + m[2]); };
         // Las clases de Tailwind de los botones de Chatwoot: el de marca en la caja de respuesta (en el celular solo el ícono, para no empujar
@@ -324,15 +346,16 @@
         function revisar() {
           const m = actual();
           const conv = m && m[2];
-          if (conv && !(conv in deWhatsapp)) {
-            deWhatsapp[conv] = null;
+          if (conv && !(conv in canal)) {
+            canal[conv] = null;
             let s = {};
             try { s = JSON.parse(decodeURIComponent((document.cookie.match(/cw_d_session_info=([^;]+)/) || [])[1] || '{}')); } catch (e) { /* sin sesión */ }
             fetch('/api/v1/accounts/' + m[1] + '/conversations/' + conv, { headers: { 'access-token': s['access-token'] || '', client: s.client || '', uid: s.uid || '' } })
-              .then((r) => r.json()).then((c) => { deWhatsapp[conv] = (c.meta && c.meta.channel) === 'Channel::Whatsapp'; })
-              .catch(() => { delete deWhatsapp[conv]; });
+              .then((r) => r.json()).then((c) => { canal[conv] = (c.meta && c.meta.channel) || ''; })
+              .catch(() => { delete canal[conv]; });
           }
-          if (!conv || !deWhatsapp[conv]) { document.querySelectorAll('.sh-plantilla').forEach((b) => b.remove()); return; }
+          macrosSegunCanal(conv ? canal[conv] : '');
+          if (!conv || canal[conv] !== 'Channel::Whatsapp') { document.querySelectorAll('.sh-plantilla').forEach((b) => b.remove()); return; }
           const barra = document.querySelector('.reply-box .left-wrap');
           if (barra && !barra.querySelector('.sh-plantilla')) barra.appendChild(boton(false));
           const aviso = [...document.querySelectorAll('.woot-banner')].find((x) => /24/.test(x.textContent));
