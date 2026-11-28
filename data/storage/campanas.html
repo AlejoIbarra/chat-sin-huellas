@@ -520,12 +520,84 @@
           + `<p class="text-xs text-n-slate-11">${ESTADOS[c.estado] || c.estado} · ${cuando(c)}</p><p class="text-xs text-n-slate-11">${texto(c.plantilla)}</p></div>`
           + `${['programada', 'enviando'].includes(c.estado) ? `<button type="button" class="cancelar ${CLASE.botonChico}" data-id="${c.id}">Cancelar</button>` : ''}</div>`
           + `<div class="grid grid-cols-4 gap-2 text-center">${cifra('Números', c.total)}${cifra('Enviados', c.enviados)}${cifra('Entregados', c.entregados)}${cifra('Leídos', c.leidos)}`
-          + `${cifra('Respondieron', c.respuestas)}${cifra('Baja', c.bajas)}${cifra('Error', c.fallidos)}</div></article>`).join('')
+          + `${cifra('Respondieron', c.respuestas)}${cifra('Baja', c.bajas)}${cifra('No llegaron', c.fallidos)}</div>${bloqueNoLlegaron(c)}</article>`).join('')
           || '<p class="py-3 text-sm text-n-slate-11">Todavía no hay campañas.</p>';
         document.querySelectorAll('.cancelar').forEach((b) => b.addEventListener('click', async () => { try { await bot({ accion: 'cancelar', id: Number(b.dataset.id) }); } catch (e) { error(e.message); } refrescarCampanas(); }));
       } catch (e) { error(e.message); }
     }
     $('refrescar').addEventListener('click', refrescarCampanas);
+
+    // ───────── Los que no llegaron (27-nov): agrupados por la causa que dijo Meta, a quiénes y reintentar ─────────
+    const SUGERENCIA = {
+      en_dias: (g) => `Se puede reintentar en unos días (sugerido: ${g.dias} ${g.dias === 1 ? 'día' : 'días'}).`,
+      al_arreglar: () => 'Se puede reintentar después de arreglarlo.',
+      a_criterio: () => 'Meta no dice si sirve reintentar: queda a su criterio.',
+      no: () => 'No se reintenta.',
+    };
+    const enmascarado = (t) => `…${String(t).slice(-4)}`;
+    const fechaLocal = (d) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    // la fecha sugerida, a las 9:00 (el asistente igual espera la franja de promociones); sin sugerencia, vacía (= ahora)
+    function sugerida(g) {
+      if (g.reintento !== 'en_dias') return '';
+      const d = new Date(); d.setDate(d.getDate() + (g.dias || 1)); d.setHours(9, 0, 0, 0);
+      return fechaLocal(d);
+    }
+    const panelReintento = (c, g, id) => `<div id="r-${id}" class="hidden grid gap-2 p-3 rounded-lg bg-n-solid-1 outline outline-1 outline-n-weak">`
+      + `<label class="${CLASE.etiqueta}" for="f-${id}">Cuándo (vacío = ahora; sale en el horario de promociones)</label>`
+      + `<input type="datetime-local" id="f-${id}" class="${CLASE.campo}" value="${sugerida(g)}">`
+      + `<label class="flex items-start gap-2 cursor-pointer"><input type="checkbox" id="a-${id}" class="size-4 mt-0.5 shrink-0 accent-n-blue-9"> Es una campaña nueva para ${g.n === 1 ? "este número" : `estos ${g.n} números`}: el bufete es responsable de contar con su autorización para recibir publicidad (Ley 1581 de 2012)</label>`
+      + `<button type="button" class="reintentar ${CLASE.botonChico} justify-self-start" data-id="${c.id}" data-clave="${texto(g.clave)}" data-panel="${id}">Confirmar el reintento</button>`
+      + `<p id="m-${id}" class="text-xs" role="status" aria-live="polite"></p></div>`;
+    function bloqueNoLlegaron(c) {
+      if (!c.no_llegaron?.length) return '';
+      const grupos = c.no_llegaron.map((g, i) => {
+        const id = `${c.id}-${i}`;
+        const reintentable = g.reintento !== 'no' && !g.reintento_en;
+        return `<li class="grid gap-2 min-w-0"><p class="break-words"><span class="font-semibold">${g.n}</span> — ${texto(g.razon.charAt(0).toUpperCase() + g.razon.slice(1))}. `
+          + `<span class="text-n-slate-11">${g.reintento_en ? `Se reintentó en la campaña ${g.reintento_en}.` : SUGERENCIA[g.reintento](g)}</span></p>`
+          + `<div class="flex flex-wrap gap-2"><button type="button" class="ver-numeros ${CLASE.botonChico}" data-id="${c.id}" data-clave="${texto(g.clave)}" data-lista="n-${id}">Ver a quiénes</button>`
+          + `${reintentable ? `<button type="button" class="abrir-reintento ${CLASE.botonChico}" data-panel="r-${id}">Programar reintento</button>` : ''}</div>`
+          + `<div id="n-${id}" class="hidden grid gap-1 text-xs"></div>${reintentable ? panelReintento(c, g, id) : ''}</li>`;
+      }).join('');
+      return `<div class="grid gap-2 p-3 rounded-lg bg-n-alpha-1 text-sm"><p class="font-medium">No llegaron: ${c.fallidos}</p><ul class="grid gap-3">${grupos}</ul></div>`;
+    }
+    // a quiénes: su número (los últimos 4) con el enlace a su conversación, y copiar todos (para volver a subirlos si hace falta)
+    async function verNumeros(b) {
+      const lista = $(b.dataset.lista);
+      if (lista.dataset.cargada) { mostrar(b.dataset.lista, !visible(b.dataset.lista)); return; }
+      const r = await bot({ accion: 'estado', id: Number(b.dataset.id) });
+      const g = (r.campanas[0]?.no_llegaron || []).find((x) => x.clave === b.dataset.clave);
+      const contactos = g?.contactos || [];
+      const enlace = (x) => (x.conversation_id
+        ? `<a class="underline" href="${location.origin}/app/accounts/${CUENTA}/conversations/${x.conversation_id}" target="_blank" rel="noopener">${enmascarado(x.telefono_e164)}</a>`
+        : enmascarado(x.telefono_e164));
+      lista.innerHTML = `<p class="flex flex-wrap gap-x-3 gap-y-1">${contactos.map(enlace).join('')}</p>`
+        + `<button type="button" class="copiar ${CLASE.botonChico} justify-self-start" data-numeros="${texto(contactos.map((x) => x.telefono_e164).join('\n'))}">${contactos.length === 1 ? "Copiar el número" : `Copiar los ${contactos.length} números`}</button>`;
+      lista.dataset.cargada = '1';
+      mostrar(b.dataset.lista, true);
+    }
+    async function copiar(b) {
+      try { await navigator.clipboard.writeText(b.dataset.numeros); b.textContent = 'Copiados'; } catch (e) { b.textContent = 'No se pudo copiar: selecciónelos de la lista'; }
+    }
+    async function programarReintento(b) {
+      const id = b.dataset.panel;
+      if (!$(`a-${id}`).checked) { $(`m-${id}`).textContent = 'Marque el aviso de responsabilidad para programarlo.'; return; }
+      const fecha = $(`f-${id}`).value;
+      b.disabled = true;
+      try {
+        const r = await bot({ accion: 'reintentar', id: Number(b.dataset.id), clave: b.dataset.clave, programada_para: fecha ? new Date(fecha).toISOString() : null, acepto_aviso: true });
+        $(`m-${id}`).textContent = `Listo: reintento para ${r.campana.destinos === 1 ? "1 número" : `${r.campana.destinos} números`} (costo estimado USD ${r.campana.costo_estimado_usd}).`;
+        setTimeout(refrescarCampanas, 1500);
+      } catch (e) { $(`m-${id}`).textContent = e.message; b.disabled = false; }
+    }
+    $('campanas').addEventListener('click', (e) => {
+      const b = e.target.closest('button');
+      if (!b) return;
+      if (b.classList.contains('abrir-reintento')) mostrar(b.dataset.panel, !visible(b.dataset.panel));
+      else if (b.classList.contains('ver-numeros')) verNumeros(b).catch((err) => error(err.message));
+      else if (b.classList.contains('reintentar')) programarReintento(b);
+      else if (b.classList.contains('copiar')) copiar(b);
+    });
 
     $('ejemplo').addEventListener('click', (e) => {
       e.preventDefault();
